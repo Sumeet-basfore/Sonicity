@@ -5311,7 +5311,9 @@ Oh cigarette daydreams..."></textarea>
       tracks.forEach(t => {
         const isActive = currentStudioTrack && currentStudioTrack.id === t.id;
         const isHiRes = t.bit_depth >= 24 || t.sample_rate >= 96000;
-        const specsText = `${t.bit_depth ? t.bit_depth + '-BIT' : ''} ${t.sample_rate_khz ? t.sample_rate_khz + 'k' : ''} ${t.format.toUpperCase()}`.trim();
+        const fmt = (t.format || (t.filename ? t.filename.split('.').pop() : 'FLAC')).toUpperCase();
+        const srKhz = t.sample_rate_khz || (t.sample_rate ? (t.sample_rate / 1000).toFixed(1) : '44.1');
+        const specsText = `${t.bit_depth ? t.bit_depth + '-BIT' : ''} ${srKhz}k ${fmt}`.trim();
         const lyricsBadge = t.has_synced_lyrics ? `<span class="spec-pill synced">${(t.lyrics_status || 'LRC').toUpperCase()}</span>` : `<span class="spec-pill missing">NO SYNC</span>`;
 
         html += `
@@ -5562,7 +5564,9 @@ Oh cigarette daydreams..."></textarea>
               if (data.hardware_dac && data.hardware_dac.active) {
                 const hwSpecs = document.getElementById('studioHwParamsSpecs');
                 if (hwSpecs) {
-                  hwSpecs.innerText = `DIRECT PCM: ${data.hardware_dac.format} // ${data.hardware_dac.rate} HZ // STEREO`;
+                  const fmt = data.hardware_dac.hardware_format || 'S32_LE';
+                  const rate = data.hardware_dac.hardware_rate_hz || 48000;
+                  hwSpecs.innerText = `DIRECT PCM: ${fmt} // ${rate.toLocaleString()} HZ // ZERO RESAMPLING`;
                 }
               }
 
