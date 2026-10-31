@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from transcriber import WhisperManager, format_timestamp
@@ -57,6 +58,11 @@ from lyrics_resolver import (
 from separator import separate_audio_stems, STEMS_DIR
 from downloader import download_audio_from_url
 
+from library.scanner import scan_music_directory, get_track_by_id, load_track_lyrics_data, DEFAULT_MUSIC_DIR
+from player.dac_detector import list_alsa_playback_devices, verify_live_hardware_params
+from player.dac_engine import dac_player
+from workers.background_aligner import enqueue_track_for_alignment, get_job_status
+
 BASE_DIR = Path(__file__).resolve().parent
 UPLOAD_DIR = BASE_DIR / "uploads"
 PROTOTYPES_DIR = BASE_DIR / "prototypes"
@@ -74,6 +80,10 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+STATIC_DIR = BASE_DIR / "static"
+STATIC_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 
 # Startup pre-warm in background thread so server starts instantly
 @app.on_event("startup")
@@ -1067,6 +1077,167 @@ async def websocket_dictate_endpoint(websocket: WebSocket):
         print("⚡ [WS DICTATE] Client disconnected gracefully.")
     except Exception as e:
         print(f"❌ [WS DICTATE] Error: {e}")
+
+
+# =====================================================================
+# 🎛️ AUDIOPHILE HIGH-RES MUSIC PLAYER & LIBRARY ENGINE
+# =====================================================================
+
+class PlaybackRequest(BaseModel):
+    track_id: str
+    mode: str = "dac_direct"  # "dac_direct" or "browser_stream"
+    alsa_device: Optional[str] = None
+
+class SeekRequest(BaseModel):
+    seconds: float
+
+class SwapLyricsRequest(BaseModel):
+    track_id: str
+    lyrics_content: str
+    format: str = "lrc"
+
+class SwapAudioRequest(BaseModel):
+    track_id: str
+    new_filepath: str
+
+@app.get("/api/library/scan")
+async def scan_library_endpoint(dir: Optional[str] = None):
+    """Scan local music directory (defaults to /home/sumeet/Music/mpd)."""
+    target_dir = dir if dir else DEFAULT_MUSIC_DIR
+    tracks = scan_music_directory(target_dir)
+    return {
+        "status": "success",
+        "directory": target_dir,
+        "count": len(tracks),
+        "tracks": tracks
+    }
+
+@app.get("/api/library/track/{track_id}/lyrics")
+async def get_track_lyrics_endpoint(track_id: str):
+    """Get parsed lyrics data for a library track."""
+    track = get_track_by_id(track_id)
+    if not track:
+        raise HTTPException(status_code=404, detail="Track not found in library index")
+    lyrics_data = load_track_lyrics_data(track)
+    return {
+        "status": "success",
+        "track_id": track_id,
+        "lyrics_status": track.get("lyrics_status"),
+        "lyrics": lyrics_data
+    }
+
+@app.post("/api/library/track/{track_id}/auto_compile")
+async def auto_compile_lyrics_endpoint(track_id: str):
+    """Enqueue track for asynchronous background CUDA syllable alignment."""
+    track = get_track_by_id(track_id)
+    if not track:
+        raise HTTPException(status_code=404, detail="Track not found in library index")
+    job_id = enqueue_track_for_alignment(track)
+    return {
+        "status": "success",
+        "track_id": track_id,
+        "job_id": job_id,
+        "message": f"Compilation enqueued in background for {track['title']}"
+    }
+
+@app.get("/api/library/worker/status/{track_id}")
+async def worker_status_endpoint(track_id: str):
+    """Check status of background syllable compiler worker."""
+    status = get_job_status(track_id)
+    return {
+        "status": "success",
+        "job": status
+    }
+
+@app.get("/api/library/stream/{track_id}")
+async def stream_library_track(track_id: str):
+    """Stream lossless audio file from library with Range header support."""
+    track = get_track_by_id(track_id)
+    if not track or not os.path.exists(track["filepath"]):
+        raise HTTPException(status_code=404, detail="Track file not found on disk")
+    filepath = Path(track["filepath"])
+    media_type = "audio/flac" if filepath.suffix.lower() == ".flac" else "audio/mpeg"
+    return FileResponse(str(filepath), media_type=media_type)
+
+@app.get("/api/audiophile/dacs")
+async def get_dacs_endpoint():
+    """Enumerate hardware ALSA sound cards with Audiocular D07 highlighted."""
+    devices = list_alsa_playback_devices()
+    return {
+        "status": "success",
+        "devices": devices,
+        "recommended_device": devices[0]["alsa_target"] if devices else "default"
+    }
+
+@app.get("/api/audiophile/status")
+async def get_audiophile_status():
+    """Return live DAC hardware parameters and player status."""
+    player_state = dac_player.get_playback_state()
+    hw_params = verify_live_hardware_params(card_num=2, dev_num=0)
+    return {
+        "status": "success",
+        "player": player_state,
+        "hardware_dac": hw_params
+    }
+
+@app.post("/api/audiophile/play")
+async def play_audiophile_track(req: PlaybackRequest):
+    """Start bit-perfect hardware playback or stream mode."""
+    track = get_track_by_id(req.track_id)
+    if not track:
+        raise HTTPException(status_code=404, detail="Track not found")
+
+    dac_player.engine_mode = req.mode
+    if req.alsa_device:
+        dac_player.set_target_device(req.alsa_device)
+
+    if req.mode == "dac_direct":
+        ok = dac_player.play(track["filepath"], track_meta=track)
+        if not ok:
+            raise HTTPException(status_code=500, detail="Failed to initialize bit-perfect DAC playback")
+    
+    return {
+        "status": "success",
+        "mode": req.mode,
+        "track": track,
+        "stream_url": f"/api/library/stream/{track['id']}" if req.mode == "browser_stream" else None,
+        "player": dac_player.get_playback_state()
+    }
+
+@app.post("/api/audiophile/pause")
+async def pause_audiophile():
+    dac_player.pause()
+    return {"status": "success", "player": dac_player.get_playback_state()}
+
+@app.post("/api/audiophile/resume")
+async def resume_audiophile():
+    dac_player.resume()
+    return {"status": "success", "player": dac_player.get_playback_state()}
+
+@app.post("/api/audiophile/seek")
+async def seek_audiophile(req: SeekRequest):
+    dac_player.seek(req.seconds)
+    return {"status": "success", "player": dac_player.get_playback_state()}
+
+@app.post("/api/audiophile/swap_lyrics")
+async def swap_lyrics_endpoint(req: SwapLyricsRequest):
+    """Attach user-provided lyrics (.lrc/.ttml) directly alongside the audio file."""
+    track = get_track_by_id(req.track_id)
+    if not track:
+        raise HTTPException(status_code=404, detail="Track not found")
+    audio_path = Path(track["filepath"])
+    ext = f".{req.format}"
+    lyrics_path = audio_path.with_suffix(ext)
+    with open(lyrics_path, "w", encoding="utf-8") as f:
+        f.write(req.lyrics_content)
+    track["lyrics_status"] = req.format
+    track["lyrics_path"] = str(lyrics_path)
+    track["has_synced_lyrics"] = req.format in ("ttml", "elrc", "lrc")
+    return {
+        "status": "success",
+        "message": f"Saved {ext} alongside audio at {lyrics_path}",
+        "track": track
+    }
 
 
 if __name__ == "__main__":

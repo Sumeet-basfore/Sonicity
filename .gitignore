@@ -19,6 +19,12 @@ uploads/*
 uploads/stems/*
 !uploads/stems/.gitkeep
 
+# Library Database & Cover Art Cache
+library.db
+static/covers/*
+!static/covers/.gitkeep
+!static/covers/placeholder.*
+
 # IDE & OS Artifacts
 .DS_Store
 Thumbs.db

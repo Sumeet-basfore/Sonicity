@@ -956,6 +956,582 @@
     .lyrics-stage.is-fullscreen .lyrics-fullscreen-dock {
       display: flex;
     }
+
+    /* =====================================================================
+       TAB 6: HI-RES AUDIOPHILE MUSIC STUDIO & 3-PANE HYBRID CHASSIS
+       ===================================================================== */
+    .studio-chassis {
+      display: grid;
+      grid-template-columns: 310px 1fr 370px;
+      min-height: 660px;
+      height: calc(100vh - 210px);
+      max-height: 880px;
+      background: #07090F;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-hard);
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* PANE 1: FLAC/DSD LIBRARY ARCHIVE */
+    .studio-library-pane {
+      background: #0C1017;
+      border-right: 3px solid var(--ink);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .studio-pane-header {
+      padding: 10px 14px;
+      border-bottom: 2.5px solid var(--ink);
+      background: #141B24;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .studio-search-bar {
+      padding: 8px 12px;
+      background: #0E131C;
+      border-bottom: 2px solid var(--ink);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .studio-search-input {
+      width: 100%;
+      background: #05070B;
+      color: #FFF;
+      border: 1.5px solid #333;
+      padding: 6px 10px;
+      font-size: 11px;
+      font-family: inherit;
+      outline: none;
+    }
+    .studio-search-input:focus {
+      border-color: #00E5FF;
+    }
+    .studio-filter-row {
+      display: flex;
+      gap: 4px;
+      overflow-x: auto;
+      padding-bottom: 2px;
+    }
+    .studio-filter-pill {
+      font-size: 8.5px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border: 1.5px solid var(--ink);
+      background: #1B222D;
+      color: #AAA;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .studio-filter-pill:hover, .studio-filter-pill.active {
+      background: #00E5FF;
+      color: #000;
+      border-color: #00E5FF;
+    }
+    .studio-track-list {
+      flex: 1;
+      overflow-y: auto;
+      background: #07090E;
+    }
+    .studio-track-card {
+      padding: 8px 12px;
+      border-bottom: 1px solid #1A202C;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      transition: background 0.15s, border-left 0.15s;
+      border-left: 3px solid transparent;
+    }
+    .studio-track-card:hover {
+      background: #121824;
+    }
+    .studio-track-card.active {
+      background: #151E2E;
+      border-left: 3px solid #00E5FF;
+    }
+    .studio-thumb {
+      width: 38px;
+      height: 38px;
+      border: 1.5px solid var(--ink);
+      object-fit: cover;
+      background: #1B222D;
+      flex-shrink: 0;
+    }
+    .studio-track-meta {
+      flex: 1;
+      min-width: 0;
+    }
+    .studio-track-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #FFF;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .studio-track-card.active .studio-track-title {
+      color: #00E5FF;
+    }
+    .studio-track-artist {
+      font-size: 10px;
+      color: #888;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      margin-top: 1px;
+    }
+    .studio-track-badges {
+      display: flex;
+      gap: 4px;
+      align-items: center;
+      margin-top: 3px;
+    }
+    .spec-pill {
+      font-size: 7.5px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 1px 4px;
+      border: 1px solid #333;
+      border-radius: 2px;
+    }
+    .spec-pill.hi-res {
+      background: rgba(0, 229, 255, 0.15);
+      color: #00E5FF;
+      border-color: #00E5FF;
+    }
+    .spec-pill.synced {
+      background: rgba(0, 229, 117, 0.15);
+      color: #00E575;
+      border-color: #00E575;
+    }
+    .spec-pill.missing {
+      background: rgba(255, 107, 0, 0.15);
+      color: #FF8A00;
+      border-color: #FF8A00;
+    }
+
+    /* PANE 2: CENTER DECK & COVER ART STAGE */
+    .studio-deck-pane {
+      background: radial-gradient(circle at 50% 25%, #182233 0%, #080B12 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      overflow: hidden;
+      position: relative;
+    }
+    .studio-stage-switcher {
+      display: flex;
+      gap: 4px;
+      background: rgba(0, 0, 0, 0.6);
+      border: 2px solid var(--ink);
+      padding: 3px;
+      z-index: 5;
+    }
+    .studio-stage-btn {
+      font-size: 9px;
+      font-weight: 800;
+      padding: 4px 10px;
+      background: transparent;
+      color: #888;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .studio-stage-btn.active {
+      background: #FFF;
+      color: #000;
+      box-shadow: 2px 2px 0px var(--ink);
+    }
+
+    /* VINYL STAGE & REVOLVING MECHANISM */
+    .studio-vinyl-box {
+      position: relative;
+      width: 250px;
+      height: 250px;
+      margin: 10px auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      perspective: 900px;
+    }
+    .vinyl-record {
+      width: 230px;
+      height: 230px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #0a0a0a 0%, #151515 25%, #050505 50%, #181818 75%, #080808 100%);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.8), inset 0 0 0 2px #333, inset 0 0 0 6px #111, inset 0 0 0 12px #222, inset 0 0 0 18px #111;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: spinVinyl 2.4s linear infinite;
+      animation-play-state: paused;
+      transition: filter 0.3s;
+    }
+    .vinyl-record.is-playing {
+      animation-play-state: running;
+    }
+    @keyframes spinVinyl {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .vinyl-record::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, transparent 40%, rgba(255,255,255,0.08) 60%, transparent 100%);
+      pointer-events: none;
+    }
+    .vinyl-center-label {
+      width: 86px;
+      height: 86px;
+      border-radius: 50%;
+      border: 3px solid #111;
+      box-shadow: 0 0 10px rgba(0,0,0,0.8);
+      position: relative;
+      overflow: hidden;
+      background: #000;
+      z-index: 2;
+    }
+    .vinyl-center-label img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .vinyl-spindle-hole {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: #B0B0B0;
+      border: 2px solid #222;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 3;
+      box-shadow: inset 0 0 3px #000;
+    }
+
+    /* MECHANICAL TONE ARM */
+    .studio-tonearm {
+      position: absolute;
+      top: -10px;
+      right: 0px;
+      width: 80px;
+      height: 160px;
+      transform-origin: 65px 25px;
+      transform: rotate(0deg);
+      transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 8;
+      pointer-events: none;
+    }
+    .studio-tonearm.on-record {
+      transform: rotate(26deg);
+    }
+    .tonearm-pivot {
+      position: absolute;
+      top: 15px;
+      right: 5px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #BBB 0%, #444 80%);
+      border: 2px solid #222;
+      box-shadow: 2px 2px 6px rgba(0,0,0,0.7);
+    }
+    .tonearm-rod {
+      position: absolute;
+      top: 25px;
+      right: 14px;
+      width: 4px;
+      height: 110px;
+      background: linear-gradient(to right, #DDD, #888, #444);
+      border-radius: 2px;
+      transform: rotate(-8deg);
+      transform-origin: top center;
+    }
+    .tonearm-head {
+      position: absolute;
+      bottom: 20px;
+      left: 20px;
+      width: 14px;
+      height: 24px;
+      background: #111;
+      border: 1.5px solid #666;
+      border-radius: 2px;
+      transform: rotate(18deg);
+      box-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .tonearm-cartridge-light {
+      position: absolute;
+      bottom: 2px;
+      left: 3px;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: #00E5FF;
+      box-shadow: 0 0 6px #00E5FF;
+    }
+
+    /* CD JEWEL CASE STAGE */
+    .studio-cd-box {
+      position: relative;
+      width: 230px;
+      height: 230px;
+      margin: 10px auto;
+      perspective: 800px;
+      display: none;
+    }
+    .cd-case {
+      width: 210px;
+      height: 210px;
+      position: relative;
+      background: rgba(255,255,255,0.04);
+      border: 2px solid rgba(255,255,255,0.25);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.8), inset 0 0 0 1px rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .cd-spine {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 14px;
+      background: #0e0e0e;
+      border-right: 1.5px solid #333;
+    }
+    .cd-cover-art {
+      width: 180px;
+      height: 180px;
+      object-fit: cover;
+      border: 1px solid #222;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.6);
+      margin-left: 10px;
+    }
+    .cd-disc-slide {
+      position: absolute;
+      top: 15px;
+      left: 90px;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #eee 0%, #ccc 20%, #888 40%, #bbb 60%, #eee 100%);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
+      transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      animation: spinVinyl 3.0s linear infinite;
+      animation-play-state: paused;
+    }
+    .cd-case:hover .cd-disc-slide, .cd-disc-slide.is-playing {
+      transform: translateX(45px);
+      animation-play-state: running;
+    }
+    .cd-disc-center {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.8);
+      border: 2px solid #aaa;
+      box-shadow: inset 0 0 4px #000;
+    }
+
+    /* AUDIOPHILE HARDWARE HUD */
+    .studio-hw-hud {
+      width: 100%;
+      max-width: 480px;
+      background: rgba(10, 14, 22, 0.88);
+      border: 2px solid var(--ink);
+      box-shadow: 3px 3px 0px var(--ink);
+      padding: 8px 12px;
+      margin: 8px 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .hud-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .hud-device-select {
+      background: #06080C;
+      color: #00E5FF;
+      border: 1.5px solid #2B3A4F;
+      padding: 3px 6px;
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      outline: none;
+      cursor: pointer;
+      max-width: 250px;
+    }
+    .hud-bitperfect-pulse {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #00E575;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #00E575;
+      box-shadow: 0 0 8px #00E575;
+      animation: ledPulse 1.4s ease-in-out infinite;
+    }
+    @keyframes ledPulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+    .hud-specs-readout {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      color: #8A99AD;
+      border-top: 1px solid #1E2838;
+      padding-top: 4px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* TRANSPORT CHASSIS */
+    .studio-transport-deck {
+      width: 100%;
+      max-width: 480px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .studio-scrub-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #FFF;
+    }
+    .studio-range-slider {
+      flex: 1;
+      accent-color: #00E5FF;
+      height: 6px;
+      cursor: pointer;
+    }
+    .studio-controls-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .studio-main-btn {
+      background: #00E5FF;
+      color: #000;
+      font-size: 11px;
+      font-weight: 900;
+      padding: 8px 18px;
+      border: 2px solid var(--ink);
+      box-shadow: 3px 3px 0px var(--ink);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s;
+    }
+    .studio-main-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px var(--ink);
+    }
+
+    /* PANE 3: 3D DYNAMIC AURORA & SYNCED LYRICS VIEWPORT */
+    .studio-lyrics-pane {
+      position: relative;
+      background: #05070B;
+      border-left: 3px solid var(--ink);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .studio-lyrics-canvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.65;
+    }
+    .studio-lyrics-blur {
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(48px);
+      background: rgba(5, 7, 11, 0.45);
+      z-index: 1;
+      pointer-events: none;
+    }
+    .studio-lyrics-header {
+      position: relative;
+      z-index: 3;
+      padding: 10px 14px;
+      border-bottom: 2px solid var(--ink);
+      background: rgba(14, 20, 29, 0.7);
+      backdrop-filter: blur(10px);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .studio-lyrics-viewport {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      overflow-y: auto;
+      padding: 60px 16px 120px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      scroll-behavior: smooth;
+    }
+    .studio-lyrics-footer {
+      position: relative;
+      z-index: 3;
+      padding: 6px 12px;
+      background: rgba(10, 14, 22, 0.85);
+      border-top: 2px solid var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5px;
+      color: #7A8C9E;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* FULLSCREEN STUDIO LYRICS STAGE */
+    .studio-lyrics-pane.is-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      z-index: 999999 !important;
+      border: none !important;
+    }
+    .studio-lyrics-pane.is-fullscreen .studio-lyrics-viewport {
+      padding: 100px 15% 180px 15% !important;
+    }
+    .studio-lyrics-pane.is-fullscreen .lyric-line {
+      font-size: 26px !important;
+      margin-bottom: 12px !important;
     }
 
     @media (max-width: 1024px) {
@@ -1164,6 +1740,44 @@ Oh cigarette daydreams..."></textarea>
       <div class="modal-footer" style="justify-content: space-between;">
         <button class="btn-tactile" onclick="closePasteLyricsModal()">CANCEL</button>
         <button class="btn-tactile" style="background: var(--toxic-green); color: #000;" id="pasteAlignBtn" onclick="submitCustomLyricsAlignment()">⚡ FORCE-ALIGN TO AUDIO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUDIOPHILE STUDIO SWAP LYRICS MODAL -->
+  <div id="studioSwapLyricsModal" class="brutal-modal-backdrop" onclick="if(event.target===this) closeStudioSwapLyricsModal()">
+    <div class="brutal-modal-box" style="max-width: 680px;">
+      <div class="modal-header-bar" style="background: #FF2A85; color: #FFF;">
+        <span>[📝 SWAP OR ATTACH LYRICS // FLAC TRACK]</span>
+        <button class="toast-dismiss" onclick="closeStudioSwapLyricsModal()">✕</button>
+      </div>
+      <div class="modal-body-content" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="font-size: 11px; font-weight: 700; color: #444; line-height: 1.4;">
+          Paste or drop <code>.ttml</code>, <code>.elrc</code>, or <code>.lrc</code> formatted lyrics for this track. The lyrics file will be saved directly alongside the audio file with the exact same base name.
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <div style="flex: 1;">
+            <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">Format</label>
+            <select id="studioSwapFormatSelect" class="modal-input">
+              <option value="ttml">TTML (Per-Syllable Sync .ttml)</option>
+              <option value="lrc" selected>LRC (Standard Timestamp .lrc)</option>
+              <option value="elrc">ELRC (Enhanced Word Sync .elrc)</option>
+            </select>
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">Or Upload Local File</label>
+            <input type="file" id="studioSwapFileInput" class="modal-input" accept=".ttml,.lrc,.elrc,.txt" onchange="handleStudioSwapFile(event)">
+          </div>
+        </div>
+        <div>
+          <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">Lyrics Content</label>
+          <textarea id="studioSwapLyricsTextarea" class="modal-input" style="height: 200px; font-family: 'JetBrains Mono', monospace; font-size: 11px; resize: vertical;" placeholder="[00:12.34]First line of lyrics...
+[00:16.80]Second line of lyrics..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn-tactile" onclick="closeStudioSwapLyricsModal()">CANCEL</button>
+        <button class="btn-tactile" style="background: #FF2A85; color: #FFF; font-weight: 800;" id="studioSaveLyricsBtn" onclick="saveStudioSwappedLyrics()">💾 SAVE ALONGSIDE AUDIO</button>
       </div>
     </div>
   </div>
@@ -1495,6 +2109,10 @@ Oh cigarette daydreams..."></textarea>
             <span>05 // SYNCED LYRICS</span>
             <span class="tab-badge" style="background: #FF2A85; color: #FFF;">APPLE MUSIC</span>
           </button>
+          <button class="ind-tab" id="tabBtn6" onclick="switchTab(6)">
+            <span>06 // HI-RES STUDIO</span>
+            <span class="tab-badge" style="background: #00E5FF; color: #000; font-weight: 800;">BIT-PERFECT</span>
+          </button>
         </div>
 
         <!-- TAB PANEL CONTAINER -->
@@ -1689,6 +2307,166 @@ Oh cigarette daydreams..."></textarea>
             </div>
           </div>
 
+          <!-- TAB 6: HI-RES AUDIOPHILE MUSIC STUDIO & BIT-PERFECT PLAYBACK CHASSIS -->
+          <div id="tabPanel6" style="display: none;">
+            <div class="studio-chassis" id="studioChassis">
+
+              <!-- PANE 1: FLAC/DSD LIBRARY ARCHIVE -->
+              <div class="studio-library-pane">
+                <div class="studio-pane-header">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 13px;">📁</span>
+                    <span style="font-weight: 800; font-size: 11px; letter-spacing: -0.3px;">FLAC / DSD ARCHIVE</span>
+                  </div>
+                  <button class="btn-tactile" style="font-size: 8.5px; padding: 2px 7px; background: #00E5FF; color: #000;" onclick="rescanStudioLibrary()">⟳ RESCAN</button>
+                </div>
+                
+                <div class="studio-search-bar">
+                  <input type="text" id="studioSearchInput" class="studio-search-input" placeholder="🔍 Search library by title or artist..." oninput="filterStudioTracks()">
+                  <div class="studio-filter-row">
+                    <button class="studio-filter-pill active" onclick="setStudioFilter('all', this)">ALL</button>
+                    <button class="studio-filter-pill" onclick="setStudioFilter('24bit', this)">✨ 24-BIT+</button>
+                    <button class="studio-filter-pill" onclick="setStudioFilter('96khz', this)">🔊 96kHz+</button>
+                    <button class="studio-filter-pill" onclick="setStudioFilter('synced', this)">🎵 SYNCED</button>
+                    <button class="studio-filter-pill" onclick="setStudioFilter('needs_sync', this)">⚡ NEEDS SYNC</button>
+                  </div>
+                </div>
+
+                <div class="studio-track-list" id="studioTrackList">
+                  <div style="padding: 40px 16px; text-align: center; color: #888; font-size: 11px;">
+                    Scanning /home/sumeet/Music/mpd...
+                  </div>
+                </div>
+              </div>
+
+              <!-- PANE 2: CENTER DECK & COVER ART STAGE -->
+              <div class="studio-deck-pane">
+                <!-- Visual Stage Switcher -->
+                <div class="studio-stage-switcher">
+                  <button class="studio-stage-btn active" id="btnStageVinyl" onclick="setStudioStage('vinyl')">💿 REVOLVING VINYL</button>
+                  <button class="studio-stage-btn" id="btnStageCd" onclick="setStudioStage('cd')">💽 JEWEL CASE CD</button>
+                </div>
+
+                <!-- VINYL RECORD STAGE -->
+                <div class="studio-vinyl-box" id="studioVinylBox">
+                  <div class="vinyl-record" id="studioVinylDisc">
+                    <div class="vinyl-center-label" id="studioVinylLabel">
+                      <img id="studioVinylImg" src="/static/covers/placeholder.png" alt="Vinyl Cover" onerror="this.src='/static/covers/placeholder.png'">
+                    </div>
+                    <div class="vinyl-spindle-hole"></div>
+                  </div>
+                  <!-- Mechanical Tone Arm -->
+                  <div class="studio-tonearm" id="studioToneArm">
+                    <div class="tonearm-pivot"></div>
+                    <div class="tonearm-rod"></div>
+                    <div class="tonearm-head">
+                      <div class="tonearm-cartridge-light"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- CD JEWEL CASE STAGE -->
+                <div class="studio-cd-box" id="studioCdBox">
+                  <div class="cd-case">
+                    <div class="cd-spine"></div>
+                    <img id="studioCdImg" class="cd-cover-art" src="/static/covers/placeholder.png" alt="CD Cover" onerror="this.src='/static/covers/placeholder.png'">
+                    <div class="cd-disc-slide" id="studioCdDisc">
+                      <div class="cd-disc-center"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TRACK METADATA DISPLAY -->
+                <div style="text-align: center; margin-top: 6px; width: 100%; max-width: 480px;">
+                  <div id="studioDeckTitle" style="font-size: 19px; font-weight: 900; color: #FFF; letter-spacing: -0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">No Track Loaded</div>
+                  <div id="studioDeckArtist" style="font-size: 11px; font-weight: 700; color: #8A99AD; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Select track from left FLAC archive</div>
+                </div>
+
+                <!-- AUDIOPHILE HARDWARE HUD -->
+                <div class="studio-hw-hud">
+                  <div class="hud-header-row">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                      <span style="font-size: 9px; font-weight: 800; color: #888;">HARDWARE DAC:</span>
+                      <select id="studioDacSelect" class="hud-device-select" onchange="changeStudioDac(this.value)">
+                        <option value="alsa/hw:D07,0">Audiocular D07 (hw:D07,0) [RECOMMENDED]</option>
+                      </select>
+                    </div>
+                    <div class="hud-bitperfect-pulse" id="studioBitPerfectIndicator">
+                      <span class="pulse-dot"></span>
+                      <span id="studioBitPerfectText">BIT-PERFECT DIRECT</span>
+                    </div>
+                  </div>
+
+                  <div class="hud-specs-readout">
+                    <span id="studioHwParamsSpecs">S24_3LE // 96,000 HZ // ZERO RESAMPLING</span>
+                    <div style="display: flex; gap: 4px;">
+                      <button class="btn-tactile" id="btnModeDac" style="font-size: 8px; padding: 2px 6px; background: #00E5FF; color: #000; font-weight: 800;" onclick="setStudioEngineMode('dac_direct')">⚡ DAC DIRECT</button>
+                      <button class="btn-tactile" id="btnModeBrowser" style="font-size: 8px; padding: 2px 6px; background: #222; color: #FFF; font-weight: 800;" onclick="setStudioEngineMode('browser_stream')">🌐 WEB AUDIO</button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- TRANSPORT CONTROLS -->
+                <div class="studio-transport-deck">
+                  <div class="studio-scrub-bar">
+                    <span id="studioCurTime">00:00.00</span>
+                    <input type="range" id="studioProgressRange" class="studio-range-slider" min="0" max="100" value="0" oninput="seekStudioAudioFraction(this.value / 100)">
+                    <span id="studioTotalDur">00:00.00</span>
+                  </div>
+
+                  <div class="studio-controls-row">
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                      <button class="btn-tactile" style="font-size: 11px; padding: 7px 11px;" onclick="prevStudioTrack()">⏮</button>
+                      <button class="studio-main-btn" id="studioPlayPauseBtn" onclick="toggleStudioPlayback()">▶ PLAY [Space]</button>
+                      <button class="btn-tactile" style="font-size: 11px; padding: 7px 11px;" onclick="nextStudioTrack()">⏭</button>
+                    </div>
+                    <div style="display: flex; gap: 6px; align-items: center;">
+                      <button class="btn-tactile" id="studioAutoCompileBtn" style="font-size: 9px; padding: 6px 10px; background: #00E575; color: #000; font-weight: 800;" onclick="triggerStudioCompile()" title="Compile .ttml syllable sync in background with Whisper CUDA">⚡ COMPILE .TTML</button>
+                      <button class="btn-tactile" id="studioSwapLyricsBtn" style="font-size: 9px; padding: 6px 10px; background: #FF2A85; color: #FFF; font-weight: 800;" onclick="openStudioSwapLyricsModal()" title="Swap or edit lyrics (.lrc / .ttml)">📝 SWAP LYRICS</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- PANE 3: 3D DYNAMIC AURORA & SYNCED LYRICS VIEWPORT -->
+              <div class="studio-lyrics-pane" id="studioLyricsPane">
+                <!-- 3D Moving Aurora Canvas driven by album colors -->
+                <canvas id="studio3DAuroraCanvas" class="studio-lyrics-canvas"></canvas>
+                <div class="studio-lyrics-blur"></div>
+
+                <div class="studio-lyrics-header">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <span style="font-size: 13px;">🎵</span>
+                    <span id="studioLyricsFormatBadge" style="font-size: 8.5px; font-weight: 800; background: #00E5FF; color: #000; padding: 1px 5px;">LYRICS ENGINE</span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 4px;">
+                    <button class="btn-tactile" style="font-size: 8px; padding: 2px 5px; background: #FFF;" onclick="adjustStudioLyricsOffset(-0.25)" title="Shift lyrics -0.25s earlier (HotKey: [)">-0.25s</button>
+                    <span id="studioLyricsOffsetBadge" style="font-size: 8.5px; font-weight: 800; color: #00E5FF; padding: 0 4px; cursor: pointer; user-select: none;" onclick="resetStudioLyricsOffset()" title="Click to reset offset">OFFSET: 0.00s</span>
+                    <button class="btn-tactile" style="font-size: 8px; padding: 2px 5px; background: #FFF;" onclick="adjustStudioLyricsOffset(0.25)" title="Shift lyrics +0.25s later (HotKey: ])">+0.25s</button>
+                    <button class="btn-tactile" id="studioFsBtn" style="font-size: 8.5px; padding: 3px 8px; background: #FFCC00; color: #000; font-weight: 800;" onclick="toggleStudioFullscreen()">⤢ FULLSCREEN [F]</button>
+                  </div>
+                </div>
+
+                <!-- Lyrics Lines Container (Apple Music syllable glow) -->
+                <div class="studio-lyrics-viewport center-aligned" id="studioLyricsViewport">
+                  <div style="text-align: center; color: #888; padding: 80px 16px;">
+                    <div style="font-size: 32px; margin-bottom: 12px;">🎵</div>
+                    <div style="font-size: 14px; font-weight: 800; color: #FFF;">AUDIOPHILE SYNCED LYRICS</div>
+                    <div style="font-size: 10.5px; margin-top: 6px; color: #AAA; line-height: 1.5;">
+                      Select any track from your FLAC library on the left. Lyrics pair automatically from accompanying <code>.ttml</code>, <code>.elrc</code>, or <code>.lrc</code> files.
+                    </div>
+                  </div>
+                </div>
+
+                <div class="studio-lyrics-footer">
+                  <span id="studioLyricsFooterAcoustic">ACOUSTIC LOCK: ACTIVE // BIT-PERFECT</span>
+                  <span id="studioLyricsFooterFile">SOURCE: FLAC DIRECT</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
         </div>
 
         <!-- EXPORT DISPATCH BAR -->
@@ -1702,6 +2480,7 @@ Oh cigarette daydreams..."></textarea>
             <button class="btn-export" id="copyAgentBtn" style="font-size: 10px; padding: 5px 10px;" onclick="copyAgentEnglish()">📋 Copy English</button>
             <button class="btn-export" style="background: var(--electric-blue); color: #fff; font-size: 10px; padding: 5px 10px;" onclick="copyMarkdownWithTimestamps()">📋 MD + Time</button>
             <button class="btn-export" style="background: #FF2A85; color: #fff; font-size: 10px; padding: 5px 10px;" onclick="switchTab(5)">🎵 Lyrics</button>
+            <button class="btn-export" style="background: #00E5FF; color: #000; font-weight: 800; font-size: 10px; padding: 5px 10px;" onclick="switchTab(6)">🎛️ Hi-Res Studio</button>
             <button class="btn-export" style="background: var(--safety-orange); font-size: 10px; padding: 5px 10px;" onclick="burnSubtitlesVideo()">🎬 Burn MP4</button>
             <div style="display: inline-flex; border: 2px solid var(--ink); background: #FFF; box-shadow: 2px 2px 0px var(--ink);">
               <button class="btn-export" style="border: none; background: #FFF; color: #000; padding: 4px 7px; font-size: 9.5px; border-right: 1.5px solid var(--ink);" onclick="downloadArtifact('txt')">TXT</button>
@@ -1969,16 +2748,22 @@ Oh cigarette daydreams..."></textarea>
       document.getElementById('tabBtn3').classList.toggle('active', tabNum === 3);
       document.getElementById('tabBtn4').classList.toggle('active', tabNum === 4);
       document.getElementById('tabBtn5').classList.toggle('active', tabNum === 5);
+      const tabBtn6 = document.getElementById('tabBtn6');
+      if (tabBtn6) tabBtn6.classList.toggle('active', tabNum === 6);
 
       document.getElementById('tabPanel1').style.display = (tabNum === 1) ? 'block' : 'none';
       document.getElementById('tabPanel2').style.display = (tabNum === 2) ? 'block' : 'none';
       document.getElementById('tabPanel3').style.display = (tabNum === 3) ? 'block' : 'none';
       document.getElementById('tabPanel4').style.display = (tabNum === 4) ? 'block' : 'none';
       document.getElementById('tabPanel5').style.display = (tabNum === 5) ? 'block' : 'none';
+      const tabPanel6 = document.getElementById('tabPanel6');
+      if (tabPanel6) tabPanel6.style.display = (tabNum === 6) ? 'block' : 'none';
 
       if (tabNum === 5) {
         init3DFluidCanvas();
         setTimeout(resizeFluidCanvas, 40);
+      } else if (tabNum === 6) {
+        onStudioTabActive();
       }
     }
 
@@ -4397,6 +5182,823 @@ Oh cigarette daydreams..."></textarea>
         if (i === step) el.classList.add('active'); else el.classList.remove('active');
       }
     }
+
+    // =========================================================================
+    // 🎛️ TAB 6: HI-RES AUDIOPHILE MUSIC STUDIO & BIT-PERFECT PLAYBACK ENGINE
+    // =========================================================================
+    let studioTracks = [];
+    let studioFilteredTracks = [];
+    let currentStudioTrack = null;
+    let currentStudioIndex = -1;
+    let currentStudioStage = 'vinyl'; // 'vinyl' or 'cd'
+    let currentStudioEngine = 'dac_direct'; // 'dac_direct' or 'browser_stream'
+    let studioIsPlaying = false;
+    let studioTelemetryTimer = null;
+    let studioLyricsData = null;
+    let studioLyricsGlobalOffset = 0.0;
+    let studioActiveFilter = 'all';
+    let studioActiveLineEl = null;
+    let selectedStudioDac = 'alsa/hw:D07,0';
+
+    // 3D Aurora Canvas for Tab 6
+    let studioAuroraCanvas = null;
+    let studioAuroraCtx = null;
+    let studioAuroraAnimId = null;
+    let studioAuroraPhase = 0;
+    let studioAuroraPoles = [
+      { r: 0, g: 229, b: 255 },   // Cyan
+      { r: 255, g: 42, b: 133 },  // Magenta
+      { r: 123, g: 44, b: 191 },  // Purple
+      { r: 0, g: 229, b: 117 },   // Neon Green
+      { r: 255, g: 184, b: 0 }    // Amber
+    ];
+
+    function onStudioTabActive() {
+      initStudio3DAurora();
+      loadStudioDacs();
+      if (studioTracks.length === 0) {
+        rescanStudioLibrary();
+      }
+      startStudioTelemetry();
+    }
+
+    async function loadStudioDacs() {
+      try {
+        const res = await fetch('/api/audiophile/dacs');
+        const data = await res.json();
+        if (data.status === 'success' && data.devices) {
+          const select = document.getElementById('studioDacSelect');
+          if (!select) return;
+          select.innerHTML = '';
+          data.devices.forEach(d => {
+            const opt = document.createElement('option');
+            opt.value = d.alsa_target;
+            const recLabel = d.is_recommended ? ' [★ BIT-PERFECT RECOMMENDED]' : '';
+            opt.innerText = `${d.card_name} (${d.alsa_hw}) - Max ${d.max_sample_rate_khz}kHz / ${d.max_bits}bit${recLabel}`;
+            if (d.is_recommended) {
+              opt.selected = true;
+              selectedStudioDac = d.alsa_target;
+            }
+            select.appendChild(opt);
+          });
+        }
+      } catch (err) {
+        console.warn('Failed to query DACs:', err);
+      }
+    }
+
+    function changeStudioDac(val) {
+      selectedStudioDac = val;
+      showToast(`🎛️ DAC Output Target: ${val}`, 'info', 2000);
+      if (studioIsPlaying && currentStudioTrack) {
+        callStudioPlay(currentStudioTrack.id);
+      }
+    }
+
+    async function rescanStudioLibrary() {
+      const container = document.getElementById('studioTrackList');
+      if (container) {
+        container.innerHTML = `<div style="padding: 40px 16px; text-align: center; color: #00E5FF; font-size: 11px; font-weight: 800;">⟳ Indexing /home/sumeet/Music/mpd (Scanning 24/32-bit FLACs & Covers)...</div>`;
+      }
+      try {
+        const res = await fetch('/api/library/scan');
+        const data = await res.json();
+        if (data.status === 'success' && data.tracks) {
+          studioTracks = data.tracks;
+          filterStudioTracks();
+          showToast(`✓ Loaded ${data.count} high-res tracks from ${data.directory}`, 'success', 2500);
+          if (!currentStudioTrack && studioTracks.length > 0) {
+            selectStudioTrack(studioTracks[0].id, false);
+          }
+        }
+      } catch (err) {
+        showToast('Library scan error: ' + err.message, 'error');
+      }
+    }
+
+    function setStudioFilter(category, btnEl) {
+      studioActiveFilter = category;
+      document.querySelectorAll('.studio-filter-pill').forEach(b => b.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      filterStudioTracks();
+    }
+
+    function filterStudioTracks() {
+      const q = (document.getElementById('studioSearchInput')?.value || '').toLowerCase().trim();
+      studioFilteredTracks = studioTracks.filter(t => {
+        const matchesQuery = !q || (t.title && t.title.toLowerCase().includes(q)) || (t.artist && t.artist.toLowerCase().includes(q)) || (t.album && t.album.toLowerCase().includes(q));
+        if (!matchesQuery) return false;
+
+        if (studioActiveFilter === '24bit') return t.bit_depth >= 24;
+        if (studioActiveFilter === '96khz') return t.sample_rate >= 96000;
+        if (studioActiveFilter === 'synced') return t.has_synced_lyrics;
+        if (studioActiveFilter === 'needs_sync') return !t.has_synced_lyrics;
+        return true;
+      });
+      renderStudioTrackList(studioFilteredTracks);
+    }
+
+    function renderStudioTrackList(tracks) {
+      const container = document.getElementById('studioTrackList');
+      if (!container) return;
+
+      if (!tracks || tracks.length === 0) {
+        container.innerHTML = `<div style="padding: 40px 16px; text-align: center; color: #888; font-size: 11px;">No tracks found matching current filter.</div>`;
+        return;
+      }
+
+      let html = '';
+      tracks.forEach(t => {
+        const isActive = currentStudioTrack && currentStudioTrack.id === t.id;
+        const isHiRes = t.bit_depth >= 24 || t.sample_rate >= 96000;
+        const specsText = `${t.bit_depth ? t.bit_depth + '-BIT' : ''} ${t.sample_rate_khz ? t.sample_rate_khz + 'k' : ''} ${t.format.toUpperCase()}`.trim();
+        const lyricsBadge = t.has_synced_lyrics ? `<span class="spec-pill synced">${(t.lyrics_status || 'LRC').toUpperCase()}</span>` : `<span class="spec-pill missing">NO SYNC</span>`;
+
+        html += `
+          <div class="studio-track-card ${isActive ? 'active' : ''}" onclick="selectStudioTrack('${t.id}', true)">
+            <img class="studio-thumb" src="${t.cover_url || '/static/covers/placeholder.png'}" onerror="this.src='/static/covers/placeholder.png'" alt="Art">
+            <div class="studio-track-meta">
+              <div class="studio-track-title">${escapeHtml(t.title || 'Unknown Title')}</div>
+              <div class="studio-track-artist">${escapeHtml(t.artist || 'Unknown Artist')}</div>
+              <div class="studio-track-badges">
+                <span class="spec-pill ${isHiRes ? 'hi-res' : ''}">${specsText}</span>
+                ${lyricsBadge}
+                <span style="font-size: 8px; color: #777; margin-left: auto; font-family: 'JetBrains Mono', monospace;">${t.duration_formatted || formatSeconds(t.duration)}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    async function selectStudioTrack(trackId, autoPlay = true) {
+      const track = studioTracks.find(t => t.id === trackId);
+      if (!track) return;
+
+      currentStudioTrack = track;
+      currentStudioIndex = studioFilteredTracks.findIndex(t => t.id === trackId);
+
+      // Highlight active in track list
+      document.querySelectorAll('.studio-track-card').forEach(c => c.classList.remove('active'));
+      renderStudioTrackList(studioFilteredTracks);
+
+      // Update Center Deck Info
+      const deckTitle = document.getElementById('studioDeckTitle');
+      const deckArtist = document.getElementById('studioDeckArtist');
+      const vinylImg = document.getElementById('studioVinylImg');
+      const cdImg = document.getElementById('studioCdImg');
+      const totalDur = document.getElementById('studioTotalDur');
+
+      if (deckTitle) deckTitle.innerText = track.title;
+      if (deckArtist) deckArtist.innerText = `${track.artist} // ${track.album || 'FLAC Master'}`;
+      if (totalDur) totalDur.innerText = track.duration_formatted || formatSeconds(track.duration);
+
+      const coverSrc = track.cover_url || '/static/covers/placeholder.png';
+      if (vinylImg) vinylImg.src = coverSrc;
+      if (cdImg) cdImg.src = coverSrc;
+
+      // Update HUD specs
+      const hwSpecs = document.getElementById('studioHwParamsSpecs');
+      if (hwSpecs) {
+        hwSpecs.innerText = `${track.bit_depth ? track.bit_depth + '-BIT' : '24-BIT'} // ${track.sample_rate ? (track.sample_rate/1000).toFixed(1) + ' kHz' : '96.0 kHz'} // NATIVE FLAC`;
+      }
+
+      // Update Aurora palette from track cover
+      if (track.dominant_colors && track.dominant_colors.poles && track.dominant_colors.poles.length >= 3) {
+        studioAuroraPoles = track.dominant_colors.poles;
+      }
+
+      // Fetch and render lyrics
+      await loadStudioLyrics(track);
+
+      // Start Playback
+      if (autoPlay) {
+        await callStudioPlay(track.id);
+      }
+    }
+
+    async function callStudioPlay(trackId) {
+      if (!currentStudioTrack) return;
+      try {
+        if (currentStudioEngine === 'dac_direct') {
+          // Pause web audio if active
+          if (audioEl && !audioEl.paused) audioEl.pause();
+
+          const res = await fetch('/api/audiophile/play', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              track_id: trackId,
+              mode: 'dac_direct',
+              alsa_device: selectedStudioDac
+            })
+          });
+          const data = await res.json();
+          if (data.status === 'success') {
+            studioIsPlaying = true;
+            setStudioDeckVisualsPlaying(true);
+            showToast(`⚡ Bit-Perfect PCM streaming to ${selectedStudioDac}`, 'success', 2200);
+          } else {
+            showToast('DAC play error: ' + (data.detail || 'Failed'), 'error');
+          }
+        } else {
+          // Browser stream mode
+          if (audioEl) {
+            audioEl.src = `/api/library/stream/${trackId}`;
+            await audioEl.play();
+            studioIsPlaying = true;
+            setStudioDeckVisualsPlaying(true);
+            showToast(`🌐 Lossless streaming in browser`, 'info', 2000);
+          }
+        }
+      } catch (err) {
+        showToast('Playback error: ' + err.message, 'error');
+      }
+    }
+
+    function setStudioDeckVisualsPlaying(isPlaying) {
+      const vinylDisc = document.getElementById('studioVinylDisc');
+      const cdDisc = document.getElementById('studioCdDisc');
+      const toneArm = document.getElementById('studioToneArm');
+      const playBtn = document.getElementById('studioPlayPauseBtn');
+
+      if (vinylDisc) vinylDisc.classList.toggle('is-playing', isPlaying);
+      if (cdDisc) cdDisc.classList.toggle('is-playing', isPlaying);
+      if (toneArm) toneArm.classList.toggle('on-record', isPlaying);
+
+      if (playBtn) {
+        playBtn.innerHTML = isPlaying ? '⏸ PAUSE [Space]' : '▶ PLAY [Space]';
+      }
+    }
+
+    async function toggleStudioPlayback() {
+      if (!currentStudioTrack && studioTracks.length > 0) {
+        await selectStudioTrack(studioTracks[0].id, true);
+        return;
+      }
+      if (!currentStudioTrack) return;
+
+      if (studioIsPlaying) {
+        // PAUSE
+        if (currentStudioEngine === 'dac_direct') {
+          await fetch('/api/audiophile/pause', { method: 'POST' });
+        } else {
+          if (audioEl) audioEl.pause();
+        }
+        studioIsPlaying = false;
+        setStudioDeckVisualsPlaying(false);
+      } else {
+        // RESUME / PLAY
+        if (currentStudioEngine === 'dac_direct') {
+          await fetch('/api/audiophile/resume', { method: 'POST' });
+        } else {
+          if (audioEl) await audioEl.play();
+        }
+        studioIsPlaying = true;
+        setStudioDeckVisualsPlaying(true);
+      }
+    }
+
+    async function seekStudioAudioFraction(fraction) {
+      if (!currentStudioTrack || !currentStudioTrack.duration) return;
+      const targetSec = fraction * currentStudioTrack.duration;
+
+      if (currentStudioEngine === 'dac_direct') {
+        await fetch('/api/audiophile/seek', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ seconds: targetSec })
+        });
+      } else {
+        if (audioEl) audioEl.currentTime = targetSec;
+      }
+      updateStudioLyricsPlayback(targetSec);
+    }
+
+    function prevStudioTrack() {
+      if (studioFilteredTracks.length === 0) return;
+      currentStudioIndex = (currentStudioIndex - 1 + studioFilteredTracks.length) % studioFilteredTracks.length;
+      selectStudioTrack(studioFilteredTracks[currentStudioIndex].id, true);
+    }
+
+    function nextStudioTrack() {
+      if (studioFilteredTracks.length === 0) return;
+      currentStudioIndex = (currentStudioIndex + 1) % studioFilteredTracks.length;
+      selectStudioTrack(studioFilteredTracks[currentStudioIndex].id, true);
+    }
+
+    function setStudioStage(stage) {
+      currentStudioStage = stage;
+      const btnVinyl = document.getElementById('btnStageVinyl');
+      const btnCd = document.getElementById('btnStageCd');
+      const vinylBox = document.getElementById('studioVinylBox');
+      const cdBox = document.getElementById('studioCdBox');
+
+      if (stage === 'vinyl') {
+        if (btnVinyl) btnVinyl.classList.add('active');
+        if (btnCd) btnCd.classList.remove('active');
+        if (vinylBox) vinylBox.style.display = 'flex';
+        if (cdBox) cdBox.style.display = 'none';
+      } else {
+        if (btnCd) btnCd.classList.add('active');
+        if (btnVinyl) btnVinyl.classList.remove('active');
+        if (vinylBox) vinylBox.style.display = 'none';
+        if (cdBox) cdBox.style.display = 'flex';
+      }
+    }
+
+    function setStudioEngineMode(mode) {
+      currentStudioEngine = mode;
+      const btnDac = document.getElementById('btnModeDac');
+      const btnBrowser = document.getElementById('btnModeBrowser');
+      const indicator = document.getElementById('studioBitPerfectIndicator');
+      const bitText = document.getElementById('studioBitPerfectText');
+
+      if (mode === 'dac_direct') {
+        if (btnDac) { btnDac.style.background = '#00E5FF'; btnDac.style.color = '#000'; }
+        if (btnBrowser) { btnBrowser.style.background = '#222'; btnBrowser.style.color = '#FFF'; }
+        if (bitText) bitText.innerText = 'BIT-PERFECT DIRECT';
+        if (indicator) indicator.style.color = '#00E575';
+        showToast('⚡ Switched to ALSA Bit-Perfect Direct (Bypassing PipeWire 48k)', 'success', 2500);
+      } else {
+        if (btnBrowser) { btnBrowser.style.background = '#00E5FF'; btnBrowser.style.color = '#000'; }
+        if (btnDac) { btnDac.style.background = '#222'; btnDac.style.color = '#FFF'; }
+        if (bitText) bitText.innerText = 'BROWSER WEB AUDIO';
+        if (indicator) indicator.style.color = '#00E5FF';
+        showToast('🌐 Switched to Browser Audio Stream', 'info', 2000);
+      }
+
+      if (studioIsPlaying && currentStudioTrack) {
+        callStudioPlay(currentStudioTrack.id);
+      }
+    }
+
+    function startStudioTelemetry() {
+      if (studioTelemetryTimer) clearInterval(studioTelemetryTimer);
+      studioTelemetryTimer = setInterval(async () => {
+        const curTab = document.getElementById('tabPanel6');
+        if (!curTab || curTab.style.display === 'none') return;
+
+        if (currentStudioEngine === 'dac_direct') {
+          try {
+            const res = await fetch('/api/audiophile/status');
+            const data = await res.json();
+            if (data.status === 'success' && data.player) {
+              const p = data.player;
+              studioIsPlaying = p.is_playing;
+              setStudioDeckVisualsPlaying(p.is_playing);
+
+              const curTimeEl = document.getElementById('studioCurTime');
+              const progressRange = document.getElementById('studioProgressRange');
+
+              if (curTimeEl) curTimeEl.innerText = formatSeconds(p.current_time);
+              if (progressRange && p.duration > 0) {
+                progressRange.value = ((p.current_time / p.duration) * 100).toFixed(1);
+              }
+
+              // Update hardware specs from /proc/asound
+              if (data.hardware_dac && data.hardware_dac.active) {
+                const hwSpecs = document.getElementById('studioHwParamsSpecs');
+                if (hwSpecs) {
+                  hwSpecs.innerText = `DIRECT PCM: ${data.hardware_dac.format} // ${data.hardware_dac.rate} HZ // STEREO`;
+                }
+              }
+
+              updateStudioLyricsPlayback(p.current_time);
+            }
+          } catch (err) {}
+        } else {
+          // Browser Audio Mode
+          if (audioEl) {
+            const curTime = audioEl.currentTime || 0;
+            const dur = audioEl.duration || (currentStudioTrack ? currentStudioTrack.duration : 0);
+            studioIsPlaying = !audioEl.paused;
+            setStudioDeckVisualsPlaying(studioIsPlaying);
+
+            const curTimeEl = document.getElementById('studioCurTime');
+            const progressRange = document.getElementById('studioProgressRange');
+            if (curTimeEl) curTimeEl.innerText = formatSeconds(curTime);
+            if (progressRange && dur > 0) {
+              progressRange.value = ((curTime / dur) * 100).toFixed(1);
+            }
+            updateStudioLyricsPlayback(curTime);
+          }
+        }
+      }, 120);
+    }
+
+    // ==========================================
+    // STUDIO 3D DYNAMIC AURORA CANVAS
+    // ==========================================
+    function initStudio3DAurora() {
+      studioAuroraCanvas = document.getElementById('studio3DAuroraCanvas');
+      if (!studioAuroraCanvas) return;
+      studioAuroraCtx = studioAuroraCanvas.getContext('2d');
+      resizeStudioAurora();
+      if (!studioAuroraAnimId) {
+        drawStudioAurora();
+      }
+    }
+
+    function resizeStudioAurora() {
+      if (!studioAuroraCanvas) return;
+      const rect = studioAuroraCanvas.parentElement.getBoundingClientRect();
+      studioAuroraCanvas.width = rect.width;
+      studioAuroraCanvas.height = rect.height;
+    }
+
+    function drawStudioAurora() {
+      studioAuroraAnimId = requestAnimationFrame(drawStudioAurora);
+      if (!studioAuroraCtx || !studioAuroraCanvas) return;
+
+      const w = studioAuroraCanvas.width;
+      const h = studioAuroraCanvas.height;
+      if (w === 0 || h === 0) return;
+
+      studioAuroraPhase += studioIsPlaying ? 0.022 : 0.006;
+
+      studioAuroraCtx.fillStyle = '#06080D';
+      studioAuroraCtx.fillRect(0, 0, w, h);
+      studioAuroraCtx.globalCompositeOperation = 'screen';
+
+      const poles = studioAuroraPoles || [
+        { r: 0, g: 229, b: 255 },
+        { r: 255, g: 42, b: 133 },
+        { r: 123, g: 44, b: 191 }
+      ];
+
+      poles.forEach((color, idx) => {
+        const offset = idx * (Math.PI * 2 / poles.length);
+        const p = studioAuroraPhase + offset;
+        const x = w * (0.5 + 0.38 * Math.cos(p * 0.7 + idx));
+        const y = h * (0.5 + 0.38 * Math.sin(p * 0.9 - idx));
+        const radius = Math.min(w, h) * (0.55 + 0.15 * Math.sin(p * 1.2));
+
+        const grad = studioAuroraCtx.createRadialGradient(x, y, 0, x, y, radius);
+        grad.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, 0.65)`);
+        grad.addColorStop(0.5, `rgba(${color.r}, ${color.g}, ${color.b}, 0.22)`);
+        grad.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0.0)`);
+
+        studioAuroraCtx.fillStyle = grad;
+        studioAuroraCtx.beginPath();
+        studioAuroraCtx.arc(x, y, radius, 0, Math.PI * 2);
+        studioAuroraCtx.fill();
+      });
+
+      studioAuroraCtx.globalCompositeOperation = 'source-over';
+    }
+
+    // ==========================================
+    // STUDIO SYNCED LYRICS & BACKGROUND ALIGNMENT
+    // ==========================================
+    async function loadStudioLyrics(track) {
+      const container = document.getElementById('studioLyricsViewport');
+      const badge = document.getElementById('studioLyricsFormatBadge');
+      const footer = document.getElementById('studioLyricsFooterFile');
+
+      try {
+        const res = await fetch(`/api/library/track/${track.id}/lyrics`);
+        const data = await res.json();
+
+        if (data.status === 'success' && data.lyrics && data.lyrics.stanzas && data.lyrics.stanzas.length > 0) {
+          studioLyricsData = data.lyrics;
+          if (badge) badge.innerText = `${(data.lyrics_status || 'TTML').toUpperCase()} SYLLABLE SYNC`;
+          if (footer) footer.innerText = `LYRICS: PAIRED (.${(data.lyrics_status || 'TTML').toUpperCase()})`;
+          renderStudioLyricsStage(studioLyricsData);
+        } else {
+          studioLyricsData = null;
+          if (badge) badge.innerText = 'NO SYNCED LYRICS';
+          if (footer) footer.innerText = 'LYRICS: MISSING (CLICK COMPILE)';
+          if (container) {
+            container.innerHTML = `
+              <div style="text-align: center; color: #888; padding: 70px 16px;">
+                <div style="font-size: 32px; margin-bottom: 12px;">🎵</div>
+                <div style="font-size: 14px; font-weight: 800; color: #FFF;">NO SYNCED LYRICS PAIRED</div>
+                <div style="font-size: 11px; margin-top: 6px; color: #AAA; line-height: 1.5; max-width: 320px; margin-left: auto; margin-right: auto;">
+                  This high-res track does not have an accompanying <code>.ttml</code> or <code>.lrc</code> file yet.
+                </div>
+                <button class="btn-tactile" style="margin-top: 16px; background: #00E575; color: #000; font-size: 10px; font-weight: 800; padding: 8px 14px;" onclick="triggerStudioCompile()">⚡ COMPILE .TTML IN BACKGROUND</button>
+                <button class="btn-tactile" style="margin-top: 8px; background: #FF2A85; color: #FFF; font-size: 10px; font-weight: 800; padding: 8px 14px;" onclick="openStudioSwapLyricsModal()">📝 PASTE/ATTACH LYRICS</button>
+              </div>
+            `;
+          }
+        }
+      } catch (err) {
+        console.warn('Lyrics load failed:', err);
+      }
+    }
+
+    function renderStudioLyricsStage(data) {
+      const container = document.getElementById('studioLyricsViewport');
+      if (!container || !data || !data.stanzas) return;
+
+      let html = '';
+      data.stanzas.forEach((stanza, sIdx) => {
+        html += `<div class="lyric-stanza" style="margin-bottom: 24px;">`;
+        if (stanza.type && stanza.type !== 'Main') {
+          html += `<div class="lyric-section-tag">[ ${stanza.type.toUpperCase()} ]</div>`;
+        }
+
+        (stanza.lines || []).forEach((line, lIdx) => {
+          const lineId = `studioLine_${sIdx}_${lIdx}`;
+          html += `
+            <div class="lyric-line" id="${lineId}" data-start="${line.start}" data-end="${line.end}" onclick="seekStudioAudioFraction(${line.start} / (currentStudioTrack ? currentStudioTrack.duration : 1))">
+              <span class="lyric-time-tag">[${line.start_formatted || formatSeconds(line.start)}]</span>
+              <div class="lyric-text-container">
+          `;
+
+          if (line.words && line.words.length > 0) {
+            line.words.forEach((w) => {
+              html += `<span class="lyric-word" data-start="${w.start}" data-end="${w.end}" onclick="event.stopPropagation(); seekStudioAudioFraction(${w.start} / (currentStudioTrack ? currentStudioTrack.duration : 1))">`;
+              if (w.chars && w.chars.length > 0) {
+                w.chars.forEach((c) => {
+                  html += `<span class="lyric-char" data-start="${c.start}" data-end="${c.end}">${escapeHtml(c.char)}</span>`;
+                });
+              } else {
+                html += `<span class="lyric-char" data-start="${w.start}" data-end="${w.end}">${escapeHtml(w.word)}</span>`;
+              }
+              html += `</span> `;
+            });
+          } else {
+            html += `<span class="lyric-word" data-start="${line.start}" data-end="${line.end}"><span class="lyric-char" data-start="${line.start}" data-end="${line.end}">${escapeHtml(line.text)}</span></span>`;
+          }
+
+          html += `
+              </div>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function adjustStudioLyricsOffset(delta) {
+      studioLyricsGlobalOffset = Math.round((studioLyricsGlobalOffset + delta) * 100) / 100;
+      const badge = document.getElementById('studioLyricsOffsetBadge');
+      if (badge) {
+        const sign = studioLyricsGlobalOffset >= 0 ? '+' : '';
+        badge.innerText = `OFFSET: ${sign}${studioLyricsGlobalOffset.toFixed(2)}s`;
+      }
+      showToast(`⚡ Studio Lyrics Sync: ${studioLyricsGlobalOffset >= 0 ? '+' : ''}${studioLyricsGlobalOffset.toFixed(2)}s`, 'info', 1200);
+    }
+
+    function resetStudioLyricsOffset() {
+      studioLyricsGlobalOffset = 0.0;
+      const badge = document.getElementById('studioLyricsOffsetBadge');
+      if (badge) badge.innerText = 'OFFSET: 0.00s';
+      showToast('✓ Studio Lyrics offset reset', 'info', 1200);
+    }
+
+    function updateStudioLyricsPlayback(rawTime) {
+      if (!studioLyricsData) return;
+      const time = Math.max(0, rawTime + studioLyricsGlobalOffset);
+
+      const lines = document.querySelectorAll('#studioLyricsViewport .lyric-line');
+      if (!lines || lines.length === 0) return;
+
+      let activeLineEl = null;
+
+      // PASS 1: Word/Syllable Lock
+      for (let i = 0; i < lines.length; i++) {
+        const lineEl = lines[i];
+        const words = lineEl.querySelectorAll('.lyric-word');
+        let hasActiveWord = false;
+        for (let j = 0; j < words.length; j++) {
+          const wStart = parseFloat(words[j].dataset.start);
+          const wEnd = parseFloat(words[j].dataset.end);
+          if (!isNaN(wStart) && !isNaN(wEnd) && time >= wStart && time <= wEnd) {
+            hasActiveWord = true;
+            break;
+          }
+        }
+        if (hasActiveWord) {
+          activeLineEl = lineEl;
+          break;
+        }
+      }
+
+      // PASS 2: Phrase Boundary Lock
+      if (!activeLineEl) {
+        for (let i = 0; i < lines.length; i++) {
+          const lineEl = lines[i];
+          const start = parseFloat(lineEl.dataset.start);
+          const end = parseFloat(lineEl.dataset.end);
+          const nextLine = lines[i + 1];
+          const nextStart = nextLine ? parseFloat(nextLine.dataset.start) : Infinity;
+
+          if (time >= start && time < nextStart) {
+            if (time <= Math.max(end, start + 1.0) + 2.0) {
+              activeLineEl = lineEl;
+            }
+            break;
+          }
+        }
+      }
+
+      // Update Active Line Highlight & Center Scrolling
+      if (activeLineEl !== studioActiveLineEl) {
+        if (studioActiveLineEl) {
+          studioActiveLineEl.classList.remove('active-line');
+          studioActiveLineEl.classList.remove('future-line');
+        }
+        studioActiveLineEl = activeLineEl;
+
+        if (studioActiveLineEl) {
+          studioActiveLineEl.classList.add('active-line');
+          studioActiveLineEl.classList.remove('future-line');
+
+          const viewport = document.getElementById('studioLyricsViewport');
+          if (viewport) {
+            const vRect = viewport.getBoundingClientRect();
+            const lRect = studioActiveLineEl.getBoundingClientRect();
+            const offset = lRect.top - vRect.top - (viewport.clientHeight / 2) + (studioActiveLineEl.clientHeight / 2);
+            viewport.scrollBy({ top: offset, behavior: 'smooth' });
+          }
+        }
+      }
+
+      // Word & Character Sung Glow
+      lines.forEach((lineEl) => {
+        const lStart = parseFloat(lineEl.dataset.start);
+        const lEnd = parseFloat(lineEl.dataset.end);
+
+        if (time < lStart) {
+          lineEl.classList.add('future-line');
+        } else {
+          lineEl.classList.remove('future-line');
+        }
+
+        const chars = lineEl.querySelectorAll('.lyric-char');
+        chars.forEach((c) => {
+          const cStart = parseFloat(c.dataset.start);
+          if (time >= cStart) {
+            c.classList.add('sung');
+          } else {
+            c.classList.remove('sung');
+          }
+        });
+      });
+    }
+
+    // ASYNCHRONOUS BACKGROUND CUDA COMPILATION TRIGGER
+    async function triggerStudioCompile() {
+      if (!currentStudioTrack) {
+        showToast('Please select a track first.', 'warning');
+        return;
+      }
+      showToast(`⚡ Enqueuing Whisper CUDA syllable compiler for ${currentStudioTrack.title}...`, 'info', 3000);
+
+      try {
+        const res = await fetch(`/api/library/track/${currentStudioTrack.id}/auto_compile`, {
+          method: 'POST'
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          showToast(`⚡ Background compilation started! Listen uninterrupted while CUDA aligns syllables...`, 'success', 4000);
+          
+          // Poll worker status until completed
+          const pollInterval = setInterval(async () => {
+            try {
+              const sRes = await fetch(`/api/library/worker/status/${currentStudioTrack.id}`);
+              const sData = await sRes.json();
+              if (sData.status === 'success' && sData.job) {
+                if (sData.job.status === 'completed') {
+                  clearInterval(pollInterval);
+                  showToast(`✓ .TTML Syllable Sync Compiled and Saved for ${currentStudioTrack.title}!`, 'success', 3500);
+                  await loadStudioLyrics(currentStudioTrack);
+                  // Refresh track badge in list
+                  currentStudioTrack.has_synced_lyrics = true;
+                  currentStudioTrack.lyrics_status = 'ttml';
+                  renderStudioTrackList(studioFilteredTracks);
+                } else if (sData.job.status === 'failed') {
+                  clearInterval(pollInterval);
+                  showToast('Compilation error: ' + (sData.job.error || 'Failed'), 'error', 3000);
+                }
+              }
+            } catch (e) {}
+          }, 2000);
+        }
+      } catch (err) {
+        showToast('Compile trigger error: ' + err.message, 'error');
+      }
+    }
+
+    // SWAP / EDIT LYRICS MODAL
+    function openStudioSwapLyricsModal() {
+      if (!currentStudioTrack) {
+        showToast('Select a track first.', 'warning');
+        return;
+      }
+      const modal = document.getElementById('studioSwapLyricsModal');
+      const textarea = document.getElementById('studioSwapLyricsTextarea');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeStudioSwapLyricsModal() {
+      const modal = document.getElementById('studioSwapLyricsModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function handleStudioSwapFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        const textarea = document.getElementById('studioSwapLyricsTextarea');
+        if (textarea) textarea.value = ev.target.result;
+        const fmtSelect = document.getElementById('studioSwapFormatSelect');
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (fmtSelect && ['ttml', 'lrc', 'elrc'].includes(ext)) {
+          fmtSelect.value = ext;
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    async function saveStudioSwappedLyrics() {
+      if (!currentStudioTrack) return;
+      const text = document.getElementById('studioSwapLyricsTextarea')?.value || '';
+      const fmt = document.getElementById('studioSwapFormatSelect')?.value || 'lrc';
+      if (!text.trim()) {
+        showToast('Please enter or paste lyrics content.', 'warning');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/audiophile/swap_lyrics', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            track_id: currentStudioTrack.id,
+            lyrics_content: text,
+            format: fmt
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          closeStudioSwapLyricsModal();
+          showToast(`✓ Saved .${fmt} alongside audio in music folder!`, 'success', 3000);
+          currentStudioTrack.has_synced_lyrics = true;
+          currentStudioTrack.lyrics_status = fmt;
+          await loadStudioLyrics(currentStudioTrack);
+          renderStudioTrackList(studioFilteredTracks);
+        } else {
+          showToast('Failed to save lyrics: ' + data.detail, 'error');
+        }
+      } catch (err) {
+        showToast('Save lyrics error: ' + err.message, 'error');
+      }
+    }
+
+    function toggleStudioFullscreen() {
+      const pane = document.getElementById('studioLyricsPane');
+      const btn = document.getElementById('studioFsBtn');
+      if (!pane) return;
+
+      pane.classList.toggle('is-fullscreen');
+      const isFs = pane.classList.contains('is-fullscreen');
+      if (btn) btn.innerText = isFs ? '✕ EXIT [Esc]' : '⤢ FULLSCREEN [F]';
+
+      setTimeout(() => {
+        resizeStudioAurora();
+      }, 50);
+
+      if (isFs) {
+        showToast('⤢ Fullscreen Cinema Lyrics Mode (Press Esc or F to exit)', 'success', 2500);
+      }
+    }
+
+    // Global Key Listener for Tab 6 Hotkeys
+    window.addEventListener('keydown', (e) => {
+      const curTab = document.getElementById('tabPanel6');
+      if (!curTab || curTab.style.display === 'none') return;
+
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleStudioPlayback();
+      } else if (e.key === '[' || e.code === 'BracketLeft') {
+        e.preventDefault();
+        adjustStudioLyricsOffset(-0.25);
+      } else if (e.key === ']' || e.code === 'BracketRight') {
+        e.preventDefault();
+        adjustStudioLyricsOffset(0.25);
+      } else if (e.key === 'f' || e.key === 'F') {
+        e.preventDefault();
+        toggleStudioFullscreen();
+      } else if (e.key === 'Escape') {
+        const pane = document.getElementById('studioLyricsPane');
+        if (pane && pane.classList.contains('is-fullscreen')) {
+          toggleStudioFullscreen();
+        }
+      }
+    });
 
     // Initial page mount
     window.addEventListener('DOMContentLoaded', () => {
