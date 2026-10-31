@@ -18,10 +18,13 @@ if _nvidia_libs:
 import time
 import json
 import shutil
+import logging
 import subprocess
 import numpy as np
 from pathlib import Path
 from typing import Optional, List, Dict, Any
+
+logger = logging.getLogger(__name__)
 
 from fastapi import FastAPI, UploadFile, File, Form, HTTPException, Query, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, FileResponse, JSONResponse
@@ -72,15 +75,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Startup pre-warm
+# Startup pre-warm in background thread so server starts instantly
 @app.on_event("startup")
 def prewarm_gpu():
-    print("⚡ Pre-warming faster-whisper on CUDA (int8_float16)...")
-    try:
-        manager.get_model(model_name="large-v3-turbo", device="cuda", compute_type="int8_float16")
-        print("✅ Whisper large-v3-turbo loaded and ready in VRAM!")
-    except Exception as e:
-        print(f"⚠️ Pre-warm notice: {e}")
+    import threading
+    def _warm():
+        print("⚡ Background pre-warming faster-whisper on CUDA (int8_float16)...")
+        try:
+            manager.get_model(model_name="large-v3-turbo", device="cuda", compute_type="int8_float16")
+            print("✅ Whisper large-v3-turbo loaded and ready in VRAM!")
+        except Exception as e:
+            print(f"⚠️ Pre-warm notice: {e}")
+    threading.Thread(target=_warm, daemon=True).start()
 
 
 @app.get("/", response_class=HTMLResponse)
@@ -144,17 +150,20 @@ async def download_url(req: UrlRequest):
     """Download audio stream from YouTube / web URL using yt-dlp."""
     try:
         result = download_audio_from_url(req.url, output_dir=str(UPLOAD_DIR))
-        audio_path = Path(result["file_path"])
+        audio_path_str = result["file_path"] if hasattr(result, "__getitem__") else result[0]
+        audio_path = Path(audio_path_str)
+        title_str = result.get("title", audio_path.name) if hasattr(result, "get") else (result[1] if len(result) > 1 else audio_path.name)
         size_kb = round(audio_path.stat().st_size / 1024, 1)
         return {
             "status": "success",
             "filename": audio_path.name,
             "filepath": str(audio_path),
             "size_kb": size_kb,
-            "title": result.get("title", audio_path.name),
+            "title": title_str,
             "audio_url": f"/api/audio/{audio_path.name}",
         }
     except Exception as e:
+        logger.error(f"Download failed for {req.url}: {e}", exc_info=True)
         raise HTTPException(status_code=400, detail=f"Download failed: {str(e)}")
 
 
@@ -172,6 +181,8 @@ async def serve_audio(filename: str):
         media_type = "audio/wav"
     elif filename.endswith(".m4a"):
         media_type = "audio/mp4"
+    elif filename.endswith(".flac"):
+        media_type = "audio/flac"
 
     return FileResponse(str(audio_path), media_type=media_type)
 
