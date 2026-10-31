@@ -50,13 +50,13 @@ class BitPerfectDacEngine:
 
             cmd = [
                 "mpv",
+                "--no-config",
                 "--idle=yes",
                 f"--input-ipc-server={MPV_SOCKET_PATH}",
                 "--ao=alsa",
                 f"--audio-device={self.target_device}",
                 "--audio-exclusive=yes",
-                "--audio-samplerate=0",  # Disable forced software resampling
-                "--audio-format=auto",   # Preserve 24-bit / 32-bit native format
+                "--audio-samplerate=0",  # Disable forced software resampling (bit-perfect)
                 "--audio-channels=stereo",
                 "--gapless-audio=yes",
                 "--video=no",
@@ -77,7 +77,8 @@ class BitPerfectDacEngine:
 
     def send_ipc_command(self, command: list, timeout: float = 0.5) -> Optional[Dict[str, Any]]:
         """Send JSON-IPC command to running mpv process."""
-        self.ensure_mpv_running()
+        if not (self.process and self.process.poll() is None and os.path.exists(MPV_SOCKET_PATH)):
+            self.ensure_mpv_running()
         if not os.path.exists(MPV_SOCKET_PATH):
             return None
 

@@ -108,6 +108,15 @@ async def serve_ui():
     return HTMLResponse(content="<h1>SonicScribe UI not found. Check prototypes directory.</h1>", status_code=404)
 
 
+@app.get("/player", response_class=HTMLResponse)
+async def serve_player():
+    """Serve the Dedicated Standalone Audiophile Hi-Res Player."""
+    ui_path = PROTOTYPES_DIR / "prototype-neobrutal-2.html"
+    if ui_path.exists():
+        return HTMLResponse(content=ui_path.read_text(encoding="utf-8"))
+    return HTMLResponse(content="<h1>SonicScribe UI not found. Check prototypes directory.</h1>", status_code=404)
+
+
 @app.get("/marked.min.js")
 async def serve_marked_js():
     """Serve local vendored marked.js library for offline markdown rendering."""

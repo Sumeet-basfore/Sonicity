@@ -958,14 +958,84 @@
     }
 
     /* =====================================================================
-       TAB 6: HI-RES AUDIOPHILE MUSIC STUDIO & 3-PANE HYBRID CHASSIS
+       TOP-LEVEL PRIMARY APPLICATION SECTION SWITCHER
+       ===================================================================== */
+    .app-section-switcher {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .section-switch-btn {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 12px 18px;
+      background: var(--paper-card);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-hard);
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+    .section-switch-btn:hover {
+      background: #FFF;
+      transform: translate(-1px, -1px);
+      box-shadow: 6px 6px 0px var(--ink);
+    }
+    .section-switch-btn.active {
+      background: #FFF;
+      border-color: var(--ink);
+      box-shadow: 6px 6px 0px var(--ink);
+    }
+    .section-switch-btn#secBtnWorkbench.active {
+      border-top: 5px solid var(--toxic-green);
+    }
+    .section-switch-btn#secBtnPlayer.active {
+      border-top: 5px solid #00E5FF;
+      background: #0E131C;
+      color: #FFF;
+    }
+    .section-switch-btn#secBtnPlayer.active .sec-title {
+      color: #00E5FF;
+    }
+    .section-switch-btn#secBtnPlayer.active .sec-subtitle {
+      color: #8A99AD;
+    }
+    .sec-icon {
+      font-size: 28px;
+      line-height: 1;
+      filter: drop-shadow(2px 2px 0px rgba(0,0,0,0.3));
+    }
+    .sec-text-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sec-title {
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: -0.3px;
+      text-transform: uppercase;
+      color: var(--ink);
+    }
+    .sec-subtitle {
+      font-size: 10px;
+      font-weight: 700;
+      color: #666;
+    }
+
+    /* =====================================================================
+       DEDICATED SECTION: HI-RES AUDIOPHILE MUSIC STUDIO & 3-PANE HYBRID CHASSIS
        ===================================================================== */
     .studio-chassis {
       display: grid;
-      grid-template-columns: 310px 1fr 370px;
-      min-height: 660px;
-      height: calc(100vh - 210px);
-      max-height: 880px;
+      grid-template-columns: 360px 1fr 440px;
+      min-height: 720px;
+      height: calc(100vh - 180px);
+      max-height: 920px;
       background: #07090F;
       border: var(--border-thick);
       box-shadow: var(--shadow-hard);
@@ -1825,8 +1895,38 @@ Oh cigarette daydreams..."></textarea>
       </div>
     </header>
 
-    <!-- HORIZONTAL PIPELINE CHEVRONS -->
-    <nav class="pipeline-nav">
+    <!-- MASTER APPLICATION MODE SWITCHER -->
+    <div class="app-section-switcher">
+      <button class="section-switch-btn active" id="secBtnWorkbench" onclick="switchAppSection('workbench')">
+        <span class="sec-icon">🎙️</span>
+        <div class="sec-text-group">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="sec-title">SPEECH COMPILER &amp; SUBTITLE STUDIO</span>
+            <span class="tab-badge" style="background: var(--toxic-green); color: #000; font-weight: 800; font-size: 8px;">CUDA WHISPER</span>
+          </div>
+          <span class="sec-subtitle">Dictation // LLM Translation // Bilingual Teleprinter // Subtitle Studio</span>
+        </div>
+      </button>
+
+      <button class="section-switch-btn" id="secBtnPlayer" onclick="switchAppSection('player')">
+        <span class="sec-icon">🎧</span>
+        <div class="sec-text-group">
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <span class="sec-title">AUDIOPHILE HI-RES MUSIC PLAYER</span>
+            <span class="tab-badge" style="background: #00E5FF; color: #000; font-weight: 800; font-size: 8px;">BIT-PERFECT DAC</span>
+          </div>
+          <span class="sec-subtitle">FLAC / DSD Archive (191 Tracks) // Audiocular D07 Hardware Direct // 3D Aurora Lyrics</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- SECTION 1: TRANSCRIPTION & SUBTITLE WORKBENCH                   -->
+    <!-- ============================================================== -->
+    <div id="appSectionWorkbench">
+
+      <!-- HORIZONTAL PIPELINE CHEVRONS -->
+      <nav class="pipeline-nav">
       <div class="pipeline-step active" id="step1" onclick="setPipelineStep(1)">
         <div class="step-header">
           <span class="step-num">01</span>
@@ -2109,10 +2209,6 @@ Oh cigarette daydreams..."></textarea>
             <span>05 // SYNCED LYRICS</span>
             <span class="tab-badge" style="background: #FF2A85; color: #FFF;">APPLE MUSIC</span>
           </button>
-          <button class="ind-tab" id="tabBtn6" onclick="switchTab(6)">
-            <span>06 // HI-RES STUDIO</span>
-            <span class="tab-badge" style="background: #00E5FF; color: #000; font-weight: 800;">BIT-PERFECT</span>
-          </button>
         </div>
 
         <!-- TAB PANEL CONTAINER -->
@@ -2307,166 +2403,6 @@ Oh cigarette daydreams..."></textarea>
             </div>
           </div>
 
-          <!-- TAB 6: HI-RES AUDIOPHILE MUSIC STUDIO & BIT-PERFECT PLAYBACK CHASSIS -->
-          <div id="tabPanel6" style="display: none;">
-            <div class="studio-chassis" id="studioChassis">
-
-              <!-- PANE 1: FLAC/DSD LIBRARY ARCHIVE -->
-              <div class="studio-library-pane">
-                <div class="studio-pane-header">
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 13px;">📁</span>
-                    <span style="font-weight: 800; font-size: 11px; letter-spacing: -0.3px;">FLAC / DSD ARCHIVE</span>
-                  </div>
-                  <button class="btn-tactile" style="font-size: 8.5px; padding: 2px 7px; background: #00E5FF; color: #000;" onclick="rescanStudioLibrary()">⟳ RESCAN</button>
-                </div>
-                
-                <div class="studio-search-bar">
-                  <input type="text" id="studioSearchInput" class="studio-search-input" placeholder="🔍 Search library by title or artist..." oninput="filterStudioTracks()">
-                  <div class="studio-filter-row">
-                    <button class="studio-filter-pill active" onclick="setStudioFilter('all', this)">ALL</button>
-                    <button class="studio-filter-pill" onclick="setStudioFilter('24bit', this)">✨ 24-BIT+</button>
-                    <button class="studio-filter-pill" onclick="setStudioFilter('96khz', this)">🔊 96kHz+</button>
-                    <button class="studio-filter-pill" onclick="setStudioFilter('synced', this)">🎵 SYNCED</button>
-                    <button class="studio-filter-pill" onclick="setStudioFilter('needs_sync', this)">⚡ NEEDS SYNC</button>
-                  </div>
-                </div>
-
-                <div class="studio-track-list" id="studioTrackList">
-                  <div style="padding: 40px 16px; text-align: center; color: #888; font-size: 11px;">
-                    Scanning /home/sumeet/Music/mpd...
-                  </div>
-                </div>
-              </div>
-
-              <!-- PANE 2: CENTER DECK & COVER ART STAGE -->
-              <div class="studio-deck-pane">
-                <!-- Visual Stage Switcher -->
-                <div class="studio-stage-switcher">
-                  <button class="studio-stage-btn active" id="btnStageVinyl" onclick="setStudioStage('vinyl')">💿 REVOLVING VINYL</button>
-                  <button class="studio-stage-btn" id="btnStageCd" onclick="setStudioStage('cd')">💽 JEWEL CASE CD</button>
-                </div>
-
-                <!-- VINYL RECORD STAGE -->
-                <div class="studio-vinyl-box" id="studioVinylBox">
-                  <div class="vinyl-record" id="studioVinylDisc">
-                    <div class="vinyl-center-label" id="studioVinylLabel">
-                      <img id="studioVinylImg" src="/static/covers/placeholder.png" alt="Vinyl Cover" onerror="this.src='/static/covers/placeholder.png'">
-                    </div>
-                    <div class="vinyl-spindle-hole"></div>
-                  </div>
-                  <!-- Mechanical Tone Arm -->
-                  <div class="studio-tonearm" id="studioToneArm">
-                    <div class="tonearm-pivot"></div>
-                    <div class="tonearm-rod"></div>
-                    <div class="tonearm-head">
-                      <div class="tonearm-cartridge-light"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- CD JEWEL CASE STAGE -->
-                <div class="studio-cd-box" id="studioCdBox">
-                  <div class="cd-case">
-                    <div class="cd-spine"></div>
-                    <img id="studioCdImg" class="cd-cover-art" src="/static/covers/placeholder.png" alt="CD Cover" onerror="this.src='/static/covers/placeholder.png'">
-                    <div class="cd-disc-slide" id="studioCdDisc">
-                      <div class="cd-disc-center"></div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- TRACK METADATA DISPLAY -->
-                <div style="text-align: center; margin-top: 6px; width: 100%; max-width: 480px;">
-                  <div id="studioDeckTitle" style="font-size: 19px; font-weight: 900; color: #FFF; letter-spacing: -0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">No Track Loaded</div>
-                  <div id="studioDeckArtist" style="font-size: 11px; font-weight: 700; color: #8A99AD; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Select track from left FLAC archive</div>
-                </div>
-
-                <!-- AUDIOPHILE HARDWARE HUD -->
-                <div class="studio-hw-hud">
-                  <div class="hud-header-row">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                      <span style="font-size: 9px; font-weight: 800; color: #888;">HARDWARE DAC:</span>
-                      <select id="studioDacSelect" class="hud-device-select" onchange="changeStudioDac(this.value)">
-                        <option value="alsa/hw:D07,0">Audiocular D07 (hw:D07,0) [RECOMMENDED]</option>
-                      </select>
-                    </div>
-                    <div class="hud-bitperfect-pulse" id="studioBitPerfectIndicator">
-                      <span class="pulse-dot"></span>
-                      <span id="studioBitPerfectText">BIT-PERFECT DIRECT</span>
-                    </div>
-                  </div>
-
-                  <div class="hud-specs-readout">
-                    <span id="studioHwParamsSpecs">S24_3LE // 96,000 HZ // ZERO RESAMPLING</span>
-                    <div style="display: flex; gap: 4px;">
-                      <button class="btn-tactile" id="btnModeDac" style="font-size: 8px; padding: 2px 6px; background: #00E5FF; color: #000; font-weight: 800;" onclick="setStudioEngineMode('dac_direct')">⚡ DAC DIRECT</button>
-                      <button class="btn-tactile" id="btnModeBrowser" style="font-size: 8px; padding: 2px 6px; background: #222; color: #FFF; font-weight: 800;" onclick="setStudioEngineMode('browser_stream')">🌐 WEB AUDIO</button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- TRANSPORT CONTROLS -->
-                <div class="studio-transport-deck">
-                  <div class="studio-scrub-bar">
-                    <span id="studioCurTime">00:00.00</span>
-                    <input type="range" id="studioProgressRange" class="studio-range-slider" min="0" max="100" value="0" oninput="seekStudioAudioFraction(this.value / 100)">
-                    <span id="studioTotalDur">00:00.00</span>
-                  </div>
-
-                  <div class="studio-controls-row">
-                    <div style="display: flex; gap: 6px; align-items: center;">
-                      <button class="btn-tactile" style="font-size: 11px; padding: 7px 11px;" onclick="prevStudioTrack()">⏮</button>
-                      <button class="studio-main-btn" id="studioPlayPauseBtn" onclick="toggleStudioPlayback()">▶ PLAY [Space]</button>
-                      <button class="btn-tactile" style="font-size: 11px; padding: 7px 11px;" onclick="nextStudioTrack()">⏭</button>
-                    </div>
-                    <div style="display: flex; gap: 6px; align-items: center;">
-                      <button class="btn-tactile" id="studioAutoCompileBtn" style="font-size: 9px; padding: 6px 10px; background: #00E575; color: #000; font-weight: 800;" onclick="triggerStudioCompile()" title="Compile .ttml syllable sync in background with Whisper CUDA">⚡ COMPILE .TTML</button>
-                      <button class="btn-tactile" id="studioSwapLyricsBtn" style="font-size: 9px; padding: 6px 10px; background: #FF2A85; color: #FFF; font-weight: 800;" onclick="openStudioSwapLyricsModal()" title="Swap or edit lyrics (.lrc / .ttml)">📝 SWAP LYRICS</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- PANE 3: 3D DYNAMIC AURORA & SYNCED LYRICS VIEWPORT -->
-              <div class="studio-lyrics-pane" id="studioLyricsPane">
-                <!-- 3D Moving Aurora Canvas driven by album colors -->
-                <canvas id="studio3DAuroraCanvas" class="studio-lyrics-canvas"></canvas>
-                <div class="studio-lyrics-blur"></div>
-
-                <div class="studio-lyrics-header">
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <span style="font-size: 13px;">🎵</span>
-                    <span id="studioLyricsFormatBadge" style="font-size: 8.5px; font-weight: 800; background: #00E5FF; color: #000; padding: 1px 5px;">LYRICS ENGINE</span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 4px;">
-                    <button class="btn-tactile" style="font-size: 8px; padding: 2px 5px; background: #FFF;" onclick="adjustStudioLyricsOffset(-0.25)" title="Shift lyrics -0.25s earlier (HotKey: [)">-0.25s</button>
-                    <span id="studioLyricsOffsetBadge" style="font-size: 8.5px; font-weight: 800; color: #00E5FF; padding: 0 4px; cursor: pointer; user-select: none;" onclick="resetStudioLyricsOffset()" title="Click to reset offset">OFFSET: 0.00s</span>
-                    <button class="btn-tactile" style="font-size: 8px; padding: 2px 5px; background: #FFF;" onclick="adjustStudioLyricsOffset(0.25)" title="Shift lyrics +0.25s later (HotKey: ])">+0.25s</button>
-                    <button class="btn-tactile" id="studioFsBtn" style="font-size: 8.5px; padding: 3px 8px; background: #FFCC00; color: #000; font-weight: 800;" onclick="toggleStudioFullscreen()">⤢ FULLSCREEN [F]</button>
-                  </div>
-                </div>
-
-                <!-- Lyrics Lines Container (Apple Music syllable glow) -->
-                <div class="studio-lyrics-viewport center-aligned" id="studioLyricsViewport">
-                  <div style="text-align: center; color: #888; padding: 80px 16px;">
-                    <div style="font-size: 32px; margin-bottom: 12px;">🎵</div>
-                    <div style="font-size: 14px; font-weight: 800; color: #FFF;">AUDIOPHILE SYNCED LYRICS</div>
-                    <div style="font-size: 10.5px; margin-top: 6px; color: #AAA; line-height: 1.5;">
-                      Select any track from your FLAC library on the left. Lyrics pair automatically from accompanying <code>.ttml</code>, <code>.elrc</code>, or <code>.lrc</code> files.
-                    </div>
-                  </div>
-                </div>
-
-                <div class="studio-lyrics-footer">
-                  <span id="studioLyricsFooterAcoustic">ACOUSTIC LOCK: ACTIVE // BIT-PERFECT</span>
-                  <span id="studioLyricsFooterFile">SOURCE: FLAC DIRECT</span>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
         </div>
 
         <!-- EXPORT DISPATCH BAR -->
@@ -2480,7 +2416,6 @@ Oh cigarette daydreams..."></textarea>
             <button class="btn-export" id="copyAgentBtn" style="font-size: 10px; padding: 5px 10px;" onclick="copyAgentEnglish()">📋 Copy English</button>
             <button class="btn-export" style="background: var(--electric-blue); color: #fff; font-size: 10px; padding: 5px 10px;" onclick="copyMarkdownWithTimestamps()">📋 MD + Time</button>
             <button class="btn-export" style="background: #FF2A85; color: #fff; font-size: 10px; padding: 5px 10px;" onclick="switchTab(5)">🎵 Lyrics</button>
-            <button class="btn-export" style="background: #00E5FF; color: #000; font-weight: 800; font-size: 10px; padding: 5px 10px;" onclick="switchTab(6)">🎛️ Hi-Res Studio</button>
             <button class="btn-export" style="background: var(--safety-orange); font-size: 10px; padding: 5px 10px;" onclick="burnSubtitlesVideo()">🎬 Burn MP4</button>
             <div style="display: inline-flex; border: 2px solid var(--ink); background: #FFF; box-shadow: 2px 2px 0px var(--ink);">
               <button class="btn-export" style="border: none; background: #FFF; color: #000; padding: 4px 7px; font-size: 9.5px; border-right: 1.5px solid var(--ink);" onclick="downloadArtifact('txt')">TXT</button>
@@ -2500,6 +2435,170 @@ Oh cigarette daydreams..."></textarea>
       </section>
 
     </main>
+
+  </div> <!-- END #appSectionWorkbench -->
+
+  <!-- ============================================================== -->
+  <!-- SECTION 2: DEDICATED AUDIOPHILE HI-RES MUSIC PLAYER & STUDIO   -->
+  <!-- ============================================================== -->
+  <div id="appSectionPlayer" style="display: none;">
+    <div class="studio-chassis" id="studioChassis">
+
+      <!-- PANE 1: FLAC/DSD LIBRARY ARCHIVE -->
+      <div class="studio-library-pane">
+        <div class="studio-pane-header">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 14px;">📁</span>
+            <span style="font-weight: 800; font-size: 11px; letter-spacing: -0.3px;">FLAC / DSD ARCHIVE</span>
+          </div>
+          <button class="btn-tactile" style="font-size: 8.5px; padding: 2px 7px; background: #00E5FF; color: #000;" onclick="rescanStudioLibrary()">⟳ RESCAN</button>
+        </div>
+        
+        <div class="studio-search-bar">
+          <input type="text" id="studioSearchInput" class="studio-search-input" placeholder="🔍 Search library (191 tracks)..." oninput="filterStudioTracks()">
+          <div class="studio-filter-row">
+            <button class="studio-filter-pill active" onclick="setStudioFilter('all', this)">ALL</button>
+            <button class="studio-filter-pill" onclick="setStudioFilter('24bit', this)">✨ 24-BIT+</button>
+            <button class="studio-filter-pill" onclick="setStudioFilter('96khz', this)">🔊 96kHz+</button>
+            <button class="studio-filter-pill" onclick="setStudioFilter('synced', this)">🎵 SYNCED</button>
+            <button class="studio-filter-pill" onclick="setStudioFilter('needs_sync', this)">⚡ NEEDS SYNC</button>
+          </div>
+        </div>
+
+        <div class="studio-track-list" id="studioTrackList">
+          <div style="padding: 40px 16px; text-align: center; color: #888; font-size: 11px;">
+            Scanning /home/sumeet/Music/mpd...
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 2: CENTER DECK & COVER ART STAGE -->
+      <div class="studio-deck-pane">
+        <!-- Visual Stage Switcher -->
+        <div class="studio-stage-switcher">
+          <button class="studio-stage-btn active" id="btnStageVinyl" onclick="setStudioStage('vinyl')">💿 REVOLVING VINYL (33⅓ RPM)</button>
+          <button class="studio-stage-btn" id="btnStageCd" onclick="setStudioStage('cd')">💽 JEWEL CASE CD</button>
+        </div>
+
+        <!-- VINYL RECORD STAGE -->
+        <div class="studio-vinyl-box" id="studioVinylBox">
+          <div class="vinyl-record" id="studioVinylDisc">
+            <div class="vinyl-center-label" id="studioVinylLabel">
+              <img id="studioVinylImg" src="/static/covers/placeholder.png" alt="Vinyl Cover" onerror="this.src='/static/covers/placeholder.png'">
+            </div>
+            <div class="vinyl-spindle-hole"></div>
+          </div>
+          <!-- Mechanical Tone Arm -->
+          <div class="studio-tonearm" id="studioToneArm">
+            <div class="tonearm-pivot"></div>
+            <div class="tonearm-rod"></div>
+            <div class="tonearm-head">
+              <div class="tonearm-cartridge-light"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CD JEWEL CASE STAGE -->
+        <div class="studio-cd-box" id="studioCdBox">
+          <div class="cd-case">
+            <div class="cd-spine"></div>
+            <img id="studioCdImg" class="cd-cover-art" src="/static/covers/placeholder.png" alt="CD Cover" onerror="this.src='/static/covers/placeholder.png'">
+            <div class="cd-disc-slide" id="studioCdDisc">
+              <div class="cd-disc-center"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRACK METADATA DISPLAY -->
+        <div style="text-align: center; margin-top: 6px; width: 100%; max-width: 520px;">
+          <div id="studioDeckTitle" style="font-size: 21px; font-weight: 900; color: #FFF; letter-spacing: -0.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">No Track Loaded</div>
+          <div id="studioDeckArtist" style="font-size: 11px; font-weight: 700; color: #8A99AD; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">Select track from left FLAC archive</div>
+        </div>
+
+        <!-- AUDIOPHILE HARDWARE HUD -->
+        <div class="studio-hw-hud" style="max-width: 520px;">
+          <div class="hud-header-row">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span style="font-size: 9px; font-weight: 800; color: #888;">HARDWARE DAC:</span>
+              <select id="studioDacSelect" class="hud-device-select" onchange="changeStudioDac(this.value)">
+                <option value="alsa/hw:D07,0">Audiocular D07 (hw:D07,0) [RECOMMENDED]</option>
+              </select>
+            </div>
+            <div class="hud-bitperfect-pulse" id="studioBitPerfectIndicator">
+              <span class="pulse-dot"></span>
+              <span id="studioBitPerfectText">BIT-PERFECT DIRECT</span>
+            </div>
+          </div>
+
+          <div class="hud-specs-readout">
+            <span id="studioHwParamsSpecs">S24_3LE // 96,000 HZ // ZERO RESAMPLING</span>
+            <div style="display: flex; gap: 4px;">
+              <button class="btn-tactile" id="btnModeDac" style="font-size: 8px; padding: 2px 6px; background: #00E5FF; color: #000; font-weight: 800;" onclick="setStudioEngineMode('dac_direct')">⚡ DAC DIRECT</button>
+              <button class="btn-tactile" id="btnModeBrowser" style="font-size: 8px; padding: 2px 6px; background: #222; color: #FFF; font-weight: 800;" onclick="setStudioEngineMode('browser_stream')">🌐 WEB AUDIO</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRANSPORT CONTROLS -->
+        <div class="studio-transport-deck" style="max-width: 520px;">
+          <div class="studio-scrub-bar">
+            <span id="studioCurTime">00:00.00</span>
+            <input type="range" id="studioProgressRange" class="studio-range-slider" min="0" max="100" value="0" oninput="seekStudioAudioFraction(this.value / 100)">
+            <span id="studioTotalDur">00:00.00</span>
+          </div>
+
+          <div class="studio-controls-row">
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button class="btn-tactile" style="font-size: 11px; padding: 8px 12px;" onclick="prevStudioTrack()">⏮</button>
+              <button class="studio-main-btn" id="studioPlayPauseBtn" onclick="toggleStudioPlayback()">▶ PLAY [Space]</button>
+              <button class="btn-tactile" style="font-size: 11px; padding: 8px 12px;" onclick="nextStudioTrack()">⏭</button>
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button class="btn-tactile" id="studioAutoCompileBtn" style="font-size: 9px; padding: 7px 11px; background: #00E575; color: #000; font-weight: 800;" onclick="triggerStudioCompile()" title="Compile .ttml syllable sync in background with Whisper CUDA">⚡ COMPILE .TTML</button>
+              <button class="btn-tactile" id="studioSwapLyricsBtn" style="font-size: 9px; padding: 7px 11px; background: #FF2A85; color: #FFF; font-weight: 800;" onclick="openStudioSwapLyricsModal()" title="Swap or edit lyrics (.lrc / .ttml)">📝 SWAP LYRICS</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANE 3: 3D DYNAMIC AURORA & SYNCED LYRICS VIEWPORT -->
+      <div class="studio-lyrics-pane" id="studioLyricsPane">
+        <!-- 3D Moving Aurora Canvas driven by album colors -->
+        <canvas id="studio3DAuroraCanvas" class="studio-lyrics-canvas"></canvas>
+        <div class="studio-lyrics-blur"></div>
+
+        <div class="studio-lyrics-header">
+          <div style="display: flex; align-items: center; gap: 6px;">
+            <span style="font-size: 14px;">🎵</span>
+            <span id="studioLyricsFormatBadge" style="font-size: 8.5px; font-weight: 800; background: #00E5FF; color: #000; padding: 1px 5px;">LYRICS ENGINE</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 4px;">
+            <button class="btn-tactile" style="font-size: 8px; padding: 2px 5px; background: #FFF;" onclick="adjustStudioLyricsOffset(-0.25)" title="Shift lyrics -0.25s earlier (HotKey: [)">-0.25s</button>
+            <span id="studioLyricsOffsetBadge" style="font-size: 8.5px; font-weight: 800; color: #00E5FF; padding: 0 4px; cursor: pointer; user-select: none;" onclick="resetStudioLyricsOffset()" title="Click to reset offset">OFFSET: 0.00s</span>
+            <button class="btn-tactile" style="font-size: 8px; padding: 2px 5px; background: #FFF;" onclick="adjustStudioLyricsOffset(0.25)" title="Shift lyrics +0.25s later (HotKey: ])">+0.25s</button>
+            <button class="btn-tactile" id="studioFsBtn" style="font-size: 8.5px; padding: 3px 8px; background: #FFCC00; color: #000; font-weight: 800;" onclick="toggleStudioFullscreen()">⤢ FULLSCREEN [F]</button>
+          </div>
+        </div>
+
+        <!-- Lyrics Lines Container (Apple Music syllable glow) -->
+        <div class="studio-lyrics-viewport center-aligned" id="studioLyricsViewport">
+          <div style="text-align: center; color: #888; padding: 80px 16px;">
+            <div style="font-size: 32px; margin-bottom: 12px;">🎵</div>
+            <div style="font-size: 14px; font-weight: 800; color: #FFF;">AUDIOPHILE SYNCED LYRICS</div>
+            <div style="font-size: 10.5px; margin-top: 6px; color: #AAA; line-height: 1.5;">
+              Select any track from your FLAC library on the left. Lyrics pair automatically from accompanying <code>.ttml</code>, <code>.elrc</code>, or <code>.lrc</code> files.
+            </div>
+          </div>
+        </div>
+
+        <div class="studio-lyrics-footer">
+          <span id="studioLyricsFooterAcoustic">ACOUSTIC LOCK: ACTIVE // BIT-PERFECT</span>
+          <span id="studioLyricsFooterFile">SOURCE: FLAC DIRECT</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
   </div>
 
@@ -2741,29 +2840,49 @@ Oh cigarette daydreams..."></textarea>
     }
     drawWave();
 
-    // TAB SWITCHER
+    // PRIMARY APPLICATION SECTION SWITCHER (WORKBENCH VS DEDICATED AUDIOPHILE PLAYER)
+    let currentAppSection = 'workbench';
+
+    function switchAppSection(section) {
+      currentAppSection = section;
+      const secWorkbench = document.getElementById('appSectionWorkbench');
+      const secPlayer = document.getElementById('appSectionPlayer');
+      const btnWorkbench = document.getElementById('secBtnWorkbench');
+      const btnPlayer = document.getElementById('secBtnPlayer');
+
+      if (section === 'player') {
+        if (secWorkbench) secWorkbench.style.display = 'none';
+        if (secPlayer) secPlayer.style.display = 'block';
+        if (btnWorkbench) btnWorkbench.classList.remove('active');
+        if (btnPlayer) btnPlayer.classList.add('active');
+        onStudioTabActive();
+        try { history.replaceState(null, '', '/player'); } catch (e) {}
+      } else {
+        if (secPlayer) secPlayer.style.display = 'none';
+        if (secWorkbench) secWorkbench.style.display = 'block';
+        if (btnPlayer) btnPlayer.classList.remove('active');
+        if (btnWorkbench) btnWorkbench.classList.add('active');
+        try { history.replaceState(null, '', '/'); } catch (e) {}
+      }
+    }
+
+    // WORKBENCH INNER TABS (TABS 1 TO 5)
     function switchTab(tabNum) {
       document.getElementById('tabBtn1').classList.toggle('active', tabNum === 1);
       document.getElementById('tabBtn2').classList.toggle('active', tabNum === 2);
       document.getElementById('tabBtn3').classList.toggle('active', tabNum === 3);
       document.getElementById('tabBtn4').classList.toggle('active', tabNum === 4);
       document.getElementById('tabBtn5').classList.toggle('active', tabNum === 5);
-      const tabBtn6 = document.getElementById('tabBtn6');
-      if (tabBtn6) tabBtn6.classList.toggle('active', tabNum === 6);
 
       document.getElementById('tabPanel1').style.display = (tabNum === 1) ? 'block' : 'none';
       document.getElementById('tabPanel2').style.display = (tabNum === 2) ? 'block' : 'none';
       document.getElementById('tabPanel3').style.display = (tabNum === 3) ? 'block' : 'none';
       document.getElementById('tabPanel4').style.display = (tabNum === 4) ? 'block' : 'none';
       document.getElementById('tabPanel5').style.display = (tabNum === 5) ? 'block' : 'none';
-      const tabPanel6 = document.getElementById('tabPanel6');
-      if (tabPanel6) tabPanel6.style.display = (tabNum === 6) ? 'block' : 'none';
 
       if (tabNum === 5) {
         init3DFluidCanvas();
         setTimeout(resizeFluidCanvas, 40);
-      } else if (tabNum === 6) {
-        onStudioTabActive();
       }
     }
 
@@ -5540,8 +5659,8 @@ Oh cigarette daydreams..."></textarea>
     function startStudioTelemetry() {
       if (studioTelemetryTimer) clearInterval(studioTelemetryTimer);
       studioTelemetryTimer = setInterval(async () => {
-        const curTab = document.getElementById('tabPanel6');
-        if (!curTab || curTab.style.display === 'none') return;
+        const curSection = document.getElementById('appSectionPlayer');
+        if (!curSection || curSection.style.display === 'none') return;
 
         if (currentStudioEngine === 'dac_direct') {
           try {
@@ -5977,10 +6096,10 @@ Oh cigarette daydreams..."></textarea>
       }
     }
 
-    // Global Key Listener for Tab 6 Hotkeys
+    // Global Key Listener for Dedicated Audiophile Player Hotkeys
     window.addEventListener('keydown', (e) => {
-      const curTab = document.getElementById('tabPanel6');
-      if (!curTab || curTab.style.display === 'none') return;
+      const curSection = document.getElementById('appSectionPlayer');
+      if (!curSection || curSection.style.display === 'none') return;
 
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
@@ -6013,6 +6132,11 @@ Oh cigarette daydreams..."></textarea>
       renderSubtitleStudio(currentSegments);
       renderAgentIntelligence(currentAgentIntel);
       init3DFluidCanvas();
+
+      // If URL path or query contains player, immediately activate player section
+      if (window.location.pathname === '/player' || window.location.pathname.startsWith('/player') || window.location.search.includes('player')) {
+        switchAppSection('player');
+      }
     });
 
     window.addEventListener('resize', () => {
