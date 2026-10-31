@@ -411,6 +411,23 @@ def align_canonical_lyrics_to_acoustic(
                 line["start_formatted"] = format_lrc_timestamp(line["start"])
                 line["end_formatted"] = format_lrc_timestamp(line["end"])
 
+    # Monotonic boundary verification: ensure consecutive lines never overlap
+    all_flat_lines = []
+    for stanza in canonical_data.get("stanzas", []):
+        for line in stanza.get("lines", []):
+            all_flat_lines.append(line)
+
+    for idx in range(len(all_flat_lines) - 1):
+        cur_l = all_flat_lines[idx]
+        nxt_l = all_flat_lines[idx + 1]
+        cur_end = cur_l.get("end", 0.0)
+        nxt_start = nxt_l.get("start", 0.0)
+        if cur_end > nxt_start:
+            cur_l["end"] = nxt_start
+            cur_l["end_formatted"] = format_lrc_timestamp(nxt_start)
+            if cur_l.get("words"):
+                cur_l["words"][-1]["end"] = nxt_start
+
     canonical_data["source"] = "acoustic_aligned"
     return canonical_data
 

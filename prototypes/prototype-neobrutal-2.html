@@ -1606,6 +1606,11 @@ Oh cigarette daydreams..."></textarea>
                   <span>CH-05 // ACOUSTIC FLUID LYRICS ENGINE</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 6px;">
+                  <div style="display: flex; align-items: center; gap: 2px; background: rgba(0,0,0,0.5); border: 1.5px solid var(--ink); padding: 2px 4px;">
+                    <button class="btn-tactile" style="font-size: 8px; padding: 2px 5px; background: #FFF;" onclick="adjustLyricsOffset(-0.25)" title="Shift lyrics -0.25s earlier (HotKey: [)">-0.25s</button>
+                    <span id="lyricsOffsetBadge" style="font-size: 8.5px; font-weight: 800; color: var(--toxic-green); padding: 0 4px; cursor: pointer; user-select: none;" onclick="resetLyricsOffset()" title="Click to reset offset">OFFSET: 0.00s</span>
+                    <button class="btn-tactile" style="font-size: 8px; padding: 2px 5px; background: #FFF;" onclick="adjustLyricsOffset(0.25)" title="Shift lyrics +0.25s later (HotKey: ])">+0.25s</button>
+                  </div>
                   <button class="btn-tactile" id="lyricAlignBtn" style="font-size: 8.5px; padding: 3px 8px; background: #FFF;" onclick="toggleLyricAlignment()">
                     <span id="alignBtnText">≡ CENTER</span>
                   </button>
@@ -2378,48 +2383,147 @@ Oh cigarette daydreams..."></textarea>
       container.innerHTML = html;
     }
 
-    function updateLyricsPlayback(time) {
+    // REAL-TIME SYNC OFFSET CONTROLS
+    let lyricsGlobalOffset = 0.0;
+
+    function adjustLyricsOffset(deltaSeconds) {
+      lyricsGlobalOffset = Math.round((lyricsGlobalOffset + deltaSeconds) * 100) / 100;
+      const badge = document.getElementById('lyricsOffsetBadge');
+      if (badge) {
+        const sign = lyricsGlobalOffset >= 0 ? '+' : '';
+        badge.innerText = `OFFSET: ${sign}${lyricsGlobalOffset.toFixed(2)}s`;
+      }
+      showToast(`⚡ Lyrics Sync: ${lyricsGlobalOffset >= 0 ? '+' : ''}${lyricsGlobalOffset.toFixed(2)}s`, 'info', 1200);
+      updateLyricsPlayback(audioEl.currentTime || 0);
+    }
+
+    function resetLyricsOffset() {
+      lyricsGlobalOffset = 0.0;
+      const badge = document.getElementById('lyricsOffsetBadge');
+      if (badge) badge.innerText = 'OFFSET: 0.00s';
+      showToast('✓ Lyrics offset reset', 'info', 1200);
+      updateLyricsPlayback(audioEl.currentTime || 0);
+    }
+
+    function updateLyricsPlayback(rawTime) {
       if (!currentLyricsData) return;
 
-      // Update Fullscreen dock progress and time display
       const dur = audioEl.duration || 0;
       const fsTime = document.getElementById('fsTimeDisplay');
       if (fsTime) {
-        fsTime.innerText = `${formatSeconds(time)} / ${formatSeconds(dur)}`;
+        fsTime.innerText = `${formatSeconds(rawTime)} / ${formatSeconds(dur)}`;
       }
       const fsRange = document.getElementById('fsProgressRange');
       if (fsRange && dur > 0) {
-        fsRange.value = ((time / dur) * 100).toFixed(1);
+        fsRange.value = ((rawTime / dur) * 100).toFixed(1);
       }
 
+      // Offset-adjusted audio time for lyrics evaluation
+      const time = Math.max(0, rawTime + lyricsGlobalOffset);
+
       const lines = document.querySelectorAll('.lyric-line');
-      let activeFound = false;
+      if (!lines || lines.length === 0) return;
 
-      lines.forEach((lineEl) => {
-        const start = parseFloat(lineEl.dataset.start);
-        const end = parseFloat(lineEl.dataset.end);
-        const isCurrent = (time >= start && time <= end);
+      let activeLineEl = null;
 
-        if (isCurrent && !activeFound) {
-          activeFound = true;
-          if (currentActiveLineEl !== lineEl) {
-            if (currentActiveLineEl) currentActiveLineEl.classList.remove('active-line');
-            lineEl.classList.add('active-line');
-            currentActiveLineEl = lineEl;
-
-            const viewport = document.getElementById('lyricsViewport');
-            if (viewport) {
-              const vRect = viewport.getBoundingClientRect();
-              const lRect = lineEl.getBoundingClientRect();
-              const offset = lRect.top - vRect.top - (viewport.clientHeight / 2) + (lineEl.clientHeight / 2);
-              viewport.scrollBy({ top: offset, behavior: 'smooth' });
-            }
+      // ==========================================================
+      // PASS 1: VOCAL-LEVEL SYLLABLE GROUND TRUTH
+      // If a word or syllable is actively being sung right now,
+      // its parent line is guaranteed to be the active singing line.
+      // ==========================================================
+      for (let i = 0; i < lines.length; i++) {
+        const lineEl = lines[i];
+        const words = lineEl.querySelectorAll('.lyric-word');
+        let hasActiveWord = false;
+        for (let j = 0; j < words.length; j++) {
+          const wStart = parseFloat(words[j].dataset.start);
+          const wEnd = parseFloat(words[j].dataset.end);
+          if (!isNaN(wStart) && !isNaN(wEnd) && time >= wStart && time <= wEnd) {
+            hasActiveWord = true;
+            break;
           }
-        } else if (!isCurrent && currentActiveLineEl === lineEl && !activeFound) {
-          lineEl.classList.remove('active-line');
-          currentActiveLineEl = null;
+        }
+        if (hasActiveWord) {
+          activeLineEl = lineEl;
+          break;
+        }
+      }
+
+      // ==========================================================
+      // PASS 2: PHRASE BOUNDARY & TRANSITION FALLBACK
+      // If in a breath, musical gap, or between words:
+      // Pick the latest line that has started (time >= start) before the next line begins.
+      // This strictly prevents earlier lines from lagging behind.
+      // ==========================================================
+      if (!activeLineEl) {
+        for (let i = 0; i < lines.length; i++) {
+          const lineEl = lines[i];
+          const start = parseFloat(lineEl.dataset.start);
+          const end = parseFloat(lineEl.dataset.end);
+          const nextLine = lines[i + 1];
+          const nextStart = nextLine ? parseFloat(nextLine.dataset.start) : Infinity;
+
+          if (time >= start && time < nextStart) {
+            if (time <= Math.max(end, start + 1.0) + 2.0) {
+              activeLineEl = lineEl;
+            }
+            break;
+          }
+        }
+      }
+
+      // Toggle active-line class and auto-scroll viewport
+      if (currentActiveLineEl !== activeLineEl) {
+        if (currentActiveLineEl) currentActiveLineEl.classList.remove('active-line');
+        if (activeLineEl) {
+          activeLineEl.classList.add('active-line');
+          const viewport = document.getElementById('lyricsViewport');
+          if (viewport) {
+            const vRect = viewport.getBoundingClientRect();
+            const lRect = activeLineEl.getBoundingClientRect();
+            const offset = lRect.top - vRect.top - (viewport.clientHeight / 2) + (activeLineEl.clientHeight / 2);
+            viewport.scrollBy({ top: offset, behavior: 'smooth' });
+          }
+        }
+        currentActiveLineEl = activeLineEl;
+      }
+
+      // Character-level sweep & sung state
+      lines.forEach((lineEl) => {
+        const lStart = parseFloat(lineEl.dataset.start);
+        const lEnd = parseFloat(lineEl.dataset.end);
+
+        // Optimization: if line ended in past, mark all sung directly
+        if (time >= lEnd + 0.1) {
+          const chars = lineEl.querySelectorAll('.lyric-char');
+          chars.forEach(c => {
+            if (!c.classList.contains('sung')) {
+              c.classList.add('sung');
+              c.style.background = '';
+              c.style.webkitBackgroundClip = '';
+              c.style.webkitTextFillColor = '';
+              c.style.textShadow = '';
+            }
+          });
+          return;
         }
 
+        // If line is in future, ensure unsung
+        if (time < lStart - 0.1) {
+          const chars = lineEl.querySelectorAll('.lyric-char');
+          chars.forEach(c => {
+            if (c.classList.contains('sung') || c.style.background) {
+              c.classList.remove('sung');
+              c.style.background = '';
+              c.style.webkitBackgroundClip = '';
+              c.style.webkitTextFillColor = '';
+              c.style.textShadow = '';
+            }
+          });
+          return;
+        }
+
+        // Active line or immediate boundary: compute precise character fill
         const chars = lineEl.querySelectorAll('.lyric-char');
         chars.forEach((cEl) => {
           const cStart = parseFloat(cEl.dataset.start);
@@ -3843,6 +3947,12 @@ Oh cigarette daydreams..."></textarea>
         } else if (e.code === 'KeyF') {
           e.preventDefault();
           toggleLyricFullscreen();
+        } else if (e.code === 'BracketLeft') {
+          e.preventDefault();
+          adjustLyricsOffset(-0.25);
+        } else if (e.code === 'BracketRight') {
+          e.preventDefault();
+          adjustLyricsOffset(0.25);
         } else if (e.code === 'Escape') {
           const stage = document.getElementById('lyricsStage');
           if (stage && stage.classList.contains('is-fullscreen')) {
