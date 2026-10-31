@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYBER-RACK // NEO-BRUTALIST V3 AUDIO CONVERTER</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0D0E12;
+      --bg-panel: #16181F;
+      --card-bg: #1F222B;
+      --neon-yellow: #FFF500;
+      --toxic-green: #00FF66;
+      --hot-pink: #FF0055;
+      --cyan: #00F0FF;
+      --text-white: #FFFFFF;
+      --text-muted: #8E95A5;
+      --border-dark: 3.5px solid #000;
+      --border-neon: 3.5px solid var(--neon-yellow);
+      --border-green: 3.5px solid var(--toxic-green);
+      --shadow-yellow: 5px 5px 0px var(--neon-yellow);
+      --shadow-green: 5px 5px 0px var(--toxic-green);
+      --shadow-pink: 5px 5px 0px var(--hot-pink);
+      --shadow-dark: 5px 5px 0px #000;
+      --shadow-press: 1px 1px 0px #000;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg);
+      background-image: 
+        radial-gradient(#252833 1.5px, transparent 1.5px);
+      background-size: 20px 20px;
+      color: var(--text-white);
+      font-family: 'Space Mono', monospace;
+      padding-bottom: 60px;
+      line-height: 1.4;
+      overflow-x: hidden;
+    }
+
+    /* TOP CYBER BRUTAL BAR */
+    .cyber-top-bar {
+      border-bottom: 4px solid var(--neon-yellow);
+      background: #000;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .brand-cluster {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .brand-badge {
+      background: var(--neon-yellow);
+      color: #000;
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 14px;
+      padding: 4px 10px;
+      border: 2px solid #000;
+      box-shadow: 3px 3px 0px #FFF;
+      text-transform: uppercase;
+    }
+    .brand-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 24px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #FFF;
+      text-transform: uppercase;
+    }
+    .brand-title span {
+      color: var(--toxic-green);
+    }
+    .top-telemetry {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .tele-tag {
+      background: #111;
+      border: 2px solid #333;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .tele-tag .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 0;
+      background: var(--toxic-green);
+    }
+
+    /* MASTER RACKMOUNT GRID */
+    .rack-container {
+      max-width: 1440px;
+      margin: 24px auto;
+      padding: 0 20px;
+      display: grid;
+      grid-template-columns: 320px 1fr 340px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    /* BRUTALIST PANELS */
+    .rack-panel {
+      background: var(--bg-panel);
+      border: 3.5px solid #000;
+      box-shadow: var(--shadow-dark);
+      position: relative;
+    }
+    .rack-panel.glow-yellow {
+      border: 3.5px solid var(--neon-yellow);
+      box-shadow: var(--shadow-yellow);
+    }
+    .rack-panel.glow-green {
+      border: 3.5px solid var(--toxic-green);
+      box-shadow: var(--shadow-green);
+    }
+    .rack-panel.glow-pink {
+      border: 3.5px solid var(--hot-pink);
+      box-shadow: var(--shadow-pink);
+    }
+
+    .panel-header {
+      background: #000;
+      color: #FFF;
+      padding: 12px 16px;
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 3px solid #000;
+    }
+    .panel-header.yellow {
+      background: var(--neon-yellow);
+      color: #000;
+    }
+    .panel-header.green {
+      background: var(--toxic-green);
+      color: #000;
+    }
+    .panel-header.pink {
+      background: var(--hot-pink);
+      color: #FFF;
+    }
+
+    .panel-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* LEFT RACK: INPUT & HARDWARE CONFIG */
+    .dropzone-rack {
+      border: 3px dashed var(--neon-yellow);
+      background: #12141B;
+      padding: 24px 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .dropzone-rack:hover {
+      background: #181B24;
+      border-color: #FFF;
+    }
+    .drop-reel-art {
+      font-size: 38px;
+      margin-bottom: 8px;
+    }
+    .drop-reel-title {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 14px;
+      color: var(--neon-yellow);
+      text-transform: uppercase;
+    }
+    .drop-reel-sub {
+      font-size: 10px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .loaded-track-slot {
+      background: #000;
+      border: 2px solid #333;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .track-name {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--toxic-green);
+      word-break: break-all;
+    }
+    .track-meta {
+      font-size: 10px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* HARDWARE TOGGLE SWITCHES */
+    .patch-group {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .patch-label {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+    }
+    .patch-toggle {
+      background: #0D0E12;
+      border: 2px solid #333;
+      padding: 10px 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s;
+    }
+    .patch-toggle:hover {
+      border-color: #FFF;
+    }
+    .patch-toggle.active {
+      border: 2.5px solid var(--neon-yellow);
+      background: #1E2015;
+      box-shadow: 3px 3px 0px var(--neon-yellow);
+      transform: translate(-2px, -2px);
+    }
+    .patch-toggle.active-green {
+      border: 2.5px solid var(--toxic-green);
+      background: #112419;
+      box-shadow: 3px 3px 0px var(--toxic-green);
+      transform: translate(-2px, -2px);
+    }
+    .patch-title {
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .patch-status {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 6px;
+      background: #000;
+      border: 1px solid #444;
+    }
+    .patch-toggle.active .patch-status {
+      background: var(--neon-yellow);
+      color: #000;
+      border-color: #000;
+    }
+    .patch-toggle.active-green .patch-status {
+      background: var(--toxic-green);
+      color: #000;
+      border-color: #000;
+    }
+
+    /* CENTER RACK: TRANSPORT + PUNCH CARDS STREAM */
+    .center-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* TAPE TRANSPORT HUD */
+    .transport-hud {
+      background: #000;
+      border: 3.5px solid var(--neon-yellow);
+      box-shadow: var(--shadow-yellow);
+      padding: 16px 20px;
+    }
+    .transport-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .tape-counter {
+      font-family: 'Space Mono', monospace;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--neon-yellow);
+      letter-spacing: 0.05em;
+    }
+    .audio-waveform-bars {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 40px;
+      padding: 4px 0;
+    }
+    .wave-bar {
+      width: 4px;
+      background: #333;
+      transition: height 0.1s ease;
+    }
+    .wave-bar.active {
+      background: var(--toxic-green);
+    }
+
+    .transport-buttons-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-top: 14px;
+    }
+    .cyber-btn {
+      background: #FFF;
+      color: #000;
+      border: 2px solid #000;
+      box-shadow: 4px 4px 0px #000;
+      padding: 10px 16px;
+      font-family: 'Space Mono', monospace;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+      text-transform: uppercase;
+      transition: all 0.1s;
+    }
+    .cyber-btn:hover {
+      background: var(--neon-yellow);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px #FFF;
+    }
+    .cyber-btn:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0px #000;
+    }
+    .cyber-btn.accent-green {
+      background: var(--toxic-green);
+    }
+    .cyber-btn.accent-green:hover {
+      background: #25FF7B;
+      box-shadow: 6px 6px 0px var(--toxic-green);
+    }
+
+    /* PUNCH CARD CONTAINER */
+    .punch-cards-deck {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      max-height: 560px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    /* INDIVIDUAL PUNCH CARD */
+    .punch-card {
+      background: #191B22;
+      border: 3px solid #000;
+      border-left: 8px solid var(--neon-yellow);
+      box-shadow: 4px 4px 0px #000;
+      padding: 16px;
+      position: relative;
+      transition: all 0.15s;
+    }
+    .punch-card:hover {
+      border-color: #444;
+      border-left-color: var(--toxic-green);
+      transform: translate(-2px, -2px);
+      box-shadow: 6px 6px 0px var(--neon-yellow);
+    }
+    .punch-card.active-playback {
+      background: #21242E;
+      border-left-color: var(--toxic-green);
+      box-shadow: 6px 6px 0px var(--toxic-green);
+    }
+
+    /* PERFORATED PUNCH HOLES EFFECT */
+    .punch-card::after {
+      content: '● ● ● ● ● ●';
+      position: absolute;
+      top: 6px;
+      right: 12px;
+      font-size: 7px;
+      letter-spacing: 4px;
+      color: #333;
+    }
+
+    .card-topline {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed #333;
+    }
+    .card-index {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 11px;
+      color: var(--neon-yellow);
+    }
+    .card-timestamp {
+      font-size: 10px;
+      color: var(--text-muted);
+    }
+    .card-confidence {
+      font-size: 9px;
+      padding: 2px 6px;
+      background: #000;
+      border: 1px solid #444;
+      color: var(--toxic-green);
+    }
+
+    .card-body-text {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .source-vernacular {
+      font-size: 12px;
+      color: #9AA0B0;
+      background: #0E1015;
+      padding: 8px 10px;
+      border: 1px solid #2B2F3D;
+    }
+    .translated-english {
+      font-size: 13px;
+      font-weight: 700;
+      color: #FFFFFF;
+      line-height: 1.5;
+    }
+
+    .card-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .btn-card-action {
+      background: transparent;
+      border: 1px solid #444;
+      color: var(--text-muted);
+      font-family: 'Space Mono', monospace;
+      font-size: 10px;
+      padding: 4px 8px;
+      cursor: pointer;
+    }
+    .btn-card-action:hover {
+      border-color: #FFF;
+      color: #FFF;
+      background: #252833;
+    }
+
+    /* RIGHT RACK: AGENT DISPATCH & EXPORT */
+    .right-column {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .agent-quick-box {
+      background: #000;
+      border: 2px solid #333;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .agent-box-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--neon-yellow);
+      text-transform: uppercase;
+    }
+    .agent-prompt-preview {
+      font-size: 11px;
+      color: #BBB;
+      background: #0A0A0E;
+      border: 1px solid #222;
+      padding: 8px;
+      height: 90px;
+      overflow-y: auto;
+      font-family: 'Space Mono', monospace;
+    }
+
+    .btn-agent-inject {
+      background: var(--neon-yellow);
+      color: #000;
+      border: 2.5px solid #000;
+      box-shadow: 4px 4px 0px #FFF;
+      padding: 12px;
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 13px;
+      text-transform: uppercase;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.1s;
+    }
+    .btn-agent-inject:hover {
+      background: #FFF;
+      box-shadow: 6px 6px 0px var(--neon-yellow);
+      transform: translate(-2px, -2px);
+    }
+    .btn-agent-inject:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0px #000;
+    }
+
+    /* 3D BRUTALIST SOUND CUBE CANVAS */
+    .cube-monolith-canvas {
+      height: 160px;
+      background: #08090C;
+      border: 2px solid #2B2F3D;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #threeCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    @media (max-width: 1200px) {
+      .rack-container {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP CYBER BAR -->
+  <header class="cyber-top-bar">
+    <div class="brand-cluster">
+      <div class="brand-badge">PROTOTYPE-03</div>
+      <div class="brand-title">CYBER<span>RACK</span> // A2T</div>
+    </div>
+    <div class="top-telemetry">
+      <div class="tele-tag">
+        <span class="dot"></span>
+        <span>CUDA 12.1 [6GB VRAM ALLOC: 1.1GB]</span>
+      </div>
+      <div class="tele-tag">
+        <span>WHISPER: TURBO</span>
+      </div>
+      <div class="tele-tag">
+        <span>TRANSLATION: LLAMA-3.2 (3B)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN MASTER RACK -->
+  <div class="rack-container">
+
+    <!-- LEFT COLUMN: CASSETTE INGEST & HARDWARE SWITCHES -->
+    <aside class="rack-panel glow-yellow">
+      <div class="panel-header yellow">
+        <span>[01 // INGESTION BAY]</span>
+        <span>SLOT-A</span>
+      </div>
+      
+      <div class="panel-body">
+        
+        <!-- DROPZONE -->
+        <div class="dropzone-rack" onclick="selectFile()">
+          <div class="drop-reel-art">🎛️</div>
+          <div class="drop-reel-title">DROP AUDIO TAPE</div>
+          <div class="drop-reel-sub">OGG, MP3, WAV, FLAC, M4A</div>
+        </div>
+
+        <!-- LOADED TRACK INFO -->
+        <div class="loaded-track-slot">
+          <span style="font-size: 9px; color: #888;">CURRENTLY MOUNTED TAPE:</span>
+          <span class="track-name">WhatsApp Ptt 2026-10-30 at 20.43.05.ogg</span>
+          <div class="track-meta">
+            <span>SIZE: 390.1 KB</span>
+            <span>DURATION: 03:04.00</span>
+          </div>
+        </div>
+
+        <!-- TRANSLATION POLICY TOGGLES -->
+        <div class="patch-group">
+          <span class="patch-label">// TARGET LANGUAGE POLICY</span>
+          
+          <div class="patch-toggle active-green" onclick="togglePatch(this)">
+            <div>
+              <div class="patch-title">AUTO-TRANSLATE TO ENGLISH</div>
+              <div style="font-size: 9px; color: #8E95A5;">Downstream AI Agent Ready</div>
+            </div>
+            <span class="patch-status">ENG</span>
+          </div>
+
+          <div class="patch-toggle" onclick="togglePatch(this)">
+            <div>
+              <div class="patch-title">VERBATIM SCRIPT</div>
+              <div style="font-size: 9px; color: #8E95A5;">Raw Hindi (Devanagari)</div>
+            </div>
+            <span class="patch-status">RAW</span>
+          </div>
+        </div>
+
+        <!-- INFERENCE PRESETS -->
+        <div class="patch-group">
+          <span class="patch-label">// INFERENCE OPTIMIZATION</span>
+          
+          <div class="patch-toggle active" onclick="togglePatch(this)">
+            <div>
+              <div class="patch-title">TURBO (BEAM=1 GREEDY)</div>
+              <div style="font-size: 9px; color: #8E95A5;">23.5x Real-Time (7.8s)</div>
+            </div>
+            <span class="patch-status">MAX</span>
+          </div>
+
+          <div class="patch-toggle" onclick="togglePatch(this)">
+            <div>
+              <div class="patch-title">DEEP FOCUS (BEAM=5)</div>
+              <div style="font-size: 9px; color: #8E95A5;">Exhaustive Acoustic Beam</div>
+            </div>
+            <span class="patch-status">SLOW</span>
+          </div>
+        </div>
+
+        <button class="cyber-btn accent-green" style="width: 100%; margin-top: 8px;" onclick="startInference()">
+          ⚡ INGEST & TRANSCRIBE
+        </button>
+
+      </div>
+    </aside>
+
+    <!-- CENTER COLUMN: TRANSPORT + PUNCH CARDS DECK -->
+    <main class="center-column">
+
+      <!-- AUDIO TRANSPORT CONTROLS -->
+      <section class="transport-hud">
+        <div class="transport-top">
+          <div class="tape-counter" id="counterDisplay">00:14.28 / 03:04.00</div>
+          <div style="font-size: 11px; color: var(--toxic-green); font-weight: 700;">
+            STATUS: PLAYBACK SYNCED
+          </div>
+        </div>
+
+        <!-- SIMULATED AUDIO WAVEFORM LEVEL BARS -->
+        <div class="audio-waveform-bars" id="waveBarContainer">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="transport-buttons-row">
+          <button class="cyber-btn" id="playBtn" onclick="toggleAudio()">▶ PLAY AUDIO</button>
+          <button class="cyber-btn" onclick="seek(0)">⏮ REWIND</button>
+          <button class="cyber-btn" onclick="seek(30)">⏩ +30S</button>
+          <div style="margin-left: auto; font-size: 11px; color: #888;">
+            SAMPLING: 48,000 HZ / BIT-PERFECT
+          </div>
+        </div>
+      </section>
+
+      <!-- PUNCH CARD TRANSCRIPTION STREAM -->
+      <section class="punch-cards-deck" id="cardsDeck">
+        
+        <!-- CARD 1 -->
+        <article class="punch-card">
+          <div class="card-topline">
+            <span class="card-index">PUNCH-CARD #001</span>
+            <span class="card-timestamp">[00:00.00 → 00:07.42]</span>
+            <span class="card-confidence">CONF: 94.6%</span>
+          </div>
+          <div class="card-body-text">
+            <div class="source-vernacular">
+              तो तू रिसर्च कर रही है ना तो तू वह वाला रिसर्च कर भाई कि हम लोग कैसे Android का जो मतलब जब हम Android में डैक लगाते हैं ना...
+            </div>
+            <div class="translated-english">
+              "So you are doing the research, right? Please research how we can handle Android DAC connectivity when we plug a DAC into Android..."
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn-card-action" onclick="copyCard(this)">📋 Copy Line</button>
+            <button class="btn-card-action" onclick="seekTo(0)">▶ Play Segment</button>
+          </div>
+        </article>
+
+        <!-- CARD 2 -->
+        <article class="punch-card active-playback">
+          <div class="card-topline">
+            <span class="card-index">PUNCH-CARD #002</span>
+            <span class="card-timestamp">[00:07.42 → 00:15.80]</span>
+            <span class="card-confidence">CONF: 92.1%</span>
+          </div>
+          <div class="card-body-text">
+            <div class="source-vernacular">
+              तो कुछ-कुछ प्लेयर्स क्या होते हैं वह डैक को सीधा Android आडियो इंटरफेस को बाईपास नहीं कर पाते हैं तो उसके वजह से क्या होता है...
+            </div>
+            <div class="translated-english">
+              "Some audio players cannot bypass Android's standard audio interface directly. Because of that..."
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn-card-action" onclick="copyCard(this)">📋 Copy Line</button>
+            <button class="btn-card-action" onclick="seekTo(7.42)">▶ Play Segment</button>
+          </div>
+        </article>
+
+        <!-- CARD 3 -->
+        <article class="punch-card">
+          <div class="card-topline">
+            <span class="card-index">PUNCH-CARD #003</span>
+            <span class="card-timestamp">[00:15.80 → 00:23.10]</span>
+            <span class="card-confidence">CONF: 96.0%</span>
+          </div>
+          <div class="card-body-text">
+            <div class="source-vernacular">
+              क्योंकि Android 16 bit 48 kilohertz में शायद से वह कट ऑफ कर देता है या फिर 24 48 kilohertz मैं भूल गया था कितना है...
+            </div>
+            <div class="translated-english">
+              "Android caps the sample rate at 16-bit 48kHz (or 24-bit 48kHz, I forgot the exact figure)..."
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn-card-action" onclick="copyCard(this)">📋 Copy Line</button>
+            <button class="btn-card-action" onclick="seekTo(15.80)">▶ Play Segment</button>
+          </div>
+        </article>
+
+        <!-- CARD 4 -->
+        <article class="punch-card">
+          <div class="card-topline">
+            <span class="card-index">PUNCH-CARD #004</span>
+            <span class="card-timestamp">[00:23.10 → 00:32.40]</span>
+            <span class="card-confidence">CONF: 91.8%</span>
+          </div>
+          <div class="card-body-text">
+            <div class="source-vernacular">
+              पर मतलब वो कम है वो bit perfect नहीं है तो bit perfect बनाने के लिए हम क्या करना पड़ता है कि पहले वो जब ये बस deck के लिए होता है...
+            </div>
+            <div class="translated-english">
+              "It is not bit-perfect. So to make it bit-perfect, we need specific workarounds when using an external USB DAC..."
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="btn-card-action" onclick="copyCard(this)">📋 Copy Line</button>
+            <button class="btn-card-action" onclick="seekTo(23.10)">▶ Play Segment</button>
+          </div>
+        </article>
+
+      </section>
+
+    </main>
+
+    <!-- RIGHT COLUMN: 3D SPECTRUM MONOLITH & EXPORT HUB -->
+    <aside class="right-column">
+
+      <!-- 3D AUDIO SPECTRUM MONOLITH -->
+      <div class="rack-panel glow-green">
+        <div class="panel-header green">
+          <span>[3D ISOMETRIC MONOLITH]</span>
+          <span>GPU RENDER</span>
+        </div>
+        <div class="cube-monolith-canvas">
+          <canvas id="threeCanvas"></canvas>
+        </div>
+      </div>
+
+      <!-- AGENT PROMPT DISPATCHER -->
+      <div class="rack-panel glow-pink">
+        <div class="panel-header pink">
+          <span>[AGENT PAYLOAD DISPATCH]</span>
+          <span>LLM READY</span>
+        </div>
+        <div class="panel-body">
+          <div class="agent-quick-box">
+            <div class="agent-box-title">AI PROMPT PAYLOAD (PURE ENGLISH)</div>
+            <div class="agent-prompt-preview" id="promptPreview">
+[AUDIO TRANSCRIPT // PURIFIED ENGLISH]
+So you are doing the research, right? Please research how we can handle Android DAC connectivity when we plug a DAC into Android. Some audio players cannot bypass Android's standard audio interface directly. Android caps the sample rate at 16-bit 48kHz, which prevents bit-perfect playback. Workarounds are required for external USB DACs...
+            </div>
+          </div>
+
+          <button class="btn-agent-inject" onclick="copyAgentPayload()">
+            ⚡ COPY AGENT PAYLOAD
+          </button>
+        </div>
+      </div>
+
+      <!-- EXPORT FORMATS -->
+      <div class="rack-panel">
+        <div class="panel-header">
+          <span>[PACKAGED ARTIFACTS]</span>
+          <span>4 FILES</span>
+        </div>
+        <div class="panel-body">
+          <button class="cyber-btn" style="width: 100%;" onclick="download('txt')">💾 DOWNLOAD TXT (ENGLISH)</button>
+          <button class="cyber-btn" style="width: 100%;" onclick="download('srt')">🎬 DOWNLOAD SUBTITLES (.SRT)</button>
+          <button class="cyber-btn" style="width: 100%;" onclick="download('vtt')">🌐 DOWNLOAD WEBVTT (.VTT)</button>
+          <button class="cyber-btn" style="width: 100%;" onclick="download('json')">📦 DOWNLOAD JSON DATA</button>
+        </div>
+      </div>
+
+    </aside>
+
+  </div>
+
+  <!-- THREE.JS FOR ISOMETRIC SPECTRUM MONOLITH -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script>
+    // Build audio waveform visualizer bars
+    const barContainer = document.getElementById('waveBarContainer');
+    const barCount = 48;
+    const bars = [];
+    for (let i = 0; i < barCount; i++) {
+      const bar = document.createElement('div');
+      bar.className = 'wave-bar';
+      bar.style.height = `${Math.random() * 28 + 6}px`;
+      barContainer.appendChild(bar);
+      bars.push(bar);
+    }
+
+    let isAudioPlaying = false;
+    let waveInterval = null;
+
+    function toggleAudio() {
+      isAudioPlaying = !isAudioPlaying;
+      const btn = document.getElementById('playBtn');
+      if (isAudioPlaying) {
+        btn.innerText = '⏸ PAUSE AUDIO';
+        btn.style.background = '#FF0055';
+        btn.style.color = '#FFF';
+        waveInterval = setInterval(() => {
+          bars.forEach(b => {
+            b.style.height = `${Math.random() * 34 + 6}px`;
+            b.classList.toggle('active', Math.random() > 0.4);
+          });
+        }, 100);
+      } else {
+        btn.innerText = '▶ PLAY AUDIO';
+        btn.style.background = '#FFF';
+        btn.style.color = '#000';
+        clearInterval(waveInterval);
+        bars.forEach(b => b.classList.remove('active'));
+      }
+    }
+
+    function togglePatch(el) {
+      const parent = el.parentElement;
+      parent.querySelectorAll('.patch-toggle').forEach(t => {
+        t.classList.remove('active', 'active-green');
+      });
+      el.classList.add('active-green');
+    }
+
+    function copyCard(btn) {
+      const card = btn.closest('.punch-card');
+      const text = card.querySelector('.translated-english').innerText;
+      navigator.clipboard.writeText(text);
+      alert('Card transcribed text copied to clipboard!');
+    }
+
+    function copyAgentPayload() {
+      const text = document.getElementById('promptPreview').innerText;
+      navigator.clipboard.writeText(text);
+      alert('⚡ COPIED PURIFIED ENGLISH TO CLIPBOARD FOR DOWNSTREAM AI AGENT!');
+    }
+
+    function download(format) {
+      alert(`Package export initialized: [English Transcript.${format.toUpperCase()}]. Delivering bundle...`);
+    }
+
+    function selectFile() {
+      alert('Audio tape deck unlocked. Mount new file...');
+    }
+
+    function startInference() {
+      alert('Executing local CUDA Turbo transcription in int8_float16. Generating punch-card records...');
+      toggleAudio();
+    }
+
+    function seekTo(sec) {
+      alert(`Seeking playback head to ${sec}s...`);
+    }
+
+    function seek(sec) {
+      alert(`Seeking relative ${sec}s...`);
+    }
+
+    // Three.js Isometric Monolith Scene
+    const container = document.querySelector('.cube-monolith-canvas');
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x08090C);
+
+    const camera = new THREE.OrthographicCamera(
+      container.clientWidth / -4,
+      container.clientWidth / 4,
+      container.clientHeight / 4,
+      container.clientHeight / -4,
+      1,
+      1000
+    );
+    camera.position.set(100, 100, 100);
+    camera.lookAt(0, 0, 0);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('threeCanvas'), antialias: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+
+    // Create brutalist grid of monolith cubes
+    const cubes = [];
+    const gridSize = 4;
+    const spacing = 18;
+
+    for (let x = -gridSize / 2; x < gridSize / 2; x++) {
+      for (let z = -gridSize / 2; z < gridSize / 2; z++) {
+        const geometry = new THREE.BoxGeometry(12, 24, 12);
+        
+        // Wireframe brutalist edges
+        const edges = new THREE.EdgesGeometry(geometry);
+        const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x00FF66, linewidth: 2 }));
+        
+        const material = new THREE.MeshBasicMaterial({ color: 0x141822 });
+        const cube = new THREE.Mesh(geometry, material);
+        cube.position.set(x * spacing + spacing / 2, 0, z * spacing + spacing / 2);
+        cube.add(line);
+        scene.add(cube);
+        cubes.push(cube);
+      }
+    }
+
+    let clock = 0;
+    function animateThree() {
+      requestAnimationFrame(animateThree);
+      clock += 0.05;
+
+      cubes.forEach((cube, i) => {
+        const factor = isAudioPlaying ? 1.5 : 0.4;
+        const scaleY = (Math.sin(clock + i * 0.4) * 0.6 + 0.8) * factor;
+        cube.scale.y = Math.max(0.2, scaleY);
+      });
+
+      scene.rotation.y = clock * 0.2;
+      renderer.render(scene, camera);
+    }
+    animateThree();
+
+    window.addEventListener('resize', () => {
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+  </script>
+</body>
+</html>

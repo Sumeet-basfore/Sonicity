@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lumina 3D — Spatial Acoustic Lab</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --bg: #06080d;
+      --surface: rgba(15, 23, 42, 0.75);
+      --surface-border: rgba(56, 189, 248, 0.15);
+      --surface-border-hover: rgba(56, 189, 248, 0.4);
+      --text-main: #f8fafc;
+      --text-sub: #94a3b8;
+      --cyan: #38bdf8;
+      --emerald: #34d399;
+      --font-display: 'Syne', sans-serif;
+      --font-ui: 'Plus Jakarta Sans', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    #three-viewport {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: auto;
+    }
+
+    .glass-shell {
+      position: relative;
+      z-index: 2;
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 24px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      pointer-events: none;
+    }
+
+    .interactive-element {
+      pointer-events: auto;
+    }
+
+    /* Top Floating Bar */
+    header.floating-nav {
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 14px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+    }
+
+    .brand-group h1 {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+    }
+
+    .brand-group p {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--cyan);
+    }
+
+    .proto-nav {
+      display: flex;
+      gap: 6px;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px;
+      border-radius: 8px;
+      border: 1px solid var(--surface-border);
+    }
+
+    .proto-item {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      text-decoration: none;
+      color: var(--text-sub);
+    }
+
+    .proto-item.active, .proto-item:hover {
+      background: var(--cyan);
+      color: #000;
+      font-weight: 600;
+    }
+
+    /* Main Grid */
+    .lab-grid {
+      display: grid;
+      grid-template-columns: 440px 1fr;
+      gap: 24px;
+      flex: 1;
+    }
+
+    .hud-card {
+      background: var(--surface);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .hud-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .hud-title {
+      font-family: var(--font-display);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-sub);
+    }
+
+    .chip-badge {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      padding: 2px 8px;
+      background: rgba(56, 189, 248, 0.1);
+      border: 1px solid rgba(56, 189, 248, 0.25);
+      color: var(--cyan);
+      border-radius: 4px;
+    }
+
+    .upload-orbit {
+      border: 1px dashed var(--surface-border-hover);
+      border-radius: 8px;
+      padding: 32px 16px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .upload-orbit:hover {
+      background: rgba(56, 189, 248, 0.05);
+      border-color: var(--cyan);
+    }
+
+    .toggle-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .mode-pill {
+      padding: 10px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--surface-border);
+      border-radius: 6px;
+      text-align: center;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .mode-pill.active {
+      border-color: var(--emerald);
+      background: rgba(52, 211, 153, 0.1);
+      color: var(--emerald);
+      font-weight: 600;
+    }
+
+    .glow-button {
+      padding: 14px;
+      background: var(--cyan);
+      color: #06080d;
+      font-family: var(--font-display);
+      font-size: 13px;
+      font-weight: 800;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: auto;
+      transition: all 0.2s ease;
+    }
+
+    .glow-button:hover {
+      box-shadow: 0 0 24px rgba(56, 189, 248, 0.6);
+      transform: translateY(-1px);
+    }
+
+    /* Right Monitor Hub */
+    .stream-hub {
+      background: var(--surface);
+      backdrop-filter: blur(24px);
+      border: 1px solid var(--surface-border);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .hub-bar {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--surface-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .search-pill {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--surface-border);
+      border-radius: 6px;
+      padding: 6px 14px;
+      color: var(--text-main);
+      font-size: 12px;
+      width: 260px;
+      outline: none;
+    }
+
+    .stream-feed {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .feed-card {
+      padding: 14px 18px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid var(--surface-border);
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .feed-card:hover {
+      border-color: var(--surface-border-hover);
+    }
+
+    .feed-card.active {
+      border-color: var(--emerald);
+      background: rgba(52, 211, 153, 0.05);
+    }
+
+    .feed-time {
+      font-family: var(--font-mono);
+      font-size: 10px;
+      color: var(--cyan);
+    }
+
+    .feed-body {
+      font-size: 13px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Three.js 3D Acoustic Core -->
+  <div id="three-viewport"></div>
+
+  <div class="glass-shell">
+    <header class="floating-nav interactive-element">
+      <div class="brand-group">
+        <h1>Lumina 3D Acoustic Lab</h1>
+        <p>SPATIAL SPEECH TRANSLATION ENGINE</p>
+      </div>
+
+      <div class="proto-nav">
+        <a href="prototype-1-obsidian.html" class="proto-item">01 Obsidian</a>
+        <a href="prototype-2-editorial.html" class="proto-item">02 Editorial</a>
+        <a href="prototype-3-lumina3d.html" class="proto-item active">03 Lumina 3D</a>
+      </div>
+    </header>
+
+    <div class="lab-grid">
+      <aside class="hud-card interactive-element">
+        <div class="hud-header">
+          <span class="hud-title">Acoustic Ingestion</span>
+          <span class="chip-badge">CUDA ACCELERATED</span>
+        </div>
+
+        <div class="upload-orbit" onclick="alert('Upload WhatsApp or broadcast audio')">
+          <div style="font-size:24px; margin-bottom:6px;">✦</div>
+          <div style="font-weight:600; font-size:13px;">Drop Audio Track</div>
+          <div style="font-size:11px; color:var(--text-sub); font-family:var(--font-mono);">WhatsApp Ptt, MP3, WAV, M4A</div>
+        </div>
+
+        <div class="toggle-grid">
+          <div class="mode-pill active">Auto-Translate (English)</div>
+          <div class="mode-pill">Verbatim Hindi</div>
+        </div>
+
+        <button class="glow-button" onclick="alert('Running 3D GPU acoustic pipeline...')">⚡ Transcribe & Translate</button>
+      </aside>
+
+      <main class="stream-hub interactive-element">
+        <div class="hub-bar">
+          <input type="text" class="search-pill" placeholder="Filter spoken terms...">
+          <span class="chip-badge" style="color:var(--emerald); border-color:var(--emerald);">SPOKEN: HINDI ➔ 100% ENGLISH</span>
+        </div>
+
+        <div class="stream-feed">
+          <div class="feed-card active">
+            <span class="feed-time">00:00.0 → 00:04.8</span>
+            <div class="feed-body">So you're doing the research, right? So research that part, brother: how when we connect a DAC in Android...</div>
+          </div>
+          <div class="feed-card">
+            <span class="feed-time">00:04.8 → 00:11.2</span>
+            <div class="feed-body">Some players are unable to directly bypass the Android audio interface, and because of that...</div>
+          </div>
+          <div class="feed-card">
+            <span class="feed-time">00:11.2 → 00:17.5</span>
+            <div class="feed-body">Android probably cuts off at 16-bit 48 kHz or 24-bit 48 kHz, meaning the stream is not bit-perfect...</div>
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    // Three.js 3D Revolving Frequency Core & Orbit Rings
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 1000);
+    camera.position.z = 80;
+
+    const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    document.getElementById("three-viewport").appendChild(renderer.domElement);
+
+    // Central Sphere Wireframe
+    const sphereGeo = new THREE.IcosahedronGeometry(22, 3);
+    const sphereMat = new THREE.MeshBasicMaterial({
+      color: 0x38bdf8,
+      wireframe: true,
+      transparent: true,
+      opacity: 0.22
+    });
+    const sphere = new THREE.Mesh(sphereGeo, sphereMat);
+    scene.add(sphere);
+
+    // Particle Halo Rings
+    const ringParticles = 1200;
+    const ringGeo = new THREE.BufferGeometry();
+    const ringPos = new Float32Array(ringParticles * 3);
+
+    for (let i = 0; i < ringParticles; i++) {
+      const angle = (i / ringParticles) * Math.PI * 2;
+      const radius = 38 + (Math.random() - 0.5) * 8;
+      ringPos[i * 3] = Math.cos(angle) * radius;
+      ringPos[i * 3 + 1] = (Math.random() - 0.5) * 10;
+      ringPos[i * 3 + 2] = Math.sin(angle) * radius;
+    }
+    ringGeo.setAttribute('position', new THREE.BufferAttribute(ringPos, 3));
+
+    const ringMat = new THREE.PointsMaterial({
+      size: 1.2,
+      color: 0x34d399,
+      transparent: true,
+      opacity: 0.5
+    });
+    const ring = new THREE.Points(ringGeo, ringMat);
+    ring.rotation.x = 0.5;
+    scene.add(ring);
+
+    // Mouse movement interaction
+    let mouseX = 0, mouseY = 0;
+    window.addEventListener("mousemove", (e) => {
+      mouseX = (e.clientX - window.innerWidth / 2) * 0.05;
+      mouseY = (e.clientY - window.innerHeight / 2) * 0.05;
+    });
+
+    function render3D() {
+      requestAnimationFrame(render3D);
+
+      sphere.rotation.y += 0.003;
+      sphere.rotation.x += 0.002;
+      ring.rotation.y -= 0.002;
+
+      sphere.position.x += (mouseX - sphere.position.x) * 0.05;
+      sphere.position.y += (-mouseY - sphere.position.y) * 0.05;
+      ring.position.x = sphere.position.x;
+      ring.position.y = sphere.position.y;
+
+      renderer.render(scene, camera);
+    }
+    render3D();
+
+    window.addEventListener("resize", () => {
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    });
+  </script>
+</body>
+</html>

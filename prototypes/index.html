@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SonicScribe // Neo-Brutalist Prototype Switchboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@400;700;800&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #F0ECE1;
+      --ink: #0A0A0A;
+      --card-bg: #FFFFFF;
+      --yellow: #FFE600;
+      --green: #00E575;
+      --pink: #FF3366;
+      --blue: #0047FF;
+      --orange: #FF5500;
+      --border-thick: 3.5px solid var(--ink);
+      --shadow-hard: 6px 6px 0px var(--ink);
+      --shadow-hover: 9px 9px 0px var(--ink);
+      --shadow-press: 2px 2px 0px var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background: var(--bg);
+      background-image: 
+        radial-gradient(circle at 1px 1px, rgba(10, 10, 10, 0.12) 1.5px, transparent 0);
+      background-size: 24px 24px;
+      color: var(--ink);
+      font-family: 'Space Grotesk', sans-serif;
+      min-height: 100vh;
+      padding: 40px 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hub-container {
+      max-width: 1200px;
+      width: 100%;
+    }
+
+    /* TOP BANNER */
+    .hub-header {
+      border: var(--border-thick);
+      background: var(--yellow);
+      box-shadow: var(--shadow-hard);
+      padding: 30px 36px;
+      margin-bottom: 36px;
+      position: relative;
+    }
+
+    .badge-top {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 800;
+      background: var(--ink);
+      color: #FFF;
+      display: inline-block;
+      padding: 4px 10px;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    h1 {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: clamp(28px, 4vw, 42px);
+      text-transform: uppercase;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 12px;
+    }
+
+    p.subtitle {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      color: #333;
+      max-width: 800px;
+      line-height: 1.5;
+    }
+
+    /* PROTOTYPES GRID */
+    .prototypes-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 28px;
+      margin-bottom: 36px;
+    }
+
+    .proto-card {
+      background: var(--card-bg);
+      border: var(--border-thick);
+      box-shadow: var(--shadow-hard);
+      display: flex;
+      flex-direction: column;
+      transition: all 0.15s ease;
+      position: relative;
+    }
+
+    .proto-card:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .proto-card-header {
+      padding: 16px 20px;
+      border-bottom: var(--border-thick);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .proto-card-header.v1 {
+      background: var(--yellow);
+    }
+    .proto-card-header.v2 {
+      background: var(--orange);
+      color: #FFF;
+    }
+    .proto-card-header.v3 {
+      background: var(--ink);
+      color: var(--green);
+    }
+
+    .proto-title {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 16px;
+      text-transform: uppercase;
+    }
+
+    .proto-tag {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 8px;
+      background: #FFF;
+      color: #000;
+      border: 2px solid #000;
+    }
+
+    .proto-card-body {
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      gap: 16px;
+    }
+
+    .proto-desc {
+      font-size: 13px;
+      color: #444;
+      line-height: 1.5;
+    }
+
+    .feature-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: auto;
+    }
+
+    .feature-item {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #222;
+      background: #F4EFE6;
+      padding: 6px 10px;
+      border: 1.5px solid #000;
+    }
+
+    .btn-launch {
+      margin-top: 16px;
+      background: var(--ink);
+      color: #FFF;
+      border: var(--border-thick);
+      box-shadow: 4px 4px 0px rgba(0,0,0,0.3);
+      padding: 14px 18px;
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 13px;
+      text-transform: uppercase;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.1s;
+    }
+
+    .proto-card:hover .btn-launch {
+      background: var(--green);
+      color: #000;
+      box-shadow: 4px 4px 0px #000;
+    }
+
+    .btn-launch:active {
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #000;
+    }
+
+    /* FOOTER METRICS */
+    .footer-telemetry {
+      border: var(--border-thick);
+      background: #FFF;
+      box-shadow: var(--shadow-hard);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    @media (max-width: 960px) {
+      .prototypes-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hub-container">
+
+    <!-- MASTER HEADER -->
+    <header class="hub-header">
+      <div class="badge-top">NEO-BRUTALIST PROTOTYPE MATRIX // 100% LOCAL CUDA</div>
+      <h1>AUDIO TO AGENT ENGLISH</h1>
+      <p class="subtitle">
+        Compare 3 radically distinct Neo-Brutalist layouts. Every prototype features high-contrast black borders, 0px blur hard offset shadows, mechanical tactile interactions, and automatic Hindi-to-pure-English translation routing for autonomous AI agents.
+      </p>
+    </header>
+
+    <!-- 3 DISTINCT PROTOTYPES GRID -->
+    <div class="prototypes-grid">
+
+      <!-- PROTOTYPE 1: CASSETTE BENTO CONSOLE -->
+      <div class="proto-card">
+        <div class="proto-card-header v1">
+          <span class="proto-title">01 // BENTO CONSOLE</span>
+          <span class="proto-tag">LAYOUT A</span>
+        </div>
+        <div class="proto-card-body">
+          <p class="proto-desc">
+            Asymmetric Bento grid layout with raw newsprint paper, tactile cassette deck scrub controls, and an interactive 3D brutalist wireframe cube that rotates with audio rhythm.
+          </p>
+          <ul class="feature-list">
+            <li class="feature-item"><span>📦</span> Asymmetric Bento Grid Blocks</li>
+            <li class="feature-item"><span>📼</span> Tape Deck Scrubber Timeline</li>
+            <li class="feature-item"><span>🧊</span> Three.js 3D Brutalist Cube</li>
+            <li class="feature-item"><span>🔄</span> Dual Hindi vs English Cards</li>
+          </ul>
+          <a href="prototype-neobrutal-1.html" class="btn-launch">
+            LAUNCH PROTOTYPE 01 ➔
+          </a>
+        </div>
+      </div>
+
+      <!-- PROTOTYPE 2: SWISS INDUSTRIAL SPEC-SHEET -->
+      <div class="proto-card">
+        <div class="proto-card-header v2">
+          <span class="proto-title">02 // INDUSTRIAL SPEC</span>
+          <span class="proto-tag">LAYOUT B</span>
+        </div>
+        <div class="proto-card-body">
+          <p class="proto-desc">
+            Horizontal engineering spec-sheet. Features a 4-step pipeline navigation bar, an industrial CRT oscilloscope with active crosshairs, and a live dual-lane Teleprinter Churn.
+          </p>
+          <ul class="feature-list">
+            <li class="feature-item"><span>📐</span> Horizontal Chevron Pipeline</li>
+            <li class="feature-item"><span>⚡</span> Canvas Oscilloscope + Crosshairs</li>
+            <li class="feature-item"><span>📠</span> Split Teleprinter Churn Stream</li>
+            <li class="feature-item"><span>🟠</span> Safety Orange & Draft Paper</li>
+          </ul>
+          <a href="prototype-neobrutal-2.html" class="btn-launch">
+            LAUNCH PROTOTYPE 02 ➔
+          </a>
+        </div>
+      </div>
+
+      <!-- PROTOTYPE 3: CYBER-RACK PUNCH-CARD MATRIX -->
+      <div class="proto-card">
+        <div class="proto-card-header v3">
+          <span class="proto-title">03 // CYBER RACKMOUNT</span>
+          <span class="proto-tag">LAYOUT C</span>
+        </div>
+        <div class="proto-card-body">
+          <p class="proto-desc">
+            Dark-mode brutalist rackmount console. Neon toxic lime & voltage yellow offset shadows, magnetic tape reel slot, perforated punch-card records, and 3D isometric monoliths.
+          </p>
+          <ul class="feature-list">
+            <li class="feature-item"><span>🎛️</span> 3-Column Modular Rackmount</li>
+            <li class="feature-item"><span>🏷️</span> Perforated "Punch Card" Records</li>
+            <li class="feature-item"><span>🟩</span> Radioactive Neon Drop Shadows</li>
+            <li class="feature-item"><span>🤖</span> 1-Click "Copy for Agent" Injector</li>
+          </ul>
+          <a href="prototype-neobrutal-3.html" class="btn-launch">
+            LAUNCH PROTOTYPE 03 ➔
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- FOOTER TELEMETRY -->
+    <footer class="footer-telemetry">
+      <div>HARDWARE: NVIDIA RTX 3050 (6GB) // CTranslate2 int8_float16 (1.1GB VRAM)</div>
+      <div>HTTP SERVER: http://127.0.0.1:5500/</div>
+    </footer>
+
+  </div>
+
+</body>
+</html>

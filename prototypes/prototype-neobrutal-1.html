@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SonicScribe — Neo-Brutalist Bento Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:wght@500;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <style>
+    :root {
+      --neo-border: 3px solid #000000;
+      --neo-border-thick: 4px solid #000000;
+      --neo-shadow: 5px 5px 0px #000000;
+      --neo-shadow-lg: 8px 8px 0px #000000;
+      --neo-shadow-sm: 3px 3px 0px #000000;
+      
+      --c-bg: #F4F0E8;
+      --c-card: #FFFFFF;
+      --c-yellow: #FFE600;
+      --c-pink: #FF4785;
+      --c-cyan: #00F0FF;
+      --c-green: #00E575;
+      --c-orange: #FF7300;
+      --c-ink: #000000;
+
+      --f-display: 'Archivo Black', sans-serif;
+      --f-body: 'Space Grotesk', sans-serif;
+      --f-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--c-bg);
+      color: var(--c-ink);
+      font-family: var(--f-body);
+      min-height: 100vh;
+      padding: 24px;
+      overflow-x: hidden;
+      background-image: radial-gradient(#000000 1.2px, transparent 1.2px);
+      background-size: 24px 24px;
+    }
+
+    #three-bg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      pointer-events: none;
+      opacity: 0.35;
+    }
+
+    .app-shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1400px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Top Marquee Nav */
+    .neo-header {
+      background: var(--c-card);
+      border: var(--neo-border-thick);
+      box-shadow: var(--neo-shadow);
+      border-radius: 12px;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .brand-mark {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-badge {
+      background: var(--c-pink);
+      color: #fff;
+      font-family: var(--f-display);
+      font-size: 20px;
+      padding: 6px 14px;
+      border: var(--neo-border);
+      box-shadow: var(--neo-shadow-sm);
+      transform: rotate(-3deg);
+    }
+
+    .brand-title {
+      font-family: var(--f-display);
+      font-size: 26px;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+    }
+
+    .badge-rack {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .neo-stamp {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      border: var(--neo-border);
+      box-shadow: var(--neo-shadow-sm);
+    }
+
+    .stamp-yellow { background: var(--c-yellow); }
+    .stamp-green { background: var(--c-green); }
+    .stamp-cyan { background: var(--c-cyan); }
+
+    .proto-bar {
+      display: flex;
+      gap: 8px;
+    }
+
+    .proto-link {
+      font-family: var(--f-mono);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 8px 14px;
+      background: var(--c-card);
+      color: var(--c-ink);
+      text-decoration: none;
+      border: var(--neo-border);
+      box-shadow: var(--neo-shadow-sm);
+      transition: all 0.1s ease;
+    }
+
+    .proto-link.active, .proto-link:hover {
+      background: var(--c-yellow);
+      transform: translate(2px, 2px);
+      box-shadow: 1px 1px 0px #000;
+    }
+
+    /* Bento Grid Layout */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 340px;
+      grid-template-rows: auto auto 1fr;
+      gap: 20px;
+    }
+
+    .bento-card {
+      background: var(--c-card);
+      border: var(--neo-border-thick);
+      box-shadow: var(--neo-shadow);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .card-header-neo {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: var(--neo-border);
+      padding-bottom: 12px;
+    }
+
+    .card-heading {
+      font-family: var(--f-display);
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: -0.01em;
+    }
+
+    /* Tape Deck Timeline (Full Width Across Top 2 Cols) */
+    .tape-deck-card {
+      grid-column: 1 / 3;
+      background: var(--c-yellow);
+    }
+
+    .tape-controls {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .tape-btn {
+      padding: 10px 18px;
+      font-family: var(--f-mono);
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      background: #fff;
+      color: #000;
+      border: var(--neo-border);
+      box-shadow: var(--neo-shadow-sm);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.1s ease;
+    }
+
+    .tape-btn:hover {
+      background: var(--c-cyan);
+    }
+
+    .tape-btn:active {
+      transform: translate(3px, 3px);
+      box-shadow: 0px 0px 0px #000;
+    }
+
+    .tape-scrubber {
+      flex: 1;
+      height: 24px;
+      background: #000;
+      border: 2px solid #000;
+      position: relative;
+      cursor: pointer;
+      overflow: hidden;
+    }
+
+    .tape-progress {
+      height: 100%;
+      background: var(--c-green);
+      width: 35%;
+      border-right: 3px solid #fff;
+      transition: width 0.1s linear;
+    }
+
+    .time-stamp-display {
+      font-family: var(--f-mono);
+      font-weight: 800;
+      font-size: 14px;
+      background: #000;
+      color: var(--c-yellow);
+      padding: 8px 14px;
+      border: var(--neo-border);
+    }
+
+    /* Audio Drop Slot (Right Col Top) */
+    .drop-slot-card {
+      grid-column: 3 / 4;
+      grid-row: 1 / 3;
+      background: var(--c-card);
+    }
+
+    .neo-dropzone {
+      border: 3px dashed #000;
+      background: var(--c-bg);
+      border-radius: 8px;
+      padding: 30px 16px;
+      text-align: center;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .neo-dropzone:hover {
+      background: var(--c-cyan);
+      box-shadow: var(--neo-shadow-sm);
+    }
+
+    .dropzone-big-icon {
+      font-size: 38px;
+    }
+
+    .dropzone-strong {
+      font-family: var(--f-display);
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .dropzone-small {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      color: #555;
+    }
+
+    /* Translation Mode Block */
+    .mode-switch-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .neo-option-card {
+      border: var(--neo-border);
+      box-shadow: var(--neo-shadow-sm);
+      padding: 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #fff;
+      transition: all 0.1s ease;
+    }
+
+    .neo-option-card:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: var(--neo-shadow);
+    }
+
+    .neo-option-card.selected {
+      background: var(--c-green);
+      border-width: 4px;
+    }
+
+    .option-title {
+      font-family: var(--f-display);
+      font-size: 13px;
+      text-transform: uppercase;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .option-desc {
+      font-size: 11px;
+      font-weight: 500;
+      color: #333;
+      line-height: 1.35;
+    }
+
+    /* Primary Start Button */
+    .neo-launch-btn {
+      background: var(--c-pink);
+      color: #fff;
+      font-family: var(--f-display);
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      padding: 18px;
+      border: var(--neo-border-thick);
+      box-shadow: var(--neo-shadow);
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.1s ease;
+      text-align: center;
+    }
+
+    .neo-launch-btn:hover {
+      background: #ff2065;
+      transform: translate(-2px, -2px);
+      box-shadow: var(--neo-shadow-lg);
+    }
+
+    .neo-launch-btn:active {
+      transform: translate(5px, 5px);
+      box-shadow: 0px 0px 0px #000;
+    }
+
+    /* Live Output Feeds (Cols 1 & 2) */
+    .english-output-card {
+      background: var(--c-card);
+    }
+
+    .source-hindi-card {
+      background: var(--c-bg);
+    }
+
+    .neo-search-bar {
+      display: flex;
+      border: var(--neo-border);
+      box-shadow: var(--neo-shadow-sm);
+      background: #fff;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .neo-search-input {
+      flex: 1;
+      padding: 10px 14px;
+      border: none;
+      outline: none;
+      font-family: var(--f-mono);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .stream-cards-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      max-height: 480px;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .neo-bubble {
+      background: #fff;
+      border: var(--neo-border);
+      box-shadow: var(--neo-shadow-sm);
+      border-radius: 8px;
+      padding: 14px;
+      cursor: pointer;
+      transition: all 0.1s ease;
+    }
+
+    .neo-bubble:hover {
+      background: var(--c-yellow);
+      transform: translate(-2px, -2px);
+      box-shadow: var(--neo-shadow);
+    }
+
+    .neo-bubble.active-seg {
+      background: var(--c-green);
+      border-width: 4px;
+    }
+
+    .bubble-head {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    .bubble-time {
+      font-family: var(--f-mono);
+      font-size: 11px;
+      font-weight: 800;
+      background: #000;
+      color: #fff;
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+
+    .bubble-text {
+      font-size: 14px;
+      line-height: 1.5;
+      font-weight: 600;
+    }
+
+    .bubble-text mark {
+      background: var(--c-pink);
+      color: #fff;
+      padding: 0 4px;
+    }
+
+    /* Export Stickers */
+    .export-strip {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .export-sticker {
+      font-family: var(--f-mono);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 8px 16px;
+      background: var(--c-cyan);
+      border: var(--neo-border);
+      box-shadow: var(--neo-shadow-sm);
+      cursor: pointer;
+      text-transform: uppercase;
+      border-radius: 6px;
+      transition: all 0.1s ease;
+    }
+
+    .export-sticker:hover {
+      background: var(--c-yellow);
+      transform: translate(-2px, -2px);
+      box-shadow: var(--neo-shadow);
+    }
+
+    .export-sticker:active {
+      transform: translate(3px, 3px);
+      box-shadow: 0px 0px 0px #000;
+    }
+
+    /* Toast */
+    #neo-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: var(--c-yellow);
+      border: var(--neo-border-thick);
+      box-shadow: var(--neo-shadow);
+      font-family: var(--f-display);
+      font-size: 14px;
+      padding: 14px 24px;
+      z-index: 100;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.2s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+    }
+
+    #neo-toast.visible {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Three.js 3D Brutalist Waveform Geometry -->
+  <div id="three-bg"></div>
+
+  <div class="app-shell">
+    <!-- Header Marquee -->
+    <header class="neo-header">
+      <div class="brand-mark">
+        <div class="brand-badge">SONIC</div>
+        <div class="brand-title">SonicScribe / Neo-Bento</div>
+      </div>
+
+      <div class="badge-rack">
+        <span class="neo-stamp stamp-green">⚡ RTX 3050 CUDA OK</span>
+        <span class="neo-stamp stamp-yellow">🎙️ FASTER-WHISPER</span>
+        <span class="neo-stamp stamp-cyan">🌍 HINDI ➔ ENGLISH ACTIVE</span>
+      </div>
+
+      <div class="proto-bar">
+        <a href="prototype-neobrutal-1.html" class="proto-link active">01 Bento Neo</a>
+        <a href="prototype-neobrutal-2.html" class="proto-link">02 Swiss Neo</a>
+        <a href="prototype-neobrutal-3.html" class="proto-link">03 Dark Neo</a>
+      </div>
+    </header>
+
+    <!-- Bento Grid -->
+    <main class="bento-grid">
+      <!-- Tape Deck Timeline Card (Span 2) -->
+      <section class="bento-card tape-deck-card">
+        <div class="card-header-neo">
+          <span class="card-heading">Audio Tape Deck & Waveform</span>
+          <span class="neo-stamp" style="background:#fff">3:04.0 TRACK DURATION</span>
+        </div>
+
+        <div class="tape-controls">
+          <button class="tape-btn" id="play-btn" onclick="togglePlay()">▶ PLAY</button>
+          <button class="tape-btn" onclick="seekRelative(-5)">⏪ -5S</button>
+          <button class="tape-btn" onclick="seekRelative(5)">⏩ +5S</button>
+          <div class="tape-scrubber" id="scrubber-bar" onclick="scrubTape(event)">
+            <div class="tape-progress" id="tape-fill"></div>
+          </div>
+          <div class="time-stamp-display" id="time-display">00:00.0 / 03:04.0</div>
+        </div>
+      </section>
+
+      <!-- Ingestion & Settings Slot (Col 3 Top-to-Bottom) -->
+      <aside class="bento-card drop-slot-card">
+        <div class="card-header-neo">
+          <span class="card-heading">Ingest Deck</span>
+          <span style="font-family:var(--f-mono); font-size:12px; font-weight:800;">SLOT 01</span>
+        </div>
+
+        <!-- File Ingest -->
+        <div class="neo-dropzone" onclick="document.getElementById('file-input').click()">
+          <input type="file" id="file-input" style="display:none" onchange="handleFile(event)">
+          <div class="dropzone-big-icon">💾</div>
+          <div class="dropzone-strong" id="drop-text">DROP AUDIO FILE</div>
+          <div class="dropzone-small">WhatsApp Ptt, OGG, WAV, MP3</div>
+        </div>
+
+        <!-- Language Routing Switch -->
+        <div class="mode-switch-grid">
+          <div class="neo-option-card selected" id="opt-english" onclick="selectMode(true)">
+            <span class="option-title">🇬🇧 Always English</span>
+            <span class="option-desc">Auto-translates Hindi or foreign audio into 100% natural English for AI agents.</span>
+          </div>
+          <div class="neo-option-card" id="opt-verbatim" onclick="selectMode(false)">
+            <span class="option-title">🌐 Original Spoken</span>
+            <span class="option-desc">Transcribes verbatim in the source language.</span>
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button class="neo-launch-btn" onclick="triggerInference()">⚡ EXECUTE DECODING</button>
+      </aside>
+
+      <!-- English Translated Speech (Col 1) -->
+      <section class="bento-card english-output-card">
+        <div class="card-header-neo">
+          <span class="card-heading">🇬🇧 Translated English (AI Ready)</span>
+          <span class="neo-stamp stamp-green">100% CLEAN ENGLISH</span>
+        </div>
+
+        <div class="neo-search-bar">
+          <input type="text" class="neo-search-input" placeholder="Search keywords in English..." oninput="filterCards(this.value)">
+        </div>
+
+        <div class="stream-cards-container" id="english-stream">
+          <!-- Dynamically Rendered -->
+        </div>
+
+        <div class="export-strip">
+          <button class="export-sticker" onclick="exportFile('txt')">TXT</button>
+          <button class="export-sticker" onclick="exportFile('srt')">SRT</button>
+          <button class="export-sticker" onclick="exportFile('vtt')">VTT</button>
+          <button class="export-sticker" onclick="exportFile('json')">JSON</button>
+          <button class="export-sticker" style="background:var(--c-yellow)" onclick="copyText()">COPY ALL</button>
+        </div>
+      </section>
+
+      <!-- Original Hindi Raw Speech (Col 2) -->
+      <section class="bento-card source-hindi-card">
+        <div class="card-header-neo">
+          <span class="card-heading">🌐 Spoken Hindi Audio Source</span>
+          <span class="neo-stamp stamp-yellow">RAW ACOUSTIC</span>
+        </div>
+
+        <div class="stream-cards-container" id="hindi-stream">
+          <!-- Dynamically Rendered -->
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="neo-toast">COPIED TO CLIPBOARD!</div>
+
+  <script>
+    const ENGLISH_SEGMENTS = [
+      { id: 1, start: 0.0, end: 4.8, text: "So you're researching Android, right? So research that part, brother." },
+      { id: 2, start: 4.8, end: 11.2, text: "How when we connect a DAC in Android, some players are unable to directly bypass the Android audio interface." },
+      { id: 3, start: 11.2, end: 17.5, text: "Because of that, Android probably cuts off at 16-bit 48 kHz or 24-bit 48 kHz, so it is not bit-perfect." },
+      { id: 4, start: 17.5, end: 23.4, text: "To make it bit-perfect, when we use it for the deck, it will bypass the Android audio interface." },
+      { id: 5, start: 23.4, end: 30.1, text: "The limitation is that if we swap it with the hardware DAC, our volume buttons won't work." },
+      { id: 6, start: 30.1, end: 37.8, text: "There are workarounds like apps that use Chromecast streaming where you adjust volume through the app slider." }
+    ];
+
+    const HINDI_SEGMENTS = [
+      { id: 1, start: 0.0, end: 4.8, text: "तो तू रिसर्च करी रहा है ना तो तू वह वाला रिसर्च कर भाई कि हम लोग कैसे Android का..." },
+      { id: 2, start: 4.8, end: 11.2, text: "जो मतलब जब हम Android में डैक लगाते है ना तो कुछ-कुछ प्लेयर्स क्या होते है वह डैक को सीधा Android अड्यो इंटरफेस को बाईपास नहीं कर पाते है..." },
+      { id: 3, start: 11.2, end: 17.5, text: "तो उसके वजह से क्या होता है क्यूंकि Android 16 bit 48 kilohertz में शायद से वो cut off कर देता है..." },
+      { id: 4, start: 17.5, end: 23.4, text: "तो bit perfect बनाने के लिए हम क्या करना पड़ता है कि पहले वो जब ये बस deck के लिए होता है..." },
+      { id: 5, start: 23.4, end: 30.1, text: "पर इससे एक दिक्कत यह होती है कि अगर तो पूरा इसको स्वैप देता है ना हार्डवेयर डैक को तो फिर हमारा वॉल्यूम बटन्स काम नहीं करता..." },
+      { id: 6, start: 30.1, end: 37.8, text: "तो इसके लिए कुछ वर्कअराउंड्स ऐसे है कि जैसे कि कुछ कुछ ऐप्स क्रोम कास्ट की तरह यूज करते है..." }
+    ];
+
+    let isPlaying = false;
+    let currentTime = 0;
+    const totalDuration = 184; // 3:04
+    let playTimer = null;
+
+    function renderFeed(filter = "") {
+      const engBox = document.getElementById("english-stream");
+      engBox.innerHTML = "";
+
+      ENGLISH_SEGMENTS.forEach(item => {
+        if (filter && !item.text.toLowerCase().includes(filter.toLowerCase())) return;
+
+        let display = item.text;
+        if (filter) {
+          const reg = new RegExp(`(${filter})`, 'gi');
+          display = display.replace(reg, '<mark>$1</mark>');
+        }
+
+        const div = document.createElement("div");
+        div.className = "neo-bubble";
+        div.id = `bubble-${item.id}`;
+        div.onclick = () => jumpTo(item.start);
+        div.innerHTML = `
+          <div class="bubble-head">
+            <span class="bubble-time">[${formatSec(item.start)} → ${formatSec(item.end)}]</span>
+            <span style="font-family:var(--f-mono); font-size:11px; font-weight:800;">SEG #${item.id}</span>
+          </div>
+          <div class="bubble-text">${display}</div>
+        `;
+        engBox.appendChild(div);
+      });
+
+      const hinBox = document.getElementById("hindi-stream");
+      hinBox.innerHTML = "";
+      HINDI_SEGMENTS.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "neo-bubble";
+        div.id = `hin-bubble-${item.id}`;
+        div.onclick = () => jumpTo(item.start);
+        div.innerHTML = `
+          <div class="bubble-head">
+            <span class="bubble-time">[${formatSec(item.start)} → ${formatSec(item.end)}]</span>
+          </div>
+          <div class="bubble-text">${item.text}</div>
+        `;
+        hinBox.appendChild(div);
+      });
+    }
+
+    function formatSec(s) {
+      const m = Math.floor(s / 60);
+      const sec = Math.floor(s % 60);
+      return `${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
+    }
+
+    function togglePlay() {
+      isPlaying = !isPlaying;
+      document.getElementById("play-btn").innerText = isPlaying ? "⏸ PAUSE" : "▶ PLAY";
+
+      if (isPlaying) {
+        playTimer = setInterval(() => {
+          currentTime += 0.5;
+          if (currentTime >= totalDuration) {
+            currentTime = 0;
+            togglePlay();
+          }
+          syncUI();
+        }, 500);
+      } else {
+        clearInterval(playTimer);
+      }
+    }
+
+    function scrubTape(e) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const pct = (e.clientX - rect.left) / rect.width;
+      currentTime = pct * totalDuration;
+      syncUI();
+    }
+
+    function seekRelative(delta) {
+      currentTime = Math.max(0, Math.min(totalDuration, currentTime + delta));
+      syncUI();
+    }
+
+    function jumpTo(sec) {
+      currentTime = sec;
+      syncUI();
+      if (!isPlaying) togglePlay();
+    }
+
+    function syncUI() {
+      const pct = (currentTime / totalDuration) * 100;
+      document.getElementById("tape-fill").style.width = `${pct}%`;
+      document.getElementById("time-display").innerText = `${formatSec(currentTime)} / 03:04.0`;
+
+      ENGLISH_SEGMENTS.forEach(item => {
+        const b = document.getElementById(`bubble-${item.id}`);
+        const hb = document.getElementById(`hin-bubble-${item.id}`);
+        const active = (currentTime >= item.start && currentTime <= item.end);
+        if (b) b.classList.toggle("active-seg", active);
+        if (hb) hb.classList.toggle("active-seg", active);
+      });
+    }
+
+    function filterCards(q) {
+      renderFeed(q);
+    }
+
+    function selectMode(isEnglish) {
+      document.getElementById("opt-english").classList.toggle("selected", isEnglish);
+      document.getElementById("opt-verbatim").classList.toggle("selected", !isEnglish);
+      toast(isEnglish ? "ALWAYS ENGLISH TRANSLATION ACTIVE" : "ORIGINAL VERBATIM ACTIVE");
+    }
+
+    function handleFile(e) {
+      if (e.target.files.length) {
+        document.getElementById("drop-text").innerText = e.target.files[0].name.toUpperCase();
+        toast("LOADED: " + e.target.files[0].name);
+      }
+    }
+
+    function triggerInference() {
+      toast("EXECUTING ON NVIDIA RTX 3050 CUDA (0.8s)...");
+      setTimeout(() => {
+        toast("TRANSLATION COMPLETE: 100% ENGLISH!");
+        renderFeed();
+      }, 800);
+    }
+
+    function copyText() {
+      const full = ENGLISH_SEGMENTS.map(s => s.text).join(" ");
+      navigator.clipboard.writeText(full);
+      toast("COPIED FULL ENGLISH TRANSCRIPT!");
+    }
+
+    function exportFile(ext) {
+      toast(`EXPORTED AS .${ext.toUpperCase()}`);
+    }
+
+    function toast(msg) {
+      const t = document.getElementById("neo-toast");
+      t.innerText = msg;
+      t.classList.add("visible");
+      setTimeout(() => t.classList.remove("visible"), 2500);
+    }
+
+    // Three.js 3D Isometric Brutalist Waveform Blocks
+    function initThree() {
+      const scene = new THREE.Scene();
+      const camera = new THREE.OrthographicCamera(
+        window.innerWidth / -18, window.innerWidth / 18,
+        window.innerHeight / 18, window.innerHeight / -18,
+        1, 1000
+      );
+      camera.position.set(40, 40, 40);
+      camera.lookAt(0, 0, 0);
+
+      const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      document.getElementById("three-bg").appendChild(renderer.domElement);
+
+      const group = new THREE.Group();
+      const gridSize = 12;
+      const cubeSize = 3;
+      const cubes = [];
+
+      for (let x = -gridSize; x <= gridSize; x += 3) {
+        for (let z = -gridSize; z <= gridSize; z += 3) {
+          const geo = new THREE.BoxGeometry(cubeSize, 2, cubeSize);
+          const edges = new THREE.EdgesGeometry(geo);
+          const line = new THREE.LineSegments(edges, new THREE.LineBasicMaterial({ color: 0x000000, linewidth: 2 }));
+          
+          const mat = new THREE.MeshBasicMaterial({ color: 0xffe600 });
+          const mesh = new THREE.Mesh(geo, mat);
+          mesh.position.set(x, 0, z);
+          mesh.add(line);
+          group.add(mesh);
+          cubes.push(mesh);
+        }
+      }
+      scene.add(group);
+
+      let clock = 0;
+      function loop() {
+        requestAnimationFrame(loop);
+        clock += 0.03;
+        cubes.forEach((cube, i) => {
+          cube.scale.y = 1 + Math.sin(clock + cube.position.x * 0.2 + cube.position.z * 0.2) * 2;
+        });
+        renderer.render(scene, camera);
+      }
+      loop();
+    }
+
+    window.onload = () => {
+      initThree();
+      renderFeed();
+    };
+  </script>
+</body>
+</html>

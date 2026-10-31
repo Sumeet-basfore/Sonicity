@@ -1,0 +1,3705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPEC-09 // INDUSTRIAL AUDIO COMPILER & AGENT STUDIO</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:ital,wght@0,400;0,700;0,800;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --paper: #EFECE6;
+      --paper-card: #FFFFFF;
+      --paper-dark: #E2DDD5;
+      --ink: #0A0A0A;
+      --safety-orange: #FF4A00;
+      --electric-blue: #0038FF;
+      --acid-yellow: #FFF000;
+      --toxic-green: #00E575;
+      --border-thick: 3.5px solid var(--ink);
+      --border-med: 2.5px solid var(--ink);
+      --shadow-hard: 5px 5px 0px var(--ink);
+      --shadow-hover: 7px 7px 0px var(--ink);
+      --shadow-press: 1px 1px 0px var(--ink);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--paper);
+      background-image: radial-gradient(circle at 1px 1px, rgba(10, 10, 10, 0.15) 1px, transparent 0);
+      background-size: 24px 24px;
+      color: var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      padding-bottom: 60px;
+      line-height: 1.4;
+      overflow-x: hidden;
+    }
+
+    /* TOP MARQUEE */
+    .top-marquee {
+      background: var(--ink);
+      color: var(--acid-yellow);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 0;
+      overflow: hidden;
+      white-space: nowrap;
+      border-bottom: var(--border-thick);
+      letter-spacing: 0.1em;
+    }
+    .marquee-inner { display: inline-block; animation: ticker 28s linear infinite; }
+    @keyframes ticker { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+    .viewport { max-width: 1440px; margin: 0 auto; padding: 20px 24px; }
+
+    /* HEADER */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: stretch;
+      border: var(--border-thick);
+      background: var(--paper-card);
+      box-shadow: var(--shadow-hard);
+      margin-bottom: 12px;
+    }
+    .header-branding {
+      padding: 10px 16px;
+      border-right: var(--border-thick);
+      background: var(--acid-yellow);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .header-branding h1 {
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 22px;
+      text-transform: uppercase;
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+    .header-branding .tagline {
+      font-size: 9px;
+      font-weight: 800;
+      background: var(--ink);
+      color: #fff;
+      display: inline-block;
+      padding: 1px 5px;
+      margin-top: 3px;
+      width: fit-content;
+    }
+    .header-specs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr) auto;
+      flex: 1;
+    }
+    .spec-cell {
+      padding: 6px 12px;
+      border-right: var(--border-thick);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .spec-label { font-size: 8.5px; font-weight: 700; text-transform: uppercase; color: #555; }
+    .spec-value { font-size: 11px; font-weight: 800; margin-top: 2px; display: flex; align-items: center; gap: 5px; }
+    .status-dot {
+      width: 8px; height: 8px; background: var(--toxic-green); border: 2px solid var(--ink); display: inline-block; animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
+
+    /* PIPELINE STEPS - STREAMLINED STATUS TRACK */
+    .pipeline-nav {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .pipeline-step {
+      background: var(--paper-card);
+      border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0px var(--ink);
+      padding: 6px 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: all 0.15s ease;
+    }
+    .pipeline-step.active {
+      background: var(--safety-orange);
+      color: #fff;
+      transform: translate(-1px, -1px);
+      box-shadow: 4px 4px 0px var(--ink);
+    }
+    .pipeline-step.active .step-num { background: var(--ink); color: var(--safety-orange); }
+    .pipeline-step.active .step-sub { color: rgba(255, 255, 255, 0.9); }
+    .step-header { display: flex; align-items: center; gap: 6px; }
+    .step-num { font-family: 'Archivo Black', sans-serif; font-size: 10px; padding: 1px 4px; background: var(--ink); color: #fff; }
+    .step-title { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 11px; text-transform: uppercase; }
+    .step-sub { font-size: 9px; color: #666; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 130px; }
+
+    /* MAIN WORKBENCH */
+    .workbench-layout {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .control-column { display: flex; flex-direction: column; gap: 16px; }
+
+    .brutal-card { background: var(--paper-card); border: var(--border-thick); box-shadow: var(--shadow-hard); }
+    .card-header-bar {
+      background: var(--ink); color: #fff; padding: 10px 14px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 11px; text-transform: uppercase;
+    }
+    .card-header-bar.yellow { background: var(--acid-yellow); color: var(--ink); border-bottom: var(--border-thick); }
+    .card-header-bar.orange { background: var(--safety-orange); color: #fff; border-bottom: var(--border-thick); }
+    .card-header-bar.blue { background: var(--electric-blue); color: #fff; border-bottom: var(--border-thick); }
+    .card-header-bar.green { background: var(--toxic-green); color: var(--ink); border-bottom: var(--border-thick); }
+    .card-body { padding: 16px; }
+
+    /* DROPZONE */
+    .dropzone-industrial {
+      border: 3px dashed var(--ink); background: var(--paper-dark); padding: 20px 14px; text-align: center; cursor: pointer; transition: background 0.15s;
+    }
+    .dropzone-industrial:hover, .dropzone-industrial.dragover { background: #E8E2D8; border-color: var(--safety-orange); }
+    .dropzone-icon { font-size: 28px; margin-bottom: 6px; }
+    .dropzone-text { font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 14px; text-transform: uppercase; }
+    .dropzone-meta { font-size: 10px; color: #555; margin-top: 2px; }
+    .active-file-badge {
+      margin-top: 10px; background: var(--paper-card); border: var(--border-med); padding: 8px 10px; display: flex; align-items: center; justify-content: space-between; font-size: 11px; font-weight: 700;
+    }
+
+    /* ROUTE ITEMS */
+    .routing-options { display: flex; flex-direction: column; gap: 8px; }
+    .route-item {
+      border: var(--border-med); padding: 8px 12px; background: var(--paper); display: flex; align-items: flex-start; gap: 10px; cursor: pointer; transition: all 0.15s;
+    }
+    .route-item.selected { background: var(--acid-yellow); border: var(--border-thick); transform: translate(-2px, -2px); box-shadow: 4px 4px 0px var(--ink); }
+    .route-radio { width: 16px; height: 16px; border: 2px solid var(--ink); background: #fff; display: flex; align-items: center; justify-content: center; margin-top: 2px; flex-shrink: 0; }
+    .route-item.selected .route-radio::after { content: ''; width: 8px; height: 8px; background: var(--ink); }
+    .route-title { font-weight: 800; font-size: 12px; display: flex; align-items: center; gap: 6px; }
+    .route-desc { font-size: 10px; color: #444; margin-top: 2px; }
+
+    /* CONTROLS */
+    .control-box { border: var(--border-med); padding: 8px; background: var(--paper); }
+    .control-box label { font-size: 9px; font-weight: 800; text-transform: uppercase; display: block; margin-bottom: 4px; }
+    .brutal-select {
+      width: 100%; border: 2px solid var(--ink); background: #fff; padding: 6px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; outline: none; cursor: pointer;
+    }
+    .brutal-mini-input {
+      border: 2px solid var(--ink); background: #fff; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; outline: none;
+    }
+
+    .fire-button {
+      background: var(--toxic-green);
+      color: var(--ink);
+      border: var(--border-thick);
+      box-shadow: 5px 5px 0px var(--ink);
+      padding: 10px 14px;
+      font-family: 'Archivo Black', sans-serif;
+      font-size: 13.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      transition: all 0.1s;
+    }
+    .fire-button:hover:not(:disabled) {
+      background: #00ff83;
+      transform: translate(-2px, -2px);
+      box-shadow: 7px 7px 0px var(--ink);
+    }
+    .fire-button:active:not(:disabled) {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px var(--ink);
+    }
+    .fire-button:disabled {
+      background: #888;
+      cursor: not-allowed;
+      opacity: 0.7;
+      justify-content: center;
+    }
+
+    .btn-kbd-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      background: var(--ink);
+      color: #FFF;
+      padding: 3px 6px;
+      border: 1.5px solid var(--ink);
+      box-shadow: 1px 1px 0px rgba(255, 255, 255, 0.4);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .kbd-key {
+      background: #222;
+      color: var(--toxic-green);
+      padding: 1px 4px;
+      border: 1px solid #444;
+      line-height: 1.2;
+    }
+    .kbd-plus {
+      color: #888;
+      font-size: 8px;
+    }
+
+    .kbd-hint-row {
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #555;
+      text-transform: uppercase;
+    }
+    .kbd-hint-dot {
+      width: 5px;
+      height: 5px;
+      background: var(--toxic-green);
+      border: 1px solid var(--ink);
+      display: inline-block;
+    }
+    .brutal-kbd {
+      background: var(--paper-dark);
+      border: 1.5px solid var(--ink);
+      padding: 1px 5px;
+      color: var(--ink);
+      font-weight: 800;
+      box-shadow: 1px 1px 0px var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5px;
+    }
+
+    /* LIVE STREAMING DICTATION */
+    .pulsing-cursor {
+      display: inline-block;
+      color: var(--toxic-green);
+      animation: blinkCursor 0.8s infinite;
+    }
+    @keyframes blinkCursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+    .tele-card.interim-live {
+      border: 2px dashed var(--toxic-green);
+      background: #0D1410;
+      box-shadow: 3px 3px 0px var(--toxic-green);
+      animation: glowBorder 1.5s infinite alternate;
+    }
+    @keyframes glowBorder {
+      from { border-color: var(--toxic-green); }
+      to { border-color: #008F48; }
+    }
+
+    /* RIGHT COLUMN: OSCILLOSCOPE & TABS */
+    .output-column { display: flex; flex-direction: column; gap: 14px; }
+
+    .oscilloscope-panel {
+      background: #050505; border: var(--border-thick); box-shadow: var(--shadow-hard); padding: 10px 12px; position: relative;
+    }
+    .scope-header { display: flex; justify-content: space-between; color: var(--acid-yellow); font-size: 9.5px; font-weight: 700; margin-bottom: 6px; }
+    .scope-canvas-wrap { height: 85px; position: relative; background: #0A0F0D; border: 2px solid #222; overflow: hidden; }
+    #scopeCanvas { width: 100%; height: 100%; display: block; }
+    .scope-overlay-crosshairs {
+      position: absolute; inset: 0; pointer-events: none;
+      background-image: linear-gradient(to right, rgba(0, 229, 117, 0.15) 1px, transparent 1px), linear-gradient(to bottom, rgba(0, 229, 117, 0.15) 1px, transparent 1px);
+      background-size: 25px 25px;
+    }
+
+    /* SYNCHRONIZED SUBTITLE OVERLAY */
+    .scope-subtitle-overlay {
+      margin-top: 6px; background: #11141A; border: 2px solid #333; padding: 6px 10px; display: flex; align-items: center; gap: 10px; min-height: 36px;
+    }
+    .sub-speaker-badge { font-size: 9px; font-weight: 800; background: var(--toxic-green); color: #000; padding: 2px 6px; border: 1px solid #000; white-space: nowrap; }
+    .sub-text { font-size: 11px; color: #FFF; font-weight: 700; flex: 1; }
+
+    .scope-controls { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; gap: 10px; flex-wrap: wrap; }
+    .transport-btns { display: flex; gap: 6px; }
+    .btn-tactile {
+      background: var(--paper-card); border: 2px solid var(--ink); box-shadow: 2px 2px 0px var(--ink); padding: 5px 10px; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 10.5px; cursor: pointer; text-transform: uppercase; transition: all 0.1s;
+    }
+    .btn-tactile:hover { background: var(--acid-yellow); transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--ink); }
+    .btn-tactile:active { transform: translate(1px, 1px); box-shadow: 1px 1px 0px var(--ink); }
+    .time-readout { color: #fff; font-size: 12px; font-weight: 800; }
+
+    /* INDUSTRIAL TABS */
+    .industrial-tabs-bar {
+      display: flex; border: var(--border-thick); background: var(--paper-dark); box-shadow: var(--shadow-hard); margin-bottom: -4px; z-index: 2;
+    }
+    .ind-tab {
+      flex: 1; padding: 8px 6px; background: var(--paper-dark); border: none; border-right: var(--border-thick); font-family: 'Archivo Black', sans-serif; font-size: 10px; text-transform: uppercase; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: all 0.1s;
+    }
+    .ind-tab:last-child { border-right: none; }
+    .ind-tab:hover:not(.active) { background: #EFECE6; }
+    .ind-tab.active { background: var(--paper-card); border-bottom: 4px solid var(--paper-card); box-shadow: inset 0 3px 0 var(--safety-orange); }
+    .tab-badge { font-family: 'JetBrains Mono', monospace; font-size: 8px; font-weight: 800; padding: 2px 5px; background: var(--ink); color: #fff; }
+    .tab-badge.green { background: var(--toxic-green); color: #000; }
+    .tab-badge.yellow { background: var(--acid-yellow); color: #000; }
+
+    .tab-panel-container { border: var(--border-thick); background: var(--paper-card); box-shadow: var(--shadow-hard); min-height: 480px; }
+
+    /* TAB 1: TELEPRINTER */
+    .teleprinter-monitor { display: grid; grid-template-columns: 1fr 1fr; }
+    .tele-lane { display: flex; flex-direction: column; max-height: 520px; }
+    .tele-lane:first-child { border-right: var(--border-thick); }
+    .tele-lane-header { padding: 10px 14px; border-bottom: var(--border-thick); font-weight: 800; font-size: 11px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; }
+    .tele-lane-header.hindi-lane { background: var(--paper-dark); }
+    .tele-lane-header.english-lane { background: var(--toxic-green); color: var(--ink); }
+    .tele-content { padding: 14px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; }
+    .tele-card { border: var(--border-med); padding: 10px 12px; background: var(--paper); box-shadow: 3px 3px 0px var(--ink); font-size: 12px; line-height: 1.5; cursor: pointer; transition: all 0.15s; }
+    .tele-card:hover { background: #FFF; transform: translate(-2px, -2px); box-shadow: 5px 5px 0px var(--ink); }
+    .tele-card.playing { background: #FFF; border: 3px solid var(--electric-blue); box-shadow: 4px 4px 0px var(--electric-blue); }
+    .tele-card-meta { display: flex; justify-content: space-between; font-size: 9px; font-weight: 800; color: #666; margin-bottom: 4px; border-bottom: 1px dashed #aaa; padding-bottom: 3px; }
+    .stamp-badge { display: inline-block; font-size: 8px; font-weight: 800; padding: 2px 4px; background: var(--ink); color: #fff; text-transform: uppercase; }
+    .stamp-badge.green { background: var(--toxic-green); color: var(--ink); border: 1px solid var(--ink); }
+
+    /* TAB 2: SUBTITLE STUDIO */
+    .studio-panel { padding: 16px; display: flex; flex-direction: column; gap: 14px; max-height: 520px; overflow-y: auto; }
+    .batch-replace-bar { border: var(--border-med); background: var(--acid-yellow); padding: 10px 14px; display: flex; align-items: center; gap: 8px; box-shadow: 3px 3px 0px var(--ink); flex-wrap: wrap; }
+    .studio-card { border: var(--border-thick); background: #FFFFFF; box-shadow: 3px 3px 0px var(--ink); padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+    .studio-card-top { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+    .time-nudge-group { display: flex; align-items: center; gap: 4px; }
+    .btn-nudge { border: 1.5px solid var(--ink); background: var(--paper-dark); padding: 2px 5px; font-size: 9px; font-weight: 800; cursor: pointer; }
+    .studio-textarea { width: 100%; border: 2px solid var(--ink); background: #FAF8F5; padding: 6px 10px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; line-height: 1.4; resize: vertical; min-height: 44px; }
+
+    /* TAB 3: AGENT INTEL */
+    .agent-matrix-panel { padding: 18px; display: flex; flex-direction: column; gap: 16px; max-height: 520px; overflow-y: auto; }
+    .intel-section-title { font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+    .intel-box { border: var(--border-thick); background: var(--paper); padding: 12px 14px; box-shadow: 3px 3px 0px var(--ink); font-size: 12px; line-height: 1.45; }
+    .action-item-pill { border: var(--border-med); background: #FFF; padding: 8px 12px; display: flex; align-items: center; gap: 10px; box-shadow: 2px 2px 0px var(--ink); }
+    .urgency-badge { font-size: 9px; font-weight: 800; padding: 2px 5px; border: 1px solid var(--ink); }
+    .urgency-badge.high { background: var(--safety-orange); color: #fff; }
+    .urgency-badge.medium { background: var(--acid-yellow); color: #000; }
+    .urgency-badge.low { background: var(--toxic-green); color: #000; }
+    .entity-tag-cloud { display: flex; flex-wrap: wrap; gap: 6px; }
+    .entity-tag { background: #FFF; border: 1.5px solid var(--ink); padding: 4px 8px; font-size: 10px; font-weight: 800; box-shadow: 2px 2px 0px var(--ink); display: flex; align-items: center; gap: 4px; }
+    .markdown-payload-viewer { background: #0A0D10; color: #38BDF8; border: 3px solid var(--ink); padding: 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; max-height: 160px; overflow-y: auto; white-space: pre-wrap; }
+
+    /* TAB 4: CHAT WITH TRANSCRIPT */
+    .chat-transcript-panel { display: flex; flex-direction: column; height: 500px; padding: 16px; gap: 12px; }
+    .chat-history-container { flex: 1; border: var(--border-thick); background: #FAF8F5; padding: 14px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    .chat-bubble { padding: 10px 14px; border: 2px solid var(--ink); box-shadow: 3px 3px 0px var(--ink); font-size: 12px; line-height: 1.45; max-width: 85%; }
+    .chat-bubble.bot { background: #FFF; align-self: flex-start; }
+    .chat-bubble.user { background: var(--acid-yellow); align-self: flex-end; }
+    .chat-meta { font-size: 9px; font-weight: 800; margin-bottom: 4px; color: #555; }
+    .timestamp-jump-btn {
+      background: var(--ink); color: var(--toxic-green); border: none; font-family: 'JetBrains Mono', monospace; font-weight: 800; font-size: 10px; padding: 2px 6px; cursor: pointer; display: inline-block; margin: 0 3px;
+    }
+    .timestamp-jump-btn:hover { background: var(--toxic-green); color: var(--ink); }
+    .chat-input-bar { display: flex; gap: 8px; align-items: center; }
+
+    /* EXPORT BAR */
+    .export-spec-bar {
+      border: var(--border-thick); background: var(--acid-yellow); box-shadow: var(--shadow-hard); padding: 12px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;
+    }
+    .btn-export {
+      background: var(--ink); color: #fff; border: 2px solid var(--ink); box-shadow: 3px 3px 0px rgba(0,0,0,0.4); padding: 7px 12px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 800; cursor: pointer; text-transform: uppercase; transition: all 0.1s;
+    }
+    .btn-export:hover { background: #222; transform: translate(-1px, -1px); box-shadow: 4px 4px 0px #000; }
+    .btn-export:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0px #000; }
+
+    .pipeline-telemetry {
+      border: var(--border-thick); background: #000; color: var(--acid-yellow); padding: 8px 14px; font-size: 11px; font-weight: 700; display: flex; justify-content: space-between; margin-top: 16px; flex-wrap: wrap; gap: 8px;
+    }
+
+    /* TOASTS & MODALS */
+    .toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 99999; display: flex; flex-direction: column; gap: 10px; max-width: 420px; width: calc(100% - 40px); pointer-events: none; }
+    .brutal-toast { pointer-events: auto; border: var(--border-thick); background: var(--paper-card); box-shadow: 6px 6px 0px var(--ink); overflow: hidden; animation: toastSlideIn 0.2s forwards; }
+    @keyframes toastSlideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .toast-header { padding: 6px 12px; background: var(--ink); color: #fff; font-size: 10px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; }
+    .toast-header.success { background: var(--toxic-green); color: var(--ink); }
+    .toast-header.error { background: var(--safety-orange); color: #fff; }
+    .toast-header.warning { background: var(--acid-yellow); color: var(--ink); }
+    .toast-body { padding: 12px 14px; font-size: 12px; font-weight: 800; color: var(--ink); line-height: 1.4; }
+    .toast-dismiss { cursor: pointer; background: transparent; border: none; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 800; color: inherit; }
+    .toast-progress { height: 3px; background: var(--ink); width: 100%; animation: toastCountdown linear forwards; }
+    @keyframes toastCountdown { from { width: 100%; } to { width: 0%; } }
+
+    .brutal-modal-backdrop {
+      position: fixed; inset: 0; background: rgba(10, 10, 10, 0.65); backdrop-filter: blur(3px); z-index: 100000; display: flex; align-items: center; justify-content: center; padding: 20px; opacity: 0; pointer-events: none; transition: opacity 0.15s ease;
+    }
+    .brutal-modal-backdrop.open { opacity: 1; pointer-events: auto; }
+    .brutal-modal-box {
+      background: var(--paper-card); border: 4px solid var(--ink); box-shadow: 8px 8px 0px var(--ink); max-width: 600px; width: 100%; transform: translateY(15px); transition: transform 0.2s;
+    }
+    .brutal-modal-backdrop.open .brutal-modal-box { transform: translateY(0); }
+    .modal-header-bar {
+      background: var(--acid-yellow); color: var(--ink); padding: 10px 16px; border-bottom: 3.5px solid var(--ink); font-family: 'Archivo Black', sans-serif; font-size: 12px; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center;
+    }
+    .modal-body-content { padding: 18px; }
+    .modal-input {
+      width: 100%; border: 3px solid var(--ink); padding: 10px 12px; font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; outline: none; background: #FAFAFA; margin-top: 8px; box-shadow: 3px 3px 0px var(--ink);
+    }
+    .modal-footer { padding: 12px 18px; border-top: 3px solid var(--ink); background: var(--paper-dark); display: flex; justify-content: flex-end; gap: 8px; }
+
+    /* KARAOKE WORD-LEVEL TIMESTAMPS */
+    .karaoke-word {
+      display: inline-block;
+      padding: 1px 3px;
+      margin: 1px 1px;
+      border-radius: 2px;
+      cursor: pointer;
+      transition: background 0.1s, color 0.1s;
+    }
+    .karaoke-word:hover {
+      background: var(--acid-yellow);
+      color: #000;
+      text-decoration: underline;
+    }
+    .karaoke-word.active {
+      background: var(--toxic-green) !important;
+      color: #000 !important;
+      font-weight: 800 !important;
+      box-shadow: 2px 2px 0px #000;
+      transform: translateY(-1px);
+    }
+
+    /* CONFIDENCE HEATMAP & BADGES */
+    .confidence-badge {
+      font-size: 8px; font-weight: 800; padding: 2px 4px; border: 1px solid var(--ink); display: inline-block;
+    }
+    .confidence-badge.low {
+      background: var(--safety-orange); color: #fff;
+    }
+    .confidence-badge.high {
+      background: var(--toxic-green); color: #000;
+    }
+    .tele-card.low-confidence {
+      border-left: 6px solid var(--safety-orange);
+      background: #FFF7F5;
+    }
+    .studio-card.low-confidence {
+      border-left: 8px solid var(--safety-orange);
+    }
+
+    /* BATCH QUEUE DRAWER */
+    .batch-queue-box {
+      margin-top: 10px; border: 2.5px solid var(--ink); background: var(--paper-dark); padding: 8px; display: flex; flex-direction: column; gap: 6px; box-shadow: 3px 3px 0px var(--ink);
+    }
+    .batch-queue-header {
+      font-size: 10px; font-weight: 800; display: flex; justify-content: space-between; align-items: center; text-transform: uppercase;
+    }
+    .batch-queue-list {
+      display: flex; flex-direction: column; gap: 5px; max-height: 160px; overflow-y: auto;
+    }
+    .batch-item {
+      display: flex; justify-content: space-between; align-items: center; background: #FFF; border: 1.5px solid var(--ink); padding: 5px 8px; font-size: 10px; font-weight: 700; cursor: pointer; box-shadow: 1px 1px 0px var(--ink);
+    }
+    .batch-item:hover { background: var(--acid-yellow); }
+    .batch-item.active { border: 2px solid var(--electric-blue); background: #EFF6FF; }
+    .batch-badge {
+      font-size: 8px; font-weight: 800; padding: 2px 4px; border: 1px solid var(--ink);
+    }
+    .batch-badge.queued { background: #EEE; color: #555; }
+    .batch-badge.processing { background: var(--acid-yellow); color: #000; }
+    .batch-badge.done { background: var(--toxic-green); color: #000; }
+    .batch-badge.failed { background: var(--safety-orange); color: #fff; }
+
+    /* TRIM & RANGE BAR */
+    .trim-range-bar {
+      display: flex; align-items: center; gap: 6px; background: #0F1318; border-top: 2px solid #222; padding: 6px 10px; color: #fff; font-size: 9px; font-weight: 700; flex-wrap: wrap;
+    }
+    .trim-input {
+      width: 70px; background: #161B22; color: var(--toxic-green); border: 1.5px solid #444; padding: 3px 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; text-align: center;
+    }
+
+    /* TAB 5: APPLE MUSIC 3D AURORA & PER-LETTER SYNCED LYRICS */
+    .lyrics-stage {
+      position: relative;
+      background: #06080F;
+      color: #FFFFFF;
+      min-height: 520px;
+      display: flex;
+      flex-direction: column;
+      border: var(--border-thick);
+      box-shadow: var(--shadow-hard);
+      overflow: hidden;
+      perspective: 1200px;
+    }
+
+    /* 3D Moving Gradient Aurora Backdrop */
+    .lyrics-aurora-backdrop {
+      position: absolute;
+      top: -25%;
+      left: -25%;
+      width: 150%;
+      height: 150%;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+    .aurora-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(85px);
+      mix-blend-mode: screen;
+      opacity: 0.70;
+      will-change: transform;
+    }
+    .aurora-blob-1 {
+      width: 550px;
+      height: 550px;
+      background: radial-gradient(circle, #FF2A85 0%, rgba(255, 42, 133, 0) 70%);
+      top: 10%;
+      left: 15%;
+      animation: auroraMove1 22s ease-in-out infinite alternate;
+    }
+    .aurora-blob-2 {
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, #0052D4 0%, rgba(0, 82, 212, 0) 70%);
+      top: 35%;
+      right: 15%;
+      animation: auroraMove2 26s ease-in-out infinite alternate;
+    }
+    .aurora-blob-3 {
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, #00E575 0%, rgba(0, 229, 117, 0) 70%);
+      bottom: 10%;
+      left: 30%;
+      animation: auroraMove3 20s ease-in-out infinite alternate;
+    }
+    .aurora-blob-4 {
+      width: 520px;
+      height: 520px;
+      background: radial-gradient(circle, #8A2BE2 0%, rgba(138, 43, 226, 0) 70%);
+      top: 20%;
+      right: 30%;
+      animation: auroraMove4 28s ease-in-out infinite alternate;
+    }
+    .aurora-glass-blur {
+      position: absolute;
+      inset: 0;
+      backdrop-filter: blur(45px) saturate(170%);
+      background: radial-gradient(ellipse at center, rgba(6, 8, 15, 0.35) 0%, rgba(6, 8, 15, 0.78) 100%);
+    }
+
+    @keyframes auroraMove1 {
+      0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+      50%  { transform: translate3d(130px, 90px, 0) scale(1.15) rotate(90deg); }
+      100% { transform: translate3d(-70px, 150px, 0) scale(0.9) rotate(180deg); }
+    }
+    @keyframes auroraMove2 {
+      0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+      50%  { transform: translate3d(-150px, -100px, 0) scale(1.2) rotate(-110deg); }
+      100% { transform: translate3d(-90px, 110px, 0) scale(0.95) rotate(-220deg); }
+    }
+    @keyframes auroraMove3 {
+      0%   { transform: translate3d(0, 0, 0) scale(0.95); }
+      50%  { transform: translate3d(-110px, -120px, 0) scale(1.22); }
+      100% { transform: translate3d(90px, -60px, 0) scale(1.05); }
+    }
+    @keyframes auroraMove4 {
+      0%   { transform: translate3d(0, 0, 0) scale(1); }
+      50%  { transform: translate3d(100px, -110px, 0) scale(0.88); }
+      100% { transform: translate3d(-120px, 80px, 0) scale(1.18); }
+    }
+
+    .lyrics-toolbar {
+      position: relative;
+      z-index: 3;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 12px 18px;
+      background: rgba(16, 20, 29, 0.85);
+      backdrop-filter: blur(10px);
+      border-bottom: 2.5px solid var(--ink);
+    }
+    .lyrics-meta-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .lyrics-song-title {
+      font-size: 15px;
+      font-weight: 800;
+      color: #FFF;
+      letter-spacing: -0.3px;
+    }
+    .lyrics-song-artist {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--toxic-green);
+      background: rgba(0, 229, 117, 0.15);
+      border: 1px solid var(--toxic-green);
+      padding: 2px 7px;
+    }
+    .lyrics-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    .lyrics-viewport {
+      position: relative;
+      z-index: 2;
+      flex: 1;
+      height: 480px;
+      max-height: 520px;
+      overflow-y: auto;
+      scroll-behavior: smooth;
+      padding: 50px 32px;
+      background: transparent;
+    }
+    .lyrics-stanza {
+      margin-bottom: 38px;
+    }
+    .lyrics-stanza-title {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      background: var(--acid-yellow);
+      color: #000;
+      padding: 3px 8px;
+      border: 1.5px solid #000;
+      margin-bottom: 16px;
+      box-shadow: 2px 2px 0px #000;
+    }
+    .lyric-line {
+      padding: 12px 18px;
+      margin: 12px 0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1);
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      opacity: 0.36;
+      filter: blur(0.5px);
+      transform: scale(0.96) translateZ(0);
+      transform-origin: left center;
+      border-left: 4px solid transparent;
+      user-select: none;
+    }
+    .lyric-line:hover {
+      opacity: 0.85;
+      filter: blur(0px);
+      background: rgba(255, 255, 255, 0.06);
+    }
+    .lyric-line.active-line {
+      opacity: 1.0;
+      filter: blur(0px);
+      transform: scale(1.05) translateZ(0);
+      background: rgba(255, 255, 255, 0.08);
+      border-left: 4px solid var(--toxic-green);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 25px rgba(0, 229, 117, 0.25);
+      backdrop-filter: blur(8px);
+    }
+    .lyric-time-tag {
+      font-size: 11px;
+      font-family: 'JetBrains Mono', monospace;
+      color: rgba(255, 255, 255, 0.45);
+      user-select: none;
+      min-width: 54px;
+    }
+    .lyric-line.active-line .lyric-time-tag {
+      color: var(--toxic-green);
+      font-weight: 800;
+      text-shadow: 0 0 10px rgba(0, 229, 117, 0.8);
+    }
+    .lyric-text-container {
+      font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      font-size: 27px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      line-height: 1.35;
+      color: rgba(255, 255, 255, 0.38);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .lyric-line.active-line .lyric-text-container {
+      color: rgba(255, 255, 255, 0.50);
+    }
+    .lyric-word {
+      display: inline-flex;
+      white-space: nowrap;
+      cursor: pointer;
+      border-radius: 3px;
+      padding: 0 2px;
+      transition: background 0.15s ease;
+    }
+    .lyric-word:hover {
+      background: rgba(255, 255, 255, 0.12);
+    }
+    .lyric-char {
+      display: inline-block;
+      color: inherit;
+      transition: color 0.08s ease, text-shadow 0.12s ease;
+      will-change: color, text-shadow, background;
+    }
+    .lyric-char.sung {
+      color: #FFFFFF !important;
+      text-shadow: 0 0 14px rgba(255, 255, 255, 0.95), 0 0 28px rgba(0, 229, 117, 0.7), 0 0 45px rgba(255, 42, 133, 0.4);
+    }
+    }
+
+    @media (max-width: 1024px) {
+      .workbench-layout { grid-template-columns: 1fr; }
+      .pipeline-nav { grid-template-columns: 1fr 1fr; }
+      .header-specs { grid-template-columns: 1fr 1fr; }
+      .teleprinter-monitor { grid-template-columns: 1fr; }
+      .tele-lane:first-child { border-right: none; border-bottom: var(--border-thick); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- SESSIONS & ARCHIVES MODAL (INDEXEDDB) -->
+  <div id="sessionsModal" class="brutal-modal-backdrop" onclick="if(event.target===this) closeSessionsModal()">
+    <div class="brutal-modal-box" style="max-width: 720px;">
+      <div class="modal-header-bar" style="background: var(--electric-blue); color: #FFF;">
+        <span>[INDEXEDDB SESSIONS &amp; ARCHIVE VAULT]</span>
+        <button class="toast-dismiss" onclick="closeSessionsModal()">✕</button>
+      </div>
+      <div class="modal-body-content">
+        <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+          <input type="text" id="sessionSearchInput" class="modal-input" style="margin-top: 0;" placeholder="Search past sessions &amp; transcripts..." oninput="filterSessionsList(this.value)">
+          <button class="btn-tactile" style="background: var(--toxic-green); margin-top: 0;" onclick="saveCurrentSessionManual()">💾 SAVE CURRENT</button>
+        </div>
+        <div id="sessionsListContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 320px; overflow-y: auto;">
+          <!-- Loaded from IndexedDB -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-tactile" onclick="clearAllSessions()">🗑️ CLEAR ALL</button>
+        <button class="btn-tactile" onclick="closeSessionsModal()">CLOSE</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROMPTVOX CODING AGENT MODAL -->
+  <div id="promptVoxModal" class="brutal-modal-backdrop" onclick="if(event.target===this) closePromptVoxModal()">
+    <div class="brutal-modal-box" style="max-width: 760px;">
+      <div class="modal-header-bar" style="background: var(--toxic-green); color: #000;">
+        <span>[⚡ PROMPTVOX // CODING AGENT PROMPT COMPILER]</span>
+        <button class="toast-dismiss" onclick="closePromptVoxModal()">✕</button>
+      </div>
+      <div class="modal-body-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <span style="font-size: 11px; font-weight: 800;">TARGET AGENT FORMAT:</span>
+          <select class="brutal-select" id="agentFormatSelect" style="width: auto; padding: 4px 8px;" onchange="regeneratePromptVox()">
+            <option value="cursor">Cursor / Claude Dev (Full Spec)</option>
+            <option value="codex">OpenAI Codex / Claude Code CLI</option>
+            <option value="aider">Aider Pair-Programmer</option>
+            <option value="raw">Raw Markdown Specification</option>
+          </select>
+        </div>
+        <textarea id="promptVoxViewer" class="markdown-payload-viewer" style="height: 280px; max-height: 280px; width: 100%; border: 3px solid #000;"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-tactile" onclick="closePromptVoxModal()">CANCEL</button>
+        <button class="btn-tactile" style="background: var(--toxic-green);" onclick="copyPromptVoxPayload()">📋 COPY TO CLIPBOARD FOR CURSOR/CODEX</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- YT-DLP MODAL -->
+  <div id="urlModal" class="brutal-modal-backdrop" onclick="if(event.target===this) closeUrlModal()">
+    <div class="brutal-modal-box">
+      <div class="modal-header-bar">
+        <span>[INPUT STREAM // YT-DLP INGESTION]</span>
+        <button class="toast-dismiss" onclick="closeUrlModal()">✕</button>
+      </div>
+      <div class="modal-body-content">
+        <div style="font-size: 11px; font-weight: 700; color: #333;">
+          Enter any YouTube video, Shorts, or media stream URL. Hardware yt-dlp will extract audio into memory.
+        </div>
+        <input type="text" id="urlModalInput" class="modal-input" placeholder="https://www.youtube.com/watch?v=..." onkeydown="if(event.key==='Enter') executeUrlDownload()">
+      </div>
+      <div class="modal-footer">
+        <button class="btn-tactile" onclick="closeUrlModal()">CANCEL</button>
+        <button class="btn-tactile" style="background: var(--toxic-green);" onclick="executeUrlDownload()">⚡ INGEST STREAM</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LLM COMPILER ENGINE MODAL -->
+  <div id="llmModal" class="brutal-modal-backdrop" onclick="if(event.target===this) closeLlmModal()">
+    <div class="brutal-modal-box" style="max-width: 640px;">
+      <div class="modal-header-bar" style="background: var(--acid-yellow); color: var(--ink);">
+        <span>[⚙️ LLM COMPILER ENGINE // OPENAI-COMPATIBLE &amp; OLLAMA]</span>
+        <button class="toast-dismiss" onclick="closeLlmModal()">✕</button>
+      </div>
+      <div class="modal-body-content" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="font-size: 11px; font-weight: 700; color: #444;">
+          Route translation, agent intelligence extraction, and chat through your preferred cloud LLM API or local Ollama.
+        </div>
+
+        <div>
+          <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">LLM Provider Architecture</label>
+          <select class="brutal-select" id="llmProviderSelect" style="width: 100%; margin-top: 4px;" onchange="onLlmProviderChange()">
+            <option value="groq" selected>⚡ Groq LPU (Ultra-Fast ~300 tok/s) [Recommended]</option>
+            <option value="openai">OpenAI API (gpt-4o-mini / gpt-4o)</option>
+            <option value="gemini">Google Gemini Flash (OpenAI API compat)</option>
+            <option value="deepseek">DeepSeek API (deepseek-chat / v3)</option>
+            <option value="openrouter">OpenRouter (Multi-Model Hub)</option>
+            <option value="custom">Custom OpenAI-Compatible Endpoint</option>
+            <option value="ollama">Local Ollama (100% Offline &amp; Private)</option>
+          </select>
+        </div>
+
+        <div id="llmBaseUrlContainer" style="display: none;">
+          <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">API Base URL</label>
+          <input type="text" id="llmBaseUrlInput" class="modal-input" style="margin-top: 4px;" placeholder="https://api.groq.com/openai/v1">
+        </div>
+
+        <div>
+          <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">Target Model ID</label>
+          <input type="text" id="llmModelInput" class="modal-input" style="margin-top: 4px;" value="llama-3.1-8b-instant" placeholder="e.g. llama-3.1-8b-instant, gpt-4o-mini">
+        </div>
+
+        <div id="llmApiKeyContainer">
+          <label style="font-size: 10px; font-weight: 800; text-transform: uppercase; display: flex; justify-content: space-between;">
+            <span>API Key (OpenAI-Compatible)</span>
+            <span style="font-size: 9px; color: #666; font-weight: normal;">Stored locally in browser</span>
+          </label>
+          <div style="display: flex; gap: 6px; margin-top: 4px;">
+            <input type="password" id="llmApiKeyInput" class="modal-input" style="margin-top: 0; flex: 1;" placeholder="gsk_... or sk-...">
+            <button class="btn-tactile" onclick="toggleApiKeyVisibility()" id="toggleKeyBtn">👁️</button>
+          </div>
+        </div>
+
+        <!-- Connection Test Status Box -->
+        <div id="llmTestResult" style="display: none; padding: 8px 12px; border: 2px solid var(--ink); font-size: 11px; font-weight: 800;"></div>
+
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn-tactile" style="background: var(--paper);" onclick="testLlmConnection()" id="testLlmBtn">⚡ TEST CONNECTION</button>
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-tactile" onclick="closeLlmModal()">CANCEL</button>
+          <button class="btn-tactile" style="background: var(--toxic-green);" onclick="saveLlmConfig()">💾 SAVE ENGINE CONFIG</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LRCLIB CANONICAL LYRICS MODAL -->
+  <div id="lrclibModal" class="brutal-modal-backdrop" onclick="if(event.target===this) closeLrclibModal()">
+    <div class="brutal-modal-box" style="max-width: 640px;">
+      <div class="modal-header-bar" style="background: #FF2A85; color: #FFF;">
+        <span>[🔍 LRCLIB CANONICAL LYRICS DATABASE]</span>
+        <button class="toast-dismiss" onclick="closeLrclibModal()">✕</button>
+      </div>
+      <div class="modal-body-content" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="font-size: 11px; font-weight: 700; color: #444; line-height: 1.4;">
+          Query the community-verified open database for studio-accurate synced lyrics (.lrc). Zero API keys required.
+        </div>
+        <div>
+          <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">Track Title</label>
+          <input type="text" id="lrclibTitleInput" class="modal-input" placeholder="e.g. Cigarette Daydreams, Jane, Bohemian Rhapsody">
+        </div>
+        <div>
+          <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">Artist Name (Optional)</label>
+          <input type="text" id="lrclibArtistInput" class="modal-input" placeholder="e.g. Cage the Elephant, The Long Faces, Queen">
+        </div>
+        <div id="lrclibStatusBox" style="display: none; padding: 10px 12px; border: 2.5px solid var(--ink); font-size: 11px; font-weight: 800;"></div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn-tactile" onclick="closeLrclibModal()">CANCEL</button>
+        <button class="btn-tactile" style="background: #FF2A85; color: #FFF;" id="lrclibSearchBtn" onclick="searchLrclibManual()">🔍 SEARCH &amp; SYNC</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PASTE REFERENCE LYRICS MODAL -->
+  <div id="pasteLyricsModal" class="brutal-modal-backdrop" onclick="if(event.target===this) closePasteLyricsModal()">
+    <div class="brutal-modal-box" style="max-width: 680px;">
+      <div class="modal-header-bar" style="background: var(--toxic-green); color: #000;">
+        <span>[📝 PASTE REFERENCE LYRICS // ACOUSTIC ALIGNER]</span>
+        <button class="toast-dismiss" onclick="closePasteLyricsModal()">✕</button>
+      </div>
+      <div class="modal-body-content" style="display: flex; flex-direction: column; gap: 12px;">
+        <div style="font-size: 11px; font-weight: 700; color: #444; line-height: 1.4;">
+          Have unreleased, custom, or indie song lyrics? Paste the ground-truth text below. SonicScribe will anchor every word and syllable onto the acoustic speech landmarks of your audio file with 100% spelling precision.
+        </div>
+        <div style="display: flex; gap: 8px;">
+          <div style="flex: 1;">
+            <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">Track Title</label>
+            <input type="text" id="pasteTitleInput" class="modal-input" placeholder="Song Title">
+          </div>
+          <div style="flex: 1;">
+            <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">Artist</label>
+            <input type="text" id="pasteArtistInput" class="modal-input" placeholder="Artist Name">
+          </div>
+        </div>
+        <div>
+          <label style="font-size: 10px; font-weight: 800; text-transform: uppercase;">Reference Lyrics (Line by Line)</label>
+          <textarea id="pasteLyricsTextarea" class="modal-input" style="height: 180px; font-family: 'JetBrains Mono', monospace; font-size: 11px; resize: vertical;" placeholder="Paste lyrics here...
+Verse 1
+Did you stand by the window?
+Did you wait for the call?
+
+Chorus
+Oh cigarette daydreams..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: space-between;">
+        <button class="btn-tactile" onclick="closePasteLyricsModal()">CANCEL</button>
+        <button class="btn-tactile" style="background: var(--toxic-green); color: #000;" id="pasteAlignBtn" onclick="submitCustomLyricsAlignment()">⚡ FORCE-ALIGN TO AUDIO</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIDDEN AUDIO & FILE INPUT -->
+  <audio id="audioElement" preload="metadata"></audio>
+  <input type="file" id="fileInput" accept="audio/*,video/*" multiple style="display: none;" onchange="handleFilePicked(event)">
+
+  <!-- TOP INDUSTRIAL TICKER -->
+  <div class="top-marquee">
+    <div class="marquee-inner" id="marqueeText">
+      // LOCAL HARDWARE ACCELERATED // OPTIONAL CLOUD LLM ACCELERATOR // RTX 3050 CUDA 12.1 // WHISPER LARGE-V3-TURBO // PROMPTVOX AGENT PROMPTS // INDEXEDDB SESSIONS //
+    </div>
+  </div>
+
+  <div class="viewport">
+
+    <!-- HEADER SPECIFICATION BAR -->
+    <header class="header-bar">
+      <div class="header-branding">
+        <h1>SONIC // SPEC-09</h1>
+        <span class="tagline">INDUSTRIAL AUDIO COMPILER</span>
+      </div>
+      <div class="header-specs">
+        <div class="spec-cell">
+          <span class="spec-label">Core Engine</span>
+          <span class="spec-value">WHISPER-TURBO <span class="status-dot"></span></span>
+        </div>
+        <div class="spec-cell">
+          <span class="spec-label">GPU Acceleration</span>
+          <span class="spec-value" id="headerGpu">CUDA 12 [1.2 GB / 6GB]</span>
+        </div>
+        <div class="spec-cell">
+          <span class="spec-label">Translation Module</span>
+          <span class="spec-value" id="headerLlmEngine">GROQ (LLAMA-3.3 70B)</span>
+        </div>
+        <div class="spec-cell">
+          <span class="spec-label">Target Profile</span>
+          <span class="spec-value" id="headerTarget">PURE ENGLISH FOR AGENTS</span>
+        </div>
+        <div class="spec-cell" style="border-right: none; align-items: center; justify-content: center; display: flex; gap: 6px;">
+          <button class="btn-tactile" style="background: var(--toxic-green); font-size: 10px;" onclick="openLlmModal()">⚙️ LLM ENGINE</button>
+          <button class="btn-tactile" style="background: var(--paper-dark); font-size: 10px;" onclick="openSessionsModal()">📂 VAULT</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- HORIZONTAL PIPELINE CHEVRONS -->
+    <nav class="pipeline-nav">
+      <div class="pipeline-step active" id="step1" onclick="setPipelineStep(1)">
+        <div class="step-header">
+          <span class="step-num">01</span>
+          <span class="step-title">Audio Ingestion</span>
+        </div>
+        <div class="step-sub" id="step1Sub">OGG, MP3, WAV, YouTube Direct</div>
+      </div>
+      <div class="pipeline-step" id="step2" onclick="setPipelineStep(2)">
+        <div class="step-header">
+          <span class="step-num">02</span>
+          <span class="step-title">Language Routing</span>
+        </div>
+        <div class="step-sub" id="step2Sub">Auto-Translate to English</div>
+      </div>
+      <div class="pipeline-step" id="step3" onclick="setPipelineStep(3)">
+        <div class="step-header">
+          <span class="step-num">03</span>
+          <span class="step-title">Acoustic Beam &amp; Bias</span>
+        </div>
+        <div class="step-sub" id="step3Sub">Beam=1 + Technical Glossary</div>
+      </div>
+      <div class="pipeline-step" id="step4" onclick="setPipelineStep(4)">
+        <div class="step-header">
+          <span class="step-num">04</span>
+          <span class="step-title">Agent Teleprinter</span>
+        </div>
+        <div class="step-sub" id="step4Sub">Standby for stream</div>
+      </div>
+    </nav>
+
+    <!-- MAIN TWO-COLUMN WORKBENCH -->
+    <main class="workbench-layout">
+
+      <!-- LEFT: CONTROLS & HARDWARE STACK -->
+      <section class="control-column">
+        
+        <!-- CARD 1: AUDIO INGESTION & ACOUSTIC PROFILE -->
+        <div class="brutal-card">
+          <div class="card-header-bar orange">
+            <span>[01 // INGESTION &amp; PROFILE]</span>
+            <span id="inputStatusBadge">MOUNTED</span>
+          </div>
+          <div class="card-body" style="padding: 12px;">
+            <div class="dropzone-industrial" id="dropzone" style="padding: 14px 10px;" onclick="document.getElementById('fileInput').click()">
+              <div class="dropzone-icon" style="font-size: 22px; margin-bottom: 4px;">📼</div>
+              <div class="dropzone-text" id="dropzoneLabel" style="font-size: 12px;">CLICK OR DROP AUDIO/VIDEO FILE</div>
+              <div class="dropzone-meta">Supports OGG, WAV, MP3, FLAC, M4A, MP4</div>
+              
+              <div class="active-file-badge" id="fileBadge" style="margin-top: 8px; padding: 6px 8px;">
+                <span id="fileBadgeName" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 220px;">📁 No file loaded</span>
+                <span class="stamp-badge" id="fileBadgeSize">0 KB</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 6px; margin-top: 8px;">
+              <button class="btn-tactile" style="flex: 1; font-size: 9.5px; padding: 5px 8px; background: var(--toxic-green); color: #000;" id="recordMicBtn" onclick="toggleMicRecord()">🎙️ Live Dictate</button>
+              <button class="btn-tactile" style="flex: 1; font-size: 9.5px; padding: 5px 8px;" onclick="openUrlModal()">🔗 YouTube Link</button>
+            </div>
+
+            <!-- INTEGRATED ACOUSTIC PROFILE SELECTOR -->
+            <div style="margin-top: 10px; padding: 8px; border: 2px solid var(--ink); background: var(--paper-dark);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span style="font-size: 8.5px; font-weight: 800; text-transform: uppercase;">Acoustic Profile:</span>
+                <span id="profileStatusBadge" style="font-size: 8.5px; font-weight: 800; padding: 1px 5px; background: var(--paper-card); border: 1px solid var(--ink);">🎙️ SPEECH</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                <button class="btn-tactile" id="profileSpeechBtn" style="background: var(--paper-card); font-size: 8.5px; padding: 5px 3px; border: 2px solid var(--ink); box-shadow: 2px 2px 0px var(--ink);" onclick="setAudioProfile('speech')">
+                  🎙️ SPEECH / DIALOGUE
+                </button>
+                <button class="btn-tactile" id="profileMusicBtn" style="background: var(--paper); font-size: 8.5px; padding: 5px 3px; border: 2px solid var(--ink); box-shadow: 1px 1px 0px var(--ink);" onclick="setAudioProfile('music_lyrics')">
+                  🎵 MUSIC &amp; LYRICS
+                </button>
+              </div>
+              <div id="profileDescText" style="margin-top: 5px; font-size: 8.5px; color: #555; line-height: 1.2;">
+                Standard conversational VAD active.
+              </div>
+            </div>
+
+            <!-- AUDIO STEM SELECTOR (ORIGINAL / ACAPELLA / KARAOKE) -->
+            <div id="stemSelectorBar" style="display: none; margin-top: 10px; padding: 8px; border: 2px solid var(--ink); background: var(--paper-dark);">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span style="font-size: 8.5px; font-weight: 800; text-transform: uppercase;">Audio Track Stem:</span>
+                <span class="stamp-badge" id="activeStemBadge" style="background: var(--toxic-green); color: #000; font-size: 8px; padding: 1px 5px;">MASTER MIX</span>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 4px;">
+                <button class="btn-tactile active" id="stemMasterBtn" style="font-size: 8px; padding: 4px 2px; background: var(--toxic-green); color: #000;" onclick="selectAudioStem('master')">🎵 MASTER</button>
+                <button class="btn-tactile" id="stemVocalsBtn" style="font-size: 8px; padding: 4px 2px; background: #FFF;" onclick="selectAudioStem('vocals')">🎤 ACAPELLA</button>
+                <button class="btn-tactile" id="stemKaraokeBtn" style="font-size: 8px; padding: 4px 2px; background: #FFF;" onclick="selectAudioStem('karaoke')">🎸 KARAOKE</button>
+              </div>
+            </div>
+
+            <!-- SEPARATE STEMS TRIGGER BUTTON -->
+            <button class="btn-tactile" id="separateStemsBtn" style="width: 100%; margin-top: 8px; font-size: 8.5px; padding: 6px; background: var(--acid-yellow); color: #000; display: none;" onclick="triggerStemSeparation()">
+              ⚡ SEPARATE VOCALS &amp; KARAOKE (DEMUCS)
+            </button>
+
+            <!-- BATCH QUEUE DRAWER -->
+            <div class="batch-queue-box" id="batchQueueBox" style="display: none; margin-top: 8px;">
+              <div class="batch-queue-header">
+                <span id="batchQueueTitle">[BATCH QUEUE: 0 FILES]</span>
+                <button class="btn-nudge" style="background: var(--paper);" onclick="clearBatchQueue()">CLEAR</button>
+              </div>
+              <div class="batch-queue-list" id="batchQueueList"></div>
+              <button class="btn-tactile" style="background: var(--toxic-green); margin-top: 4px; font-size: 9px;" id="startBatchBtn" onclick="processBatchQueue()">⚡ START BATCH</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: COMPILATION & ROUTING ENGINE -->
+        <div class="brutal-card">
+          <div class="card-header-bar yellow">
+            <span>[02 // COMPILATION ENGINE]</span>
+            <span id="stage2LlmPill" style="cursor: pointer; text-decoration: underline; font-size: 9px;" onclick="openLlmModal()">⚡ LLM ENGINE</span>
+          </div>
+          <div class="card-body" style="padding: 12px;">
+            <!-- ROUTING OPTIONS -->
+            <div class="routing-options" style="gap: 6px;">
+              <div class="route-item selected" id="routeTranslate" style="padding: 6px 10px;" onclick="setRoute(true)">
+                <div class="route-radio" style="width: 14px; height: 14px;"></div>
+                <div class="route-details">
+                  <div class="route-title" style="font-size: 11px;">
+                    <span>TRANSLATE TO ENGLISH</span>
+                    <span class="stamp-badge green" style="font-size: 7.5px; padding: 1px 4px;">AGENT OPTIMAL</span>
+                  </div>
+                  <div class="route-desc" style="font-size: 9px;">Pipes speech through LLM into clean structured English.</div>
+                </div>
+              </div>
+
+              <div class="route-item" id="routeVerbatim" style="padding: 6px 10px;" onclick="setRoute(false)">
+                <div class="route-radio" style="width: 14px; height: 14px;"></div>
+                <div class="route-details">
+                  <div class="route-title" style="font-size: 11px;">ORIGINAL SPOKEN SCRIPT (VERBATIM)</div>
+                  <div class="route-desc" style="font-size: 9px;">Emits original script (Devanagari for Hindi).</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- TARGET LANGUAGE & ENGINE SHORTCUT -->
+            <div style="display: flex; gap: 6px; margin-top: 8px; align-items: center;">
+              <div style="flex: 1;">
+                <select class="brutal-select" id="targetLanguageSelect" style="width: 100%; padding: 4px 6px; font-size: 10px;">
+                  <option value="English" selected>Target: English (AI Agents)</option>
+                  <option value="Spanish">Target: Spanish (Español)</option>
+                  <option value="German">Target: German (Deutsch)</option>
+                  <option value="French">Target: French (Français)</option>
+                  <option value="Japanese">Target: Japanese (日本語)</option>
+                  <option value="Hindi">Target: Hindi (हिन्दी शुद्ध)</option>
+                </select>
+              </div>
+              <button class="btn-tactile" style="font-size: 9px; padding: 4px 7px; background: #FFF; white-space: nowrap;" onclick="openLlmModal()">⚙️ API</button>
+            </div>
+
+            <!-- PRIMARY EXECUTE BUTTON (PROMINENT & ALWAYS VISIBLE) -->
+            <button class="fire-button" id="executeBtn" onclick="runRealTranscription()">
+              <span id="executeBtnText" style="display: flex; align-items: center; gap: 6px;">⚡ EXECUTE COMPILATION</span>
+              <span class="btn-kbd-badge" id="btnKbdBadge">
+                <span class="kbd-key">Ctrl</span>
+                <span class="kbd-plus">+</span>
+                <span class="kbd-key">↵</span>
+              </span>
+            </button>
+            <div class="kbd-hint-row">
+              <span class="kbd-hint-dot"></span>
+              <span>READY // SHORTCUT: <kbd class="brutal-kbd">Ctrl</kbd> + <kbd class="brutal-kbd">Enter</kbd></span>
+            </div>
+
+            <!-- COLLAPSIBLE ACCORDION FOR ADVANCED HARDWARE & WEBHOOK TUNING -->
+            <div style="margin-top: 10px; border-top: 1.5px dashed #AAA; padding-top: 8px;">
+              <button class="btn-tactile" id="advToggleBtn" style="width: 100%; font-size: 9px; padding: 5px 8px; background: var(--paper-dark); display: flex; justify-content: space-between; align-items: center;" onclick="toggleAdvancedTuning()">
+                <span>⚙️ ADVANCED HARDWARE &amp; BIAS</span>
+                <span id="advChevron">▼ SHOW</span>
+              </button>
+
+              <div id="advTuningDrawer" style="display: none; margin-top: 6px; padding: 8px; border: 2px solid var(--ink); background: #FFF; flex-direction: column; gap: 8px;">
+                <div class="spec-grid-options" style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px;">
+                  <div class="control-box">
+                    <label>Compute Precision</label>
+                    <select class="brutal-select" id="computeSelect">
+                      <option value="int8_float16" selected>int8_float16 (1.1GB)</option>
+                      <option value="float16">float16 (2.4GB)</option>
+                    </select>
+                  </div>
+
+                  <div class="control-box">
+                    <label>Beam Width</label>
+                    <select class="brutal-select" id="beamSelect">
+                      <option value="1" selected>Beam 1 (Greedy 23x)</option>
+                      <option value="3">Beam 3 (Balanced)</option>
+                      <option value="5">Beam 5 (Exhaustive)</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div>
+                  <label style="font-size: 8.5px; font-weight: 800; text-transform: uppercase;">Technical Glossary (Whisper Bias)</label>
+                  <input type="text" id="glossaryInput" class="brutal-mini-input" style="width: 100%; margin-top: 3px;" value="DAC, bit-perfect, 16-bit 48kHz, ALSA, AudioTrack, resampler" placeholder="e.g. DAC, faster-whisper, Ollama">
+                </div>
+
+                <div style="border-top: 1.5px dashed #CCC; padding-top: 6px;">
+                  <label style="font-size: 8.5px; font-weight: 800; text-transform: uppercase;">Agent Webhook Dispatch</label>
+                  <input type="text" id="webhookUrlInput" class="brutal-mini-input" style="width: 100%; margin: 3px 0 5px 0;" value="http://localhost:5000/webhook">
+                  <button class="btn-tactile" style="width: 100%; background: var(--acid-yellow); font-size: 9px;" onclick="dispatchToWebhook()">
+                    🚀 DISPATCH TO WEBHOOK
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </section>
+
+      <!-- RIGHT: OSCILLOSCOPE & MODULAR TABBED WORKSTATION -->
+      <section class="output-column">
+
+        <!-- OSCILLOSCOPE CRT CANVAS -->
+        <div class="oscilloscope-panel">
+          <div class="scope-header">
+            <span>CH-01: AUDIO SPECTRUM &amp; WAVEFORM ANALYZER</span>
+            <span id="scopeTelemetry">SR: 48,000 HZ // BIT-PERFECT BYPASS</span>
+          </div>
+          
+          <div class="scope-canvas-wrap">
+            <canvas id="scopeCanvas"></canvas>
+            <div class="scope-overlay-crosshairs"></div>
+          </div>
+
+          <!-- SYNCHRONIZED LIVE SUBTITLE OVERLAY -->
+          <div class="scope-subtitle-overlay" id="liveSubtitleOverlay">
+            <span class="sub-speaker-badge" id="liveSubSpeaker">SPEAKER 1</span>
+            <span class="sub-text" id="liveSubText">"Audio stream ready for playback &amp; transcription..."</span>
+          </div>
+
+          <!-- TRIM & REGION RANGE SELECTOR -->
+          <div class="trim-range-bar" id="trimRangeBar">
+            <span style="color: var(--acid-yellow); font-size: 9px; font-weight: 800;">[RANGE TRIMMER]:</span>
+            <span>IN:</span>
+            <input type="text" id="trimInInput" class="trim-input" value="00:00.00">
+            <button class="btn-nudge" onclick="markTrimIn()">📍 Mark In</button>
+            <span>OUT:</span>
+            <input type="text" id="trimOutInput" class="trim-input" value="03:04.00">
+            <button class="btn-nudge" onclick="markTrimOut()">📍 Mark Out</button>
+            <label style="display: flex; align-items: center; gap: 4px; cursor: pointer; margin-left: auto; font-size: 9px;">
+              <input type="checkbox" id="trimOnlyCheckbox">
+              <span>TRANSCRIBE SELECTION ONLY</span>
+            </label>
+          </div>
+
+          <div class="scope-controls">
+            <div class="transport-btns">
+              <button class="btn-tactile" id="playBtn" onclick="togglePlayAudio()">▶ PLAY [Space]</button>
+              <button class="btn-tactile" onclick="seekAudio(audioEl.currentTime - 5)">⏮ -5s [J]</button>
+              <button class="btn-tactile" onclick="seekAudio(audioEl.currentTime + 5)">⏭ +5s [K]</button>
+              <button class="btn-tactile" id="speedBtn" onclick="cycleSpeed()">1.0X</button>
+            </div>
+            <div class="time-readout" id="timeDisplay">00:00.00 / 03:04.00</div>
+          </div>
+        </div>
+
+        <!-- INDUSTRIAL TABS NAVIGATION -->
+        <div class="industrial-tabs-bar">
+          <button class="ind-tab active" id="tabBtn1" onclick="switchTab(1)">
+            <span>01 // DUAL STREAM</span>
+            <span class="tab-badge">LIVE</span>
+          </button>
+          <button class="ind-tab" id="tabBtn2" onclick="switchTab(2)">
+            <span>02 // SUBTITLE STUDIO</span>
+            <span class="tab-badge green">EDITABLE</span>
+          </button>
+          <button class="ind-tab" id="tabBtn3" onclick="switchTab(3)">
+            <span>03 // AGENT INTEL</span>
+            <span class="tab-badge yellow">LLM READY</span>
+          </button>
+          <button class="ind-tab" id="tabBtn4" onclick="switchTab(4)">
+            <span>04 // ASK TRANSCRIPT</span>
+            <span class="tab-badge" style="background: var(--electric-blue); color: #fff;">CHAT</span>
+          </button>
+          <button class="ind-tab" id="tabBtn5" onclick="switchTab(5)">
+            <span>05 // SYNCED LYRICS</span>
+            <span class="tab-badge" style="background: #FF2A85; color: #FFF;">APPLE MUSIC</span>
+          </button>
+        </div>
+
+        <!-- TAB PANEL CONTAINER -->
+        <div class="tab-panel-container">
+          
+          <!-- TAB 1: DUAL TELEPRINTER STREAM -->
+          <div id="tabPanel1">
+            <div class="teleprinter-monitor">
+              <div class="tele-lane">
+                <div class="tele-lane-header hindi-lane">
+                  <span>[RAW SPOKEN VERNACULAR (HINDI)]</span>
+                  <span class="stamp-badge" id="spokenBadge">DEVNAGARI (HI)</span>
+                </div>
+                <div class="tele-content" id="hindiStream"></div>
+              </div>
+
+              <div class="tele-lane">
+                <div class="tele-lane-header english-lane">
+                  <span>[COMPILED AGENT ENGLISH]</span>
+                  <span class="stamp-badge green" id="englishBadge">LLAMA-3.2 (3B)</span>
+                </div>
+                <div class="tele-content" id="englishStream"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 2: SUBTITLE STUDIO & BATCH TERM REPLACER -->
+          <div id="tabPanel2" style="display: none;">
+            <div class="studio-panel">
+              <div class="batch-replace-bar">
+                <span style="font-size: 10px; font-weight: 800; text-transform: uppercase;">BATCH DICTIONARY REPLACER:</span>
+                <input type="text" id="findInput" placeholder="Find term (e.g. deck)" class="brutal-mini-input" style="flex: 1; min-width: 120px;">
+                <span style="font-weight: 800;">➔</span>
+                <input type="text" id="replaceInput" placeholder="Replace with (e.g. DAC)" class="brutal-mini-input" style="flex: 1; min-width: 120px;">
+                <button class="btn-tactile" onclick="batchReplaceTerms()">⚡ REPLACE ALL</button>
+                <button class="btn-tactile" style="background: var(--paper-dark);" onclick="jumpToNextLowConfidence()">⚠️ NEXT LOW CONFIDENCE</button>
+              </div>
+
+              <div id="studioSegmentsList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+            </div>
+          </div>
+
+          <!-- TAB 3: AGENT INTELLIGENCE MATRIX -->
+          <div id="tabPanel3" style="display: none;">
+            <div class="agent-matrix-panel">
+              <div>
+                <div class="intel-section-title">
+                  <span>// EXECUTIVE BRIEF</span>
+                  <button class="btn-tactile" onclick="copyIntelBrief()">📋 COPY BRIEF</button>
+                </div>
+                <div class="intel-box" id="briefContent"></div>
+              </div>
+
+              <div>
+                <div class="intel-section-title">
+                  <span>// ACTION ITEMS &amp; TASKS</span>
+                  <span class="stamp-badge green">AGENT TASKS</span>
+                </div>
+                <div class="action-items-list" id="actionItemsList"></div>
+              </div>
+
+              <div>
+                <div class="intel-section-title">
+                  <span>// TECHNICAL ENTITIES IDENTIFIED</span>
+                  <span class="stamp-badge">JARGON EXTRACTION</span>
+                </div>
+                <div class="entity-tag-cloud" id="entitiesList"></div>
+              </div>
+
+              <div>
+                <div class="intel-section-title">
+                  <span>// AGENT SYSTEM PROMPT PAYLOAD</span>
+                  <button class="btn-tactile" style="background: var(--toxic-green);" onclick="copyAgentPayload()">⚡ COPY FULL AGENT PAYLOAD</button>
+                </div>
+                <div class="markdown-payload-viewer" id="markdownPayloadViewer"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 4: CHAT WITH TRANSCRIPT -->
+          <div id="tabPanel4" style="display: none;">
+            <div class="chat-transcript-panel">
+              <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--ink); padding-bottom: 6px;">
+                <span style="font-size: 11px; font-weight: 800;">// CHAT WITH TRANSCRIPT (LLAMA-3.2 CITATION ENGINE)</span>
+                <span class="stamp-badge green">INTERACTIVE TIME JUMP</span>
+              </div>
+              <div class="chat-history-container" id="chatHistoryContainer">
+                <div class="chat-bubble bot">
+                  <div class="chat-meta">SYSTEM // SONICSCRIBE ASSISTANT</div>
+                  <div>Ask me anything about this audio transcript. I will cite exact timestamps like <button class="timestamp-jump-btn" onclick="seekAudio(15.80)">[00:15.80]</button> that you can click to jump playback!</div>
+                </div>
+              </div>
+              <div class="chat-input-bar">
+                <input type="text" id="chatInput" class="brutal-mini-input" style="flex: 1;" placeholder="e.g. What was said about Android 16-bit 48kHz audio?" onkeydown="if(event.key==='Enter') sendChatMessage()">
+                <button class="btn-tactile" id="chatSendBtn" style="background: var(--toxic-green);" onclick="sendChatMessage()">⚡ ASK</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- TAB 5: APPLE MUSIC SYNCED LYRICS -->
+          <div id="tabPanel5" style="display: none;">
+            <div class="lyrics-stage">
+              <!-- 3D MOVING GRADIENT AURORA BACKDROP -->
+              <div class="lyrics-aurora-backdrop" id="lyricsAurora">
+                <div class="aurora-blob aurora-blob-1"></div>
+                <div class="aurora-blob aurora-blob-2"></div>
+                <div class="aurora-blob aurora-blob-3"></div>
+                <div class="aurora-blob aurora-blob-4"></div>
+                <div class="aurora-glass-blur"></div>
+              </div>
+
+              <div class="lyrics-toolbar">
+                <div class="lyrics-meta-group">
+                  <span style="font-size: 20px;">🎵</span>
+                  <div>
+                    <div class="lyrics-song-title" id="lyricsSongTitle">No Song Track Loaded</div>
+                    <span class="lyrics-song-artist" id="lyricsSongArtist">Apple Music Syllable Sync Active</span>
+                  </div>
+                </div>
+                <div class="lyrics-actions">
+                  <button class="btn-tactile" style="font-size: 9px; padding: 4px 8px; background: #FF2A85; color: #FFF;" onclick="openLrclibModal()">🔍 SEARCH LRCLIB</button>
+                  <button class="btn-tactile" style="font-size: 9px; padding: 4px 8px; background: var(--toxic-green); color: #000;" onclick="openPasteLyricsModal()">📝 PASTE LYRICS</button>
+                  <button class="btn-tactile" style="font-size: 9px; padding: 4px 8px; background: #FFF;" onclick="exportLyrics('lrc')">📥 .LRC</button>
+                  <button class="btn-tactile" style="font-size: 9px; padding: 4px 8px; background: var(--acid-yellow);" onclick="exportLyrics('elrc')">📥 .ELRC</button>
+                  <button class="btn-tactile" style="font-size: 9px; padding: 4px 8px; background: #FF2A85; color: #FFF;" onclick="exportLyrics('ttml')">📥 .TTML</button>
+                  <button class="btn-tactile" style="font-size: 9px; padding: 4px 8px; background: #FFF;" onclick="copySyncedLyrics()">📋 COPY</button>
+                  <button class="btn-tactile" style="font-size: 9px; padding: 4px 8px; background: var(--paper-dark);" onclick="realignLyricsWithLlm()">⚡ RE-SYNC LLM</button>
+                </div>
+              </div>
+              <div class="lyrics-viewport" id="lyricsViewport">
+                <div style="text-align: center; color: #888; padding: 80px 20px;">
+                  <div style="font-size: 38px; margin-bottom: 12px;">🎵</div>
+                  <div style="font-size: 15px; font-weight: 800; color: #FFF; letter-spacing: -0.3px;">APPLE MUSIC-STYLE PER-LETTER SYNCED LYRICS</div>
+                  <div style="font-size: 11px; margin-top: 6px; color: #AAA; max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+                    Select <b>"🎵 MUSIC &amp; LYRICS"</b> mode on the left panel, upload any FLAC or audio song, and click <b>Execute</b>. Or search canonical synced lyrics directly from LRCLIB or paste custom lyrics to force-align.
+                  </div>
+                  <div style="display: flex; gap: 8px; justify-content: center; margin-top: 20px; flex-wrap: wrap;">
+                    <button class="btn-tactile" style="background: #FF2A85; color: #FFF; padding: 8px 16px; font-size: 11px;" onclick="openLrclibModal()">🔍 SEARCH LRCLIB DATABASE</button>
+                    <button class="btn-tactile" style="background: var(--toxic-green); padding: 8px 16px; font-size: 11px;" onclick="openPasteLyricsModal()">📝 PASTE REFERENCE LYRICS</button>
+                    <button class="btn-tactile" style="background: var(--acid-yellow); padding: 8px 16px; font-size: 11px;" onclick="realignLyricsWithLlm()">⚡ COMPILE FROM AUDIO (LLM)</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- EXPORT DISPATCH BAR -->
+        <div class="export-spec-bar" style="padding: 10px 14px;">
+          <div class="export-info" style="display: flex; align-items: center; gap: 6px;">
+            <span id="exportInfoLabel" style="font-weight: 800; font-size: 10px;">EXPORT ARTIFACTS:</span>
+            <span style="font-size: 8.5px; font-weight: 800; background: var(--ink); color: #FFF; padding: 1px 5px;">READY</span>
+          </div>
+          <div class="export-btns" style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+            <button class="btn-export" style="background: var(--toxic-green); color: #000; font-size: 10px; padding: 5px 10px;" onclick="openPromptVoxModal()">⚡ PromptVox</button>
+            <button class="btn-export" id="copyAgentBtn" style="font-size: 10px; padding: 5px 10px;" onclick="copyAgentEnglish()">📋 Copy English</button>
+            <button class="btn-export" style="background: var(--electric-blue); color: #fff; font-size: 10px; padding: 5px 10px;" onclick="copyMarkdownWithTimestamps()">📋 MD + Time</button>
+            <button class="btn-export" style="background: #FF2A85; color: #fff; font-size: 10px; padding: 5px 10px;" onclick="switchTab(5)">🎵 Lyrics</button>
+            <button class="btn-export" style="background: var(--safety-orange); font-size: 10px; padding: 5px 10px;" onclick="burnSubtitlesVideo()">🎬 Burn MP4</button>
+            <div style="display: inline-flex; border: 2px solid var(--ink); background: #FFF; box-shadow: 2px 2px 0px var(--ink);">
+              <button class="btn-export" style="border: none; background: #FFF; color: #000; padding: 4px 7px; font-size: 9.5px; border-right: 1.5px solid var(--ink);" onclick="downloadArtifact('txt')">TXT</button>
+              <button class="btn-export" style="border: none; background: #FFF; color: #000; padding: 4px 7px; font-size: 9.5px; border-right: 1.5px solid var(--ink);" onclick="downloadArtifact('md')">MD</button>
+              <button class="btn-export" style="border: none; background: #FFF; color: #000; padding: 4px 7px; font-size: 9.5px; border-right: 1.5px solid var(--ink);" onclick="downloadArtifact('srt')">SRT</button>
+              <button class="btn-export" style="border: none; background: #FFF; color: #000; padding: 4px 7px; font-size: 9.5px; border-right: 1.5px solid var(--ink);" onclick="downloadArtifact('vtt')">VTT</button>
+              <button class="btn-export" style="border: none; background: #FFF; color: #000; padding: 4px 7px; font-size: 9.5px;" onclick="downloadArtifact('json')">JSON</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="pipeline-telemetry">
+          <span id="telemetryStatus">PIPELINE STATUS: IDLE [READY FOR CUDA COMPILATION]</span>
+          <span id="telemetryHardware">GPU THERMAL: 48°C // VRAM USAGE: 1,243 MB / 6,144 MB</span>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+  <script>
+    // State management
+    let currentFilepath = "/home/sumeet/audio-to-text/uploads/WhatsApp Ptt 2026-10-30 at 20.43.05.ogg";
+    let alwaysTranslate = true;
+    let fullEnglishText = `So you are doing the research, right? Please research how we can handle Android DAC connectivity when we plug a DAC into Android. Some media players fail to bypass the native Android audio interface directly. Because of that, Android caps audio at 16-bit 48kHz (or 24-bit 48kHz, I forgot the exact figure) which prevents bit-perfect output. So to achieve bit-perfect playback, workarounds must be used specifically when connecting a USB DAC...`;
+    
+    let currentSegments = [
+      { id: 1, start: 0, end: 7.42, start_str: "00:00.00", end_str: "00:07.42", speaker: "Speaker 1", text_raw: "तो तू रिसर्च कर रही है ना तो तू वह वाला रिसर्च कर भाई कि हम लोग कैसे Android का जो मतलब जब हम Android में डैक लगाते हैं ना...", text_english: "So you are doing the research, right? Please research how we can handle Android DAC connectivity when we plug a DAC into Android..." },
+      { id: 2, start: 7.42, end: 15.80, start_str: "00:07.42", end_str: "00:15.80", speaker: "Speaker 1", text_raw: "तो कुछ-कुछ प्लेयर्स क्या होते हैं वह डैक को सीधा Android आडियो इंटरफेस को बाईपास नहीं कर पाते हैं तो उसके वजह से क्या होता है...", text_english: "Some media players fail to bypass the native Android audio interface directly. Because of that..." },
+      { id: 3, start: 15.80, end: 23.10, start_str: "00:15.80", end_str: "00:23.10", speaker: "Speaker 1", text_raw: "क्योंकि Android 16 bit 48 kilohertz में शायद से वह कट ऑफ कर देता है या फिर 24 48 kilohertz मैं भूल गया था कितना है...", text_english: "Android caps audio at 16-bit 48kHz (or 24-bit 48kHz, I forgot the exact figure) which prevents bit-perfect output..." },
+      { id: 4, start: 23.10, end: 32.40, start_str: "00:23.10", end_str: "00:32.40", speaker: "Speaker 2", text_raw: "पर मतलब वो कम है वो bit perfect नहीं है तो bit perfect बनाने के लिए हम क्या करना पड़ता है कि पहले वो जब ये बस deck के लिए होता है...", text_english: "It is not bit-perfect. So to make it bit-perfect, we need specific workarounds when using an external USB DAC..." }
+    ];
+
+    let currentAgentIntel = {
+      executive_summary: "Detailed technical discussion analyzing why Android restricts USB audio DAC output to 16-bit 48kHz by default, the mechanism of bit-perfect bypass through specialized media players, and architectural workarounds required when integrating external high-resolution DACs.",
+      action_items: [
+        { task: "Investigate Android audio interface bypass workarounds", urgency: "high", context: "Sample rate capped at 16-bit 48kHz on standard output" },
+        { task: "Verify bit-perfect external USB DAC integration", urgency: "medium", context: "Audio player interface limitations" },
+        { task: "Audit volume slider hardware bypass behavior", urgency: "low", context: "Hardware DAC volume button conflict" }
+      ],
+      technical_entities: [
+        { term: "USB DAC", category: "Hardware", context: "Digital-to-Analog audio converter" },
+        { term: "16-bit / 48kHz", category: "Audio Spec", context: "Android internal resampling limit" },
+        { term: "Bit-perfect", category: "Protocol", context: "Unaltered audio stream transmission" }
+      ],
+      agent_prompt_payload: `# INGESTED CONVERSATIONAL INTELLIGENCE\n\n**Executive Brief**: Detailed technical discussion analyzing Android USB DAC restrictions...\n\n## Action Items\n- [HIGH] Investigate Android audio interface bypass workarounds\n- [MED] Verify bit-perfect external USB DAC integration\n\n## Full Transcript\nSo you are doing the research, right? Please research how we can handle Android DAC connectivity...`
+    };
+
+    // Audio & Web Audio API
+    const audioEl = document.getElementById('audioElement');
+    let audioCtx = null;
+    let analyser = null;
+    let audioSource = null;
+    let isPlaying = false;
+    let isRecordingMic = false;
+    let mediaRecorder = null;
+    let recordedChunks = [];
+
+    // Canvas Oscilloscope
+    const canvas = document.getElementById('scopeCanvas');
+    const ctx = canvas.getContext('2d');
+    let phase = 0;
+
+    function resizeCanvas() {
+      canvas.width = canvas.parentElement.clientWidth;
+      canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    function initAudioContext() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        analyser = audioCtx.createAnalyser();
+        analyser.fftSize = 256;
+        try {
+          audioSource = audioCtx.createMediaElementSource(audioEl);
+          audioSource.connect(analyser);
+          analyser.connect(audioCtx.destination);
+        } catch (e) {
+          console.warn("MediaElementSource notice:", e);
+        }
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    audioEl.addEventListener('timeupdate', () => {
+      const cur = audioEl.currentTime || 0;
+      const dur = audioEl.duration || 184.0;
+      document.getElementById('timeDisplay').innerText = `${formatSeconds(cur)} / ${formatSeconds(dur)}`;
+      highlightActiveSegment(cur);
+      updateLyricsPlayback(cur);
+    });
+
+    audioEl.addEventListener('ended', () => {
+      isPlaying = false;
+      document.getElementById('playBtn').innerText = '▶ PLAY [Space]';
+      document.getElementById('playBtn').style.background = '#FFFFFF';
+      document.getElementById('playBtn').style.color = '#0A0A0A';
+    });
+
+    function formatSeconds(sec) {
+      const m = Math.floor(sec / 60);
+      const s = Math.floor(sec % 60);
+      const ms = Math.floor((sec - Math.floor(sec)) * 100);
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}.${String(ms).padStart(2, '0')}`;
+    }
+
+    function escapeHtml(str) {
+      if (str === null || str === undefined) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function togglePlayAudio() {
+      initAudioContext();
+      if (audioEl.paused) {
+        audioEl.play().then(() => {
+          isPlaying = true;
+          document.getElementById('playBtn').innerText = '⏸ PAUSE [Space]';
+          document.getElementById('playBtn').style.background = '#FF4A00';
+          document.getElementById('playBtn').style.color = '#FFFFFF';
+        }).catch(err => {
+          isPlaying = !isPlaying;
+          document.getElementById('playBtn').innerText = isPlaying ? '⏸ PAUSE' : '▶ PLAY [Space]';
+        });
+      } else {
+        audioEl.pause();
+        isPlaying = false;
+        document.getElementById('playBtn').innerText = '▶ PLAY [Space]';
+        document.getElementById('playBtn').style.background = '#FFFFFF';
+        document.getElementById('playBtn').style.color = '#0A0A0A';
+      }
+    }
+
+    function seekAudio(seconds) {
+      initAudioContext();
+      audioEl.currentTime = Math.max(0, seconds);
+      if (audioEl.paused) {
+        audioEl.play().catch(() => {});
+        isPlaying = true;
+        document.getElementById('playBtn').innerText = '⏸ PAUSE [Space]';
+        document.getElementById('playBtn').style.background = '#FF4A00';
+        document.getElementById('playBtn').style.color = '#FFFFFF';
+      }
+    }
+
+    let playbackRates = [1.0, 1.25, 1.5, 2.0];
+    let rateIndex = 0;
+    function cycleSpeed() {
+      rateIndex = (rateIndex + 1) % playbackRates.length;
+      const rate = playbackRates[rateIndex];
+      audioEl.playbackRate = rate;
+      document.getElementById('speedBtn').innerText = `${rate.toFixed(1)}X`;
+    }
+
+    function highlightActiveSegment(time) {
+      const hindiCards = document.querySelectorAll('#hindiStream .tele-card');
+      const engCards = document.querySelectorAll('#englishStream .tele-card');
+      const studioCards = document.querySelectorAll('#studioSegmentsList .studio-card');
+      
+      let activeSeg = null;
+
+      currentSegments.forEach((seg, idx) => {
+        const isActive = (time >= seg.start && time <= seg.end);
+        if (isActive) activeSeg = seg;
+        if (hindiCards[idx]) hindiCards[idx].classList.toggle('playing', isActive);
+        if (engCards[idx]) engCards[idx].classList.toggle('playing', isActive);
+        if (studioCards[idx]) {
+          studioCards[idx].style.borderColor = isActive ? 'var(--electric-blue)' : 'var(--ink)';
+          studioCards[idx].style.boxShadow = isActive ? '5px 5px 0px var(--electric-blue)' : '3px 3px 0px var(--ink)';
+        }
+      });
+
+      // Highlight active karaoke word with precision
+      const words = document.querySelectorAll('.karaoke-word');
+      words.forEach(w => {
+        const s = parseFloat(w.dataset.start);
+        const e = parseFloat(w.dataset.end);
+        if (!isNaN(s) && !isNaN(e)) {
+          w.classList.toggle('active', time >= s && time <= e);
+        }
+      });
+
+      if (activeSeg) {
+        document.getElementById('liveSubSpeaker').innerText = (activeSeg.speaker || 'SPEAKER 1').toUpperCase();
+        document.getElementById('liveSubText').innerText = `"${activeSeg.text_english || activeSeg.text_raw}"`;
+      }
+    }
+
+    // Oscilloscope render loop
+    function drawWave() {
+      ctx.fillStyle = '#070C09';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      let bufferLength = analyser ? analyser.frequencyBinCount : 64;
+      let dataArray = new Uint8Array(bufferLength);
+
+      if (analyser && isPlaying && !audioEl.paused) {
+        analyser.getByteTimeDomainData(dataArray);
+      }
+
+      ctx.lineWidth = 2.8;
+      ctx.strokeStyle = isPlaying ? '#00E575' : '#334438';
+      ctx.beginPath();
+
+      const sliceWidth = canvas.width / bufferLength;
+      let x = 0;
+
+      for (let i = 0; i < bufferLength; i++) {
+        let v;
+        if (analyser && isPlaying && !audioEl.paused) {
+          v = dataArray[i] / 128.0;
+        } else {
+          v = 1.0 + (isPlaying ? (Math.sin(i * 0.15 + phase) * 0.35 + Math.sin(i * 0.38 - phase) * 0.15) : Math.sin(i * 0.08) * 0.05);
+        }
+        const y = (v * canvas.height) / 2;
+
+        if (i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+        x += sliceWidth;
+      }
+      ctx.stroke();
+
+      if (isPlaying) {
+        ctx.strokeStyle = '#FF4A00';
+        ctx.lineWidth = 1.6;
+        ctx.beginPath();
+        x = 0;
+        for (let i = 0; i < bufferLength; i++) {
+          const v2 = 1.0 + Math.cos(i * 0.2 + phase * 0.8) * 0.25;
+          const y2 = (v2 * canvas.height) / 2;
+          if (i === 0) ctx.moveTo(x, y2);
+          else ctx.lineTo(x, y2);
+          x += sliceWidth;
+        }
+        ctx.stroke();
+      }
+
+      phase += isPlaying ? 0.08 : 0.01;
+      if (isPlaying && !audioEl.paused) {
+        updateLyricsPlayback(audioEl.currentTime);
+      }
+      requestAnimationFrame(drawWave);
+    }
+    drawWave();
+
+    // TAB SWITCHER
+    function switchTab(tabNum) {
+      document.getElementById('tabBtn1').classList.toggle('active', tabNum === 1);
+      document.getElementById('tabBtn2').classList.toggle('active', tabNum === 2);
+      document.getElementById('tabBtn3').classList.toggle('active', tabNum === 3);
+      document.getElementById('tabBtn4').classList.toggle('active', tabNum === 4);
+      document.getElementById('tabBtn5').classList.toggle('active', tabNum === 5);
+
+      document.getElementById('tabPanel1').style.display = (tabNum === 1) ? 'block' : 'none';
+      document.getElementById('tabPanel2').style.display = (tabNum === 2) ? 'block' : 'none';
+      document.getElementById('tabPanel3').style.display = (tabNum === 3) ? 'block' : 'none';
+      document.getElementById('tabPanel4').style.display = (tabNum === 4) ? 'block' : 'none';
+      document.getElementById('tabPanel5').style.display = (tabNum === 5) ? 'block' : 'none';
+    }
+
+    // 🎵 ACOUSTIC PROFILE (SPEECH VS MUSIC) & APPLE MUSIC LYRICS ENGINE
+    let currentAudioMode = 'speech';
+    let currentLyricsData = null;
+    let currentActiveLineEl = null;
+
+    function setAudioProfile(mode) {
+      currentAudioMode = mode;
+      const speechBtn = document.getElementById('profileSpeechBtn');
+      const musicBtn = document.getElementById('profileMusicBtn');
+      const badge = document.getElementById('profileStatusBadge');
+      const desc = document.getElementById('profileDescText');
+
+      if (mode === 'music_lyrics') {
+        if (speechBtn) {
+          speechBtn.style.background = 'var(--paper)';
+          speechBtn.style.boxShadow = '2px 2px 0px var(--ink)';
+          speechBtn.style.color = 'var(--ink)';
+        }
+        if (musicBtn) {
+          musicBtn.style.background = '#FF2A85';
+          musicBtn.style.color = '#FFFFFF';
+          musicBtn.style.boxShadow = '3px 3px 0px var(--ink)';
+        }
+        if (badge) {
+          badge.innerText = '🎵 MUSIC / LYRICS';
+          badge.style.background = '#000';
+          badge.style.color = '#FF2A85';
+        }
+        if (desc) {
+          desc.innerHTML = '<b style="color: #000;">⚡ VAD Filter Bypassed:</b> Transcribes continuously through instrumental breaks, guitar solos &amp; drums without dropping lines. Apple Music character sweep enabled.';
+        }
+        showToast('🎵 Switched to Music & Synced Lyrics Mode (VAD Bypassed)!', 'info', 2500);
+
+        if (currentFilepath) {
+          fetch('/api/stems/separate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ filepath: currentFilepath, device: 'auto' })
+          }).then(r => r.json()).then(stemRes => {
+            if (stemRes.status === 'success' && stemRes.cached) {
+              currentStemUrls.master = audioEl.src;
+              currentStemUrls.vocals = stemRes.vocals_url;
+              currentStemUrls.karaoke = stemRes.instrumental_url;
+              document.getElementById('stemSelectorBar').style.display = 'block';
+              document.getElementById('separateStemsBtn').style.display = 'none';
+            } else {
+              document.getElementById('separateStemsBtn').style.display = 'block';
+            }
+          }).catch(() => {
+            document.getElementById('separateStemsBtn').style.display = 'block';
+          });
+        }
+      } else {
+        if (speechBtn) {
+          speechBtn.style.background = 'var(--paper-card)';
+          speechBtn.style.boxShadow = '3px 3px 0px var(--ink)';
+          speechBtn.style.color = 'var(--ink)';
+        }
+        if (musicBtn) {
+          musicBtn.style.background = 'var(--paper)';
+          musicBtn.style.color = 'var(--ink)';
+          musicBtn.style.boxShadow = '2px 2px 0px var(--ink)';
+        }
+        if (badge) {
+          badge.innerText = '🎙️ SPEECH';
+          badge.style.background = '';
+          badge.style.color = '';
+        }
+        if (desc) {
+          desc.innerText = 'Standard conversational VAD active. Best for meetings, voice notes, and dialogue.';
+        }
+        const sBar = document.getElementById('stemSelectorBar');
+        if (sBar) sBar.style.display = 'none';
+        const sBtn = document.getElementById('separateStemsBtn');
+        if (sBtn) sBtn.style.display = 'none';
+      }
+    }
+
+    function toggleAdvancedTuning() {
+      const drawer = document.getElementById('advTuningDrawer');
+      const chevron = document.getElementById('advChevron');
+      if (drawer.style.display === 'none' || drawer.style.display === '') {
+        drawer.style.display = 'flex';
+        chevron.innerText = '▲ HIDE';
+      } else {
+        drawer.style.display = 'none';
+        chevron.innerText = '▼ SHOW';
+      }
+    }
+
+    function renderLyricsStage(data) {
+      currentLyricsData = data;
+      const container = document.getElementById('lyricsViewport');
+      if (!container) return;
+
+      if (!data || !data.stanzas || data.stanzas.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; color: #888; padding: 70px 20px;">
+            <div style="font-size: 36px; margin-bottom: 12px;">🎵</div>
+            <div style="font-size: 15px; font-weight: 800; color: #FFF;">NO SYNCED LYRICS COMPILED YET</div>
+            <div style="font-size: 11px; margin-top: 6px; color: #AAA;">Select "🎵 Music &amp; Lyrics" mode, upload a song, and click Execute.</div>
+            <button class="btn-tactile" style="margin-top: 18px; background: var(--toxic-green); font-size: 10px;" onclick="realignLyricsWithLlm()">⚡ COMPILE LYRICS FROM CURRENT AUDIO</button>
+          </div>
+        `;
+        return;
+      }
+
+      document.getElementById('lyricsSongTitle').innerText = data.title || (currentFilepath ? currentFilepath.split('/').pop().replace(/\.[^/.]+$/, '') : 'Song Track');
+      document.getElementById('lyricsSongArtist').innerText = data.artist || 'Original Vocalist';
+
+      let html = '';
+      data.stanzas.forEach((stanza, sIdx) => {
+        html += `<div class="lyrics-stanza">`;
+        if (stanza.type) {
+          html += `<div class="lyrics-stanza-title">[${escapeHtml(stanza.type.toUpperCase())}]</div>`;
+        }
+
+        (stanza.lines || []).forEach((line, lIdx) => {
+          const lineId = `lrcLine_${sIdx}_${lIdx}`;
+          html += `
+            <div class="lyric-line" id="${lineId}" data-start="${line.start}" data-end="${line.end}" onclick="seekAudio(${line.start})">
+              <span class="lyric-time-tag">[${line.start_formatted || formatSeconds(line.start)}]</span>
+              <div class="lyric-text-container">
+          `;
+
+          if (line.words && line.words.length > 0) {
+            line.words.forEach((w) => {
+              html += `<span class="lyric-word" data-start="${w.start}" data-end="${w.end}" onclick="event.stopPropagation(); seekAudio(${w.start})">`;
+              if (w.chars && w.chars.length > 0) {
+                w.chars.forEach((c) => {
+                  html += `<span class="lyric-char" data-start="${c.start}" data-end="${c.end}">${escapeHtml(c.char)}</span>`;
+                });
+              } else {
+                html += `<span class="lyric-char" data-start="${w.start}" data-end="${w.end}">${escapeHtml(w.word)}</span>`;
+              }
+              html += `</span> `;
+            });
+          } else {
+            html += `<span class="lyric-word" data-start="${line.start}" data-end="${line.end}" onclick="seekAudio(${line.start})"><span class="lyric-char" data-start="${line.start}" data-end="${line.end}">${escapeHtml(line.text)}</span></span>`;
+          }
+
+          html += `
+              </div>
+            </div>
+          `;
+        });
+
+        html += `</div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    function updateLyricsPlayback(time) {
+      if (!currentLyricsData) return;
+      const lines = document.querySelectorAll('.lyric-line');
+      let activeFound = false;
+
+      lines.forEach((lineEl) => {
+        const start = parseFloat(lineEl.dataset.start);
+        const end = parseFloat(lineEl.dataset.end);
+        const isCurrent = (time >= start && time <= end);
+
+        if (isCurrent && !activeFound) {
+          activeFound = true;
+          if (currentActiveLineEl !== lineEl) {
+            if (currentActiveLineEl) currentActiveLineEl.classList.remove('active-line');
+            lineEl.classList.add('active-line');
+            currentActiveLineEl = lineEl;
+
+            const viewport = document.getElementById('lyricsViewport');
+            if (viewport) {
+              const vRect = viewport.getBoundingClientRect();
+              const lRect = lineEl.getBoundingClientRect();
+              const offset = lRect.top - vRect.top - (viewport.clientHeight / 2) + (lineEl.clientHeight / 2);
+              viewport.scrollBy({ top: offset, behavior: 'smooth' });
+            }
+          }
+        } else if (!isCurrent && currentActiveLineEl === lineEl && !activeFound) {
+          lineEl.classList.remove('active-line');
+          currentActiveLineEl = null;
+        }
+
+        const chars = lineEl.querySelectorAll('.lyric-char');
+        chars.forEach((cEl) => {
+          const cStart = parseFloat(cEl.dataset.start);
+          const cEnd = parseFloat(cEl.dataset.end);
+          if (time >= cEnd) {
+            cEl.classList.add('sung');
+            cEl.style.background = '';
+            cEl.style.webkitBackgroundClip = '';
+            cEl.style.webkitTextFillColor = '';
+            cEl.style.textShadow = '';
+          } else if (time < cStart) {
+            cEl.classList.remove('sung');
+            cEl.style.background = '';
+            cEl.style.webkitBackgroundClip = '';
+            cEl.style.webkitTextFillColor = '';
+            cEl.style.textShadow = '';
+          } else {
+            cEl.classList.remove('sung');
+            const dur = Math.max(0.001, cEnd - cStart);
+            const frac = Math.min(1.0, Math.max(0.0, (time - cStart) / dur));
+            const pct = Math.round(frac * 100);
+            const glowColor = (currentActiveStem === 'karaoke') ? '#FF2A85' : '#00E575';
+            cEl.style.background = `linear-gradient(90deg, #FFFFFF ${pct}%, rgba(255, 255, 255, 0.38) ${pct}%)`;
+            cEl.style.webkitBackgroundClip = 'text';
+            cEl.style.webkitTextFillColor = 'transparent';
+            cEl.style.textShadow = `0 0 16px #FFFFFF, 0 0 28px ${glowColor}, 0 0 45px #0052D4`;
+          }
+        });
+      });
+    }
+
+    async function exportLyrics(format) {
+      if (!currentLyricsData) {
+        showToast('No lyrics data available to export.', 'error');
+        return;
+      }
+      try {
+        showToast(`Compiling .${format.toUpperCase()} export...`, 'info', 1500);
+        const res = await fetch('/api/lyrics/export', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ lyrics: currentLyricsData, format: format })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          const blob = new Blob([data.content], { type: 'text/plain;charset=utf-8' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `${(currentLyricsData.title || 'lyrics').replace(/\s+/g, '_')}.${data.extension}`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          showToast(`✓ Downloaded .${data.extension.toUpperCase()} successfully!`, 'success');
+        } else {
+          showToast('Export failed: ' + (data.detail || 'Error'), 'error');
+        }
+      } catch (err) {
+        showToast('Export failed: ' + err.message, 'error');
+      }
+    }
+
+    function copySyncedLyrics() {
+      if (!currentLyricsData || !currentLyricsData.stanzas) {
+        showToast('No lyrics data available to copy.', 'warning');
+        return;
+      }
+      let text = '';
+      currentLyricsData.stanzas.forEach(s => {
+        if (s.type) text += `[${s.type}]\n`;
+        (s.lines || []).forEach(l => {
+          text += `[${l.start_formatted || formatSeconds(l.start)}] ${l.text}\n`;
+        });
+        text += '\n';
+      });
+      navigator.clipboard.writeText(text.trim());
+      showToast('✓ Synced lyrics copied to clipboard!', 'success');
+    }
+
+    async function realignLyricsWithLlm() {
+      if (!currentSegments || currentSegments.length === 0) {
+        showToast('No transcribed audio segments available yet.', 'warning');
+        return;
+      }
+      showToast('⚡ Re-aligning song stanzas & syllables via configured LLM Engine...', 'warning', 4000);
+      try {
+        const cleanSegments = currentSegments.map((s, idx) => ({
+          id: s.id || (idx + 1),
+          start: s.start,
+          end: s.end,
+          text_raw: s.text_english || s.text_raw || s.text || '',
+          text_english: s.text_english || s.text_raw || s.text || '',
+          text: s.text_english || s.text_raw || s.text || '',
+          words: s.words || []
+        }));
+
+        const res = await fetch('/api/lyrics/format', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            segments: cleanSegments,
+            llm_config: getLlmConfig(),
+            song_title: currentFilepath ? currentFilepath.split('/').pop().replace(/\.[^/.]+$/, '') : 'Song Track'
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.lyrics && data.lyrics.stanzas && data.lyrics.stanzas.length > 0) {
+          renderLyricsStage(data.lyrics);
+          switchTab(5);
+          showToast('✓ Apple Music synced lyrics compiled!', 'success');
+        } else {
+          showToast('Alignment returned no data.', 'error');
+        }
+      } catch (err) {
+        showToast('Lyrics alignment error: ' + err.message, 'error');
+      }
+    }
+
+    // LRCLIB CANONICAL LYRICS MODAL & RESOLUTION
+    function openLrclibModal() {
+      const modal = document.getElementById('lrclibModal');
+      const titleInput = document.getElementById('lrclibTitleInput');
+      const artistInput = document.getElementById('lrclibArtistInput');
+      const statusBox = document.getElementById('lrclibStatusBox');
+      statusBox.style.display = 'none';
+
+      // Auto-extract candidate title/artist from filename
+      if (currentFilepath && !titleInput.value) {
+        const fname = currentFilepath.split('/').pop().replace(/\.[^/.]+$/, '');
+        const parts = fname.split(' - ').map(p => p.trim());
+        if (parts.length >= 2) {
+          artistInput.value = parts[0];
+          titleInput.value = parts[parts.length - 1].replace(/^\d+[\.\-\s]+/, '');
+        } else {
+          titleInput.value = fname.replace(/^\d+[\.\-\s]+/, '');
+        }
+      }
+      modal.classList.add('open');
+    }
+
+    function closeLrclibModal() {
+      document.getElementById('lrclibModal').classList.remove('open');
+    }
+
+    async function searchLrclibManual() {
+      const title = document.getElementById('lrclibTitleInput').value.trim();
+      const artist = document.getElementById('lrclibArtistInput').value.trim();
+      const statusBox = document.getElementById('lrclibStatusBox');
+      const btn = document.getElementById('lrclibSearchBtn');
+
+      if (!title) {
+        showToast('Please enter a song title.', 'warning');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerText = 'SEARCHING...';
+      statusBox.style.display = 'block';
+      statusBox.style.background = '#FFF9D2';
+      statusBox.style.color = '#000';
+      statusBox.innerHTML = `⏳ Querying LRCLIB global database for "<b>${escapeHtml(title)}</b>"...`;
+
+      try {
+        const res = await fetch('/api/lyrics/resolve', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            title: title,
+            artist: artist,
+            filepath: currentFilepath,
+            duration: (audioEl && audioEl.duration) ? audioEl.duration : 0
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.lyrics && data.lyrics.stanzas && data.lyrics.stanzas.length > 0) {
+          renderLyricsStage(data.lyrics);
+          closeLrclibModal();
+          switchTab(5);
+          showToast(`✓ Resolved synced lyrics for "${data.lyrics.title}" (${data.lyrics.stanzas.length} stanzas)!`, 'success', 4000);
+        } else if (data.status === 'plain_only') {
+          statusBox.style.background = '#E8F5E9';
+          statusBox.innerHTML = `✓ Found plain lyrics for "${escapeHtml(data.title)}" by "${escapeHtml(data.artist)}"! Aligning with audio speech landmarks...`;
+          alignCustomReferenceText(data.plain_lyrics, data.title, data.artist);
+          closeLrclibModal();
+        } else {
+          statusBox.style.background = '#FFEBEE';
+          statusBox.style.color = '#D32F2F';
+          statusBox.innerHTML = `✕ No synced match found on LRCLIB. Try adjusting artist/title or use <b>"📝 PASTE LYRICS"</b>.`;
+        }
+      } catch (err) {
+        statusBox.style.background = '#FFEBEE';
+        statusBox.style.color = '#D32F2F';
+        statusBox.innerHTML = `✕ Error: ${escapeHtml(err.message)}`;
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '🔍 SEARCH & SYNC';
+      }
+    }
+
+    // PASTE REFERENCE LYRICS & ACOUSTIC ALIGNMENT
+    function openPasteLyricsModal() {
+      const modal = document.getElementById('pasteLyricsModal');
+      const titleInput = document.getElementById('pasteTitleInput');
+      const artistInput = document.getElementById('pasteArtistInput');
+
+      if (currentFilepath && !titleInput.value) {
+        const fname = currentFilepath.split('/').pop().replace(/\.[^/.]+$/, '');
+        const parts = fname.split(' - ').map(p => p.trim());
+        if (parts.length >= 2) {
+          artistInput.value = parts[0];
+          titleInput.value = parts[parts.length - 1].replace(/^\d+[\.\-\s]+/, '');
+        } else {
+          titleInput.value = fname.replace(/^\d+[\.\-\s]+/, '');
+        }
+      }
+      modal.classList.add('open');
+    }
+
+    function closePasteLyricsModal() {
+      document.getElementById('pasteLyricsModal').classList.remove('open');
+    }
+
+    async function submitCustomLyricsAlignment() {
+      const text = document.getElementById('pasteLyricsTextarea').value.trim();
+      const title = document.getElementById('pasteTitleInput').value.trim() || 'Custom Track';
+      const artist = document.getElementById('pasteArtistInput').value.trim() || 'Artist';
+
+      if (!text) {
+        showToast('Please paste lyric lines into the textarea.', 'warning');
+        return;
+      }
+      alignCustomReferenceText(text, title, artist);
+      closePasteLyricsModal();
+    }
+
+    async function alignCustomReferenceText(refText, title, artist) {
+      showToast('⚡ Anchoring reference lyrics onto audio acoustic boundaries...', 'info', 4000);
+      try {
+        const res = await fetch('/api/lyrics/align_custom', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            reference_lyrics: refText,
+            segments: currentSegments || [],
+            filepath: currentFilepath,
+            title: title,
+            artist: artist
+          })
+        });
+        const data = await res.json();
+        if (data.status === 'success' && data.lyrics && data.lyrics.stanzas && data.lyrics.stanzas.length > 0) {
+          renderLyricsStage(data.lyrics);
+          switchTab(5);
+          showToast(`✓ Aligned ${data.lyrics.stanzas.length} stanzas with Apple Music syllable precision!`, 'success');
+        } else {
+          showToast('Failed to align custom lyrics: ' + (data.detail || 'No acoustic segments found'), 'error');
+        }
+      } catch (err) {
+        showToast('Alignment request error: ' + err.message, 'error');
+      }
+    }
+
+    // TOAST NOTIFICATIONS
+    function showToast(message, type = 'success', duration = 3600) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = 'brutal-toast';
+
+      let headerTitle = '[SYSTEM DISPATCH // 200 OK]';
+      if (type === 'error') headerTitle = '[HARDWARE ERROR // FAULT]';
+      if (type === 'warning') headerTitle = '[SYSTEM ADVISORY // NOTICE]';
+
+      toast.innerHTML = `
+        <div class="toast-header ${type}">
+          <span>${headerTitle}</span>
+          <button class="toast-dismiss" onclick="this.closest('.brutal-toast').remove()">✕</button>
+        </div>
+        <div class="toast-body">
+          <span>${message}</span>
+        </div>
+        <div class="toast-progress" style="animation-duration: ${duration}ms"></div>
+      `;
+
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(16px)';
+        setTimeout(() => toast.remove(), 250);
+      }, duration);
+    }
+
+    // MODALS
+    function openUrlModal() {
+      const modal = document.getElementById('urlModal');
+      modal.classList.add('open');
+      const input = document.getElementById('urlModalInput');
+      input.value = '';
+      setTimeout(() => input.focus(), 100);
+    }
+    function closeUrlModal() { document.getElementById('urlModal').classList.remove('open'); }
+
+    function openSessionsModal() {
+      loadSessionsFromDB();
+      document.getElementById('sessionsModal').classList.add('open');
+    }
+    function closeSessionsModal() { document.getElementById('sessionsModal').classList.remove('open'); }
+
+    function openPromptVoxModal() {
+      regeneratePromptVox();
+      document.getElementById('promptVoxModal').classList.add('open');
+    }
+    function closePromptVoxModal() { document.getElementById('promptVoxModal').classList.remove('open'); }
+
+    // PROMPTVOX COMPILER
+    function regeneratePromptVox() {
+      const fmt = document.getElementById('agentFormatSelect').value;
+      const viewer = document.getElementById('promptVoxViewer');
+      const brief = currentAgentIntel.executive_summary || '';
+      const filename = currentFilepath.split('/').pop();
+
+      let prompt = '';
+      if (fmt === 'cursor') {
+        prompt = `# 🎯 CURSOR CODING AGENT INSTRUCTION SPECIFICATION\n\n## 1. CONTEXT\nIngested from audio transmission [${filename}].\nExecutive Brief: ${brief}\n\n## 2. VERIFIED SPECIFICATION\n${fullEnglishText}\n\n## 3. CORE TASKS FOR AGENT\n`;
+        (currentAgentIntel.action_items || []).forEach(a => {
+          prompt += `- [${a.urgency.toUpperCase()}] ${a.task} (${a.context})\n`;
+        });
+        prompt += `\n## 4. CONSTRAINTS\n- Implement solution adhering strictly to specifications.\n- Write production-ready, clean code with zero placeholders.\n`;
+      } else if (fmt === 'codex') {
+        prompt = `// CODEX / CLAUDE CODE CLI AGENT PROMPT\n// GOAL: Implement audio engineering task extracted from local recording.\n\nCONTEXT:\n${brief}\n\nREQUIREMENTS:\n${fullEnglishText}\n\nACTION ITEMS:\n`;
+        (currentAgentIntel.action_items || []).forEach((a, idx) => {
+          prompt += `${idx+1}. ${a.task} [Priority: ${a.urgency}]\n`;
+        });
+      } else if (fmt === 'aider') {
+        prompt = `Implement the following features discussed in audio transcript:\n\n${brief}\n\nDetails:\n${fullEnglishText}\n\nPlease apply modifications to the codebase directly.`;
+      } else {
+        prompt = `# AUDIO TRANSCRIPTION SPECIFICATION\n\n**Source**: ${filename}\n**Summary**: ${brief}\n\n## English Transcript\n${fullEnglishText}\n\n## Action Items\n` + JSON.stringify(currentAgentIntel.action_items || [], null, 2);
+      }
+
+      viewer.value = prompt;
+    }
+
+    function copyPromptVoxPayload() {
+      const text = document.getElementById('promptVoxViewer').value;
+      navigator.clipboard.writeText(text);
+      showToast('⚡ PromptVox payload copied to clipboard for Cursor / Codex!', 'success');
+      closePromptVoxModal();
+    }
+
+    // ==========================================
+    // LLM COMPILER ENGINE (OPENAI-COMPATIBLE & OLLAMA)
+    // ==========================================
+    const LLM_PROVIDER_PRESETS = {
+      groq: {
+        name: "Groq LPU",
+        base_url: "https://api.groq.com/openai/v1",
+        default_model: "llama-3.1-8b-instant",
+        key_placeholder: "gsk_..."
+      },
+      openai: {
+        name: "OpenAI",
+        base_url: "https://api.openai.com/v1",
+        default_model: "gpt-4o-mini",
+        key_placeholder: "sk-proj-..."
+      },
+      gemini: {
+        name: "Google Gemini",
+        base_url: "https://generativelanguage.googleapis.com/v1beta/openai",
+        default_model: "gemini-1.5-flash",
+        key_placeholder: "AIzaSy..."
+      },
+      deepseek: {
+        name: "DeepSeek",
+        base_url: "https://api.deepseek.com/v1",
+        default_model: "deepseek-chat",
+        key_placeholder: "sk-..."
+      },
+      openrouter: {
+        name: "OpenRouter",
+        base_url: "https://openrouter.ai/api/v1",
+        default_model: "meta-llama/llama-3.3-70b-instruct",
+        key_placeholder: "sk-or-..."
+      },
+      custom: {
+        name: "Custom OpenAI-Compatible",
+        base_url: "http://localhost:8000/v1",
+        default_model: "default",
+        key_placeholder: "sk-..."
+      },
+      ollama: {
+        name: "Local Ollama",
+        base_url: "http://localhost:11434",
+        default_model: "llama3.2:3b",
+        key_placeholder: "Not required for local Ollama"
+      }
+    };
+
+    function getLlmConfig() {
+      try {
+        const stored = localStorage.getItem('sonic_llm_config');
+        if (stored) return JSON.parse(stored);
+      } catch (e) {}
+      return {
+        provider: "groq",
+        base_url: "https://api.groq.com/openai/v1",
+        model: "llama-3.1-8b-instant",
+        api_key: ""
+      };
+    }
+
+    function openLlmModal() {
+      const cfg = getLlmConfig();
+      document.getElementById('llmProviderSelect').value = cfg.provider || 'groq';
+      document.getElementById('llmBaseUrlInput').value = cfg.base_url || LLM_PROVIDER_PRESETS[cfg.provider || 'groq'].base_url;
+      document.getElementById('llmModelInput').value = cfg.model || LLM_PROVIDER_PRESETS[cfg.provider || 'groq'].default_model;
+      document.getElementById('llmApiKeyInput').value = cfg.api_key || '';
+      document.getElementById('llmTestResult').style.display = 'none';
+      onLlmProviderChange();
+      document.getElementById('llmModal').classList.add('open');
+    }
+
+    function closeLlmModal() {
+      document.getElementById('llmModal').classList.remove('open');
+    }
+
+    function onLlmProviderChange() {
+      const prov = document.getElementById('llmProviderSelect').value;
+      const preset = LLM_PROVIDER_PRESETS[prov] || LLM_PROVIDER_PRESETS.custom;
+      const baseContainer = document.getElementById('llmBaseUrlContainer');
+      const keyContainer = document.getElementById('llmApiKeyContainer');
+      const keyInput = document.getElementById('llmApiKeyInput');
+
+      if (prov === 'custom') {
+        baseContainer.style.display = 'block';
+        keyContainer.style.display = 'block';
+      } else if (prov === 'ollama') {
+        baseContainer.style.display = 'none';
+        keyContainer.style.display = 'none';
+      } else {
+        baseContainer.style.display = 'none';
+        keyContainer.style.display = 'block';
+        document.getElementById('llmBaseUrlInput').value = preset.base_url;
+      }
+
+      keyInput.placeholder = preset.key_placeholder;
+      if (!document.getElementById('llmModelInput').value || prov !== 'custom') {
+        document.getElementById('llmModelInput').value = preset.default_model;
+      }
+    }
+
+    function toggleApiKeyVisibility() {
+      const inp = document.getElementById('llmApiKeyInput');
+      const btn = document.getElementById('toggleKeyBtn');
+      if (inp.type === 'password') {
+        inp.type = 'text';
+        btn.innerText = '🔒';
+      } else {
+        inp.type = 'password';
+        btn.innerText = '👁️';
+      }
+    }
+
+    async function testLlmConnection() {
+      const prov = document.getElementById('llmProviderSelect').value;
+      const key = document.getElementById('llmApiKeyInput').value.trim();
+      const model = document.getElementById('llmModelInput').value.trim();
+      const base = document.getElementById('llmBaseUrlInput').value.trim();
+      const resBox = document.getElementById('llmTestResult');
+      const testBtn = document.getElementById('testLlmBtn');
+
+      if (prov !== 'ollama' && !key && prov !== 'custom') {
+        showToast('Please enter an API Key to test connection.', 'warning');
+        return;
+      }
+
+      testBtn.disabled = true;
+      testBtn.innerText = '⏳ PINGING...';
+      resBox.style.display = 'block';
+      resBox.style.background = '#FFFBEB';
+      resBox.style.borderColor = 'var(--acid-yellow)';
+      resBox.innerText = `Connecting to ${prov.toUpperCase()} (${model})...`;
+
+      try {
+        const res = await fetch('/api/test_llm_connection', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            provider: prov,
+            api_key: key || undefined,
+            base_url: base || undefined,
+            model: model || undefined
+          })
+        });
+
+        const data = await res.json();
+        if (res.ok && data.status === 'success') {
+          resBox.style.background = '#ECFDF5';
+          resBox.style.borderColor = 'var(--toxic-green)';
+          resBox.innerHTML = `✓ <strong>CONNECTED!</strong> Latency: <strong>${data.latency_ms} ms</strong> // Model: <code>${data.model}</code>`;
+          showToast(`⚡ ${prov.toUpperCase()} connection verified (${data.latency_ms}ms)!`, 'success');
+        } else {
+          resBox.style.background = '#FEF2F2';
+          resBox.style.borderColor = 'var(--safety-orange)';
+          resBox.innerHTML = `❌ <strong>ERROR:</strong> ${data.detail || 'Connection failed'}`;
+          showToast('LLM test failed: ' + (data.detail || 'Error'), 'error');
+        }
+      } catch (err) {
+        resBox.style.background = '#FEF2F2';
+        resBox.style.borderColor = 'var(--safety-orange)';
+        resBox.innerText = `❌ Error: ${err.message}`;
+        showToast('Connection test error: ' + err.message, 'error');
+      } finally {
+        testBtn.disabled = false;
+        testBtn.innerText = '⚡ TEST CONNECTION';
+      }
+    }
+
+    function saveLlmConfig() {
+      const prov = document.getElementById('llmProviderSelect').value;
+      const key = document.getElementById('llmApiKeyInput').value.trim();
+      const model = document.getElementById('llmModelInput').value.trim();
+      const base = document.getElementById('llmBaseUrlInput').value.trim();
+
+      const cfg = {
+        provider: prov,
+        api_key: key,
+        base_url: base,
+        model: model
+      };
+
+      localStorage.setItem('sonic_llm_config', JSON.stringify(cfg));
+      updateLlmBadges(cfg);
+      closeLlmModal();
+      showToast(`✓ Engine updated: ${prov.toUpperCase()} [${model}]`, 'success');
+    }
+
+    function updateLlmBadges(cfg) {
+      cfg = cfg || getLlmConfig();
+      const headerEl = document.getElementById('headerLlmEngine');
+      const stage2Pill = document.getElementById('stage2LlmPill');
+
+      const isCloud = (cfg.provider && cfg.provider !== 'ollama' && cfg.api_key);
+      const label = isCloud 
+        ? `${cfg.provider.toUpperCase()} (${cfg.model || '70B'})`
+        : `OLLAMA (${cfg.model || '3B INT8'})`;
+
+      if (headerEl) headerEl.innerText = label;
+      if (stage2Pill) stage2Pill.innerText = `⚡ ENGINE: ${label}`;
+    }
+
+    // ==========================================
+    // AUDIO INGESTION & BATCH QUEUE MANAGEMENT
+    // ==========================================
+    let batchQueue = [];
+    let isBatchRunning = false;
+
+    // Dropzone Drag & Drop
+    const dropzone = document.getElementById('dropzone');
+    if (dropzone) {
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('dragover');
+      });
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('dragover');
+      });
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+          handleFileList(e.dataTransfer.files);
+        }
+      });
+    }
+
+    function handleFilePicked(event) {
+      if (event.target.files && event.target.files.length > 0) {
+        handleFileList(event.target.files);
+      }
+    }
+
+    function handleFileList(files) {
+      if (files.length > 1) {
+        initBatchQueue(Array.from(files));
+        uploadSingleFile(files[0]);
+      } else {
+        uploadSingleFile(files[0]);
+      }
+    }
+
+    async function uploadSingleFile(file) {
+      showToast(`Uploading ${file.name}...`, 'warning', 2000);
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', body: formData });
+        const data = await res.json();
+        if (data.status === 'success') {
+          currentFilepath = data.filepath;
+          document.getElementById('fileBadgeName').innerText = `📁 ${data.filename}`;
+          document.getElementById('fileBadgeSize').innerText = `${data.size_kb} KB`;
+          audioEl.src = data.audio_url;
+          audioEl.load();
+          showToast(`✓ Mounted ${data.filename} on Tape Deck`, 'success');
+
+          // Auto-detect FLAC / music files and switch to Music & Lyrics Mode
+          const fname = data.filename.toLowerCase();
+          if (fname.endsWith('.flac') || fname.endsWith('.mp3') || fname.endsWith('.wav')) {
+            setAudioProfile('music_lyrics');
+            showToast(`🎵 Music file detected (${data.filename}): Switched to Music & Synced Lyrics Mode!`, 'info', 3500);
+
+            // Pre-fetch canonical lyrics from LRCLIB in background
+            fetch('/api/lyrics/resolve', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ filepath: data.filepath })
+            }).then(r => r.json()).then(lrcRes => {
+              if (lrcRes.status === 'success' && lrcRes.lyrics) {
+                renderLyricsStage(lrcRes.lyrics);
+                showToast(`✓ Canonical lyrics auto-resolved for "${lrcRes.lyrics.title}"!`, 'success', 3500);
+              }
+            }).catch(() => {});
+
+            // Check if stems already cached for this track
+            currentStemUrls.master = data.audio_url;
+            fetch('/api/stems/separate', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ filepath: data.filepath, device: 'auto' })
+            }).then(r => r.json()).then(stemRes => {
+              if (stemRes.status === 'success' && stemRes.cached) {
+                currentStemUrls.vocals = stemRes.vocals_url;
+                currentStemUrls.karaoke = stemRes.instrumental_url;
+                document.getElementById('stemSelectorBar').style.display = 'block';
+                document.getElementById('separateStemsBtn').style.display = 'none';
+              } else {
+                document.getElementById('separateStemsBtn').style.display = 'block';
+              }
+            }).catch(() => {
+              document.getElementById('separateStemsBtn').style.display = 'block';
+            });
+          } else {
+            document.getElementById('stemSelectorBar').style.display = 'none';
+            document.getElementById('separateStemsBtn').style.display = 'none';
+          }
+        }
+      } catch (err) {
+        showToast('Upload failed: ' + err.message, 'error');
+      }
+    }
+
+    // AI STEM SEPARATION & KARAOKE MODE (DEMUCS)
+    let currentStemUrls = { master: null, vocals: null, karaoke: null };
+    let currentActiveStem = 'master';
+
+    async function triggerStemSeparation() {
+      if (!currentFilepath) {
+        showToast('Please select or upload a song first.', 'warning');
+        return;
+      }
+      const btn = document.getElementById('separateStemsBtn');
+      btn.disabled = true;
+      btn.innerText = '⚡ SEPARATING STEMS (DEMUCS ON CUDA)...';
+      showToast('⚡ Extracting Acapella & Karaoke Instrumental stems via Demucs on CUDA...', 'warning', 8000);
+
+      try {
+        const res = await fetch('/api/stems/separate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filepath: currentFilepath, device: 'cuda' })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          currentStemUrls.master = audioEl.src;
+          currentStemUrls.vocals = data.vocals_url;
+          currentStemUrls.karaoke = data.instrumental_url;
+
+          document.getElementById('stemSelectorBar').style.display = 'block';
+          btn.style.display = 'none';
+
+          showToast(`✓ Stems separated successfully (${data.cached ? 'from cache' : data.elapsed_sec + 's'})!`, 'success', 4000);
+        } else {
+          showToast('Stem separation notice: ' + (data.detail || 'Error'), 'error');
+        }
+      } catch (err) {
+        showToast('Stem separation failed: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '⚡ SEPARATE VOCALS & KARAOKE (DEMUCS)';
+      }
+    }
+
+    function selectAudioStem(stemType) {
+      if (!currentStemUrls[stemType]) {
+        showToast('Stem track not loaded yet.', 'warning');
+        return;
+      }
+      currentActiveStem = stemType;
+      const curTime = audioEl.currentTime;
+      const wasPlaying = !audioEl.paused;
+
+      ['master', 'vocals', 'karaoke'].forEach(s => {
+        const b = document.getElementById('stem' + s.charAt(0).toUpperCase() + s.slice(1) + 'Btn');
+        if (b) {
+          if (s === stemType) {
+            b.style.background = s === 'karaoke' ? '#FF2A85' : 'var(--toxic-green)';
+            b.style.color = s === 'karaoke' ? '#FFF' : '#000';
+            b.style.boxShadow = '2px 2px 0px var(--ink)';
+          } else {
+            b.style.background = '#FFF';
+            b.style.color = '#000';
+            b.style.boxShadow = '1px 1px 0px var(--ink)';
+          }
+        }
+      });
+
+      const badge = document.getElementById('activeStemBadge');
+      if (badge) {
+        badge.innerText = stemType.toUpperCase();
+        badge.style.background = stemType === 'karaoke' ? '#FF2A85' : 'var(--toxic-green)';
+        badge.style.color = stemType === 'karaoke' ? '#FFF' : '#000';
+      }
+
+      const stage = document.querySelector('.lyrics-stage');
+      if (stage) {
+        if (stemType === 'karaoke') {
+          stage.classList.add('karaoke-stage-active');
+        } else {
+          stage.classList.remove('karaoke-stage-active');
+        }
+      }
+
+      audioEl.src = currentStemUrls[stemType];
+      audioEl.currentTime = curTime;
+      if (wasPlaying) {
+        audioEl.play().catch(() => {});
+      }
+
+      if (stemType === 'karaoke') {
+        showToast('🎸 Karaoke Mode Active: Vocals removed, instrumental backing live!', 'success', 3500);
+      } else if (stemType === 'vocals') {
+        showToast('🎤 Acapella Mode Active: Isolated vocal track live!', 'info', 3000);
+      } else {
+        showToast('🎵 Master Mix restored.', 'info', 2000);
+      }
+    }
+
+    function initBatchQueue(files) {
+      batchQueue = files.map((file, idx) => ({
+        id: idx + 1,
+        file: file,
+        filename: file.name,
+        size_kb: Math.round(file.size / 1024),
+        status: 'queued',
+        data: null
+      }));
+      document.getElementById('batchQueueBox').style.display = 'flex';
+      renderBatchQueue();
+      showToast(`📁 ${files.length} files staged in batch queue`, 'success');
+    }
+
+    function renderBatchQueue() {
+      const list = document.getElementById('batchQueueList');
+      if (!list) return;
+      document.getElementById('batchQueueTitle').innerText = `[BATCH QUEUE: ${batchQueue.length} FILES]`;
+      list.innerHTML = '';
+      batchQueue.forEach((item, idx) => {
+        const div = document.createElement('div');
+        const isCurrent = currentFilepath.endsWith(item.filename);
+        div.className = `batch-item ${isCurrent ? 'active' : ''}`;
+        div.onclick = () => {
+          if (item.data) {
+            loadBatchItemIntoStudio(item);
+          } else {
+            uploadSingleFile(item.file);
+          }
+        };
+        div.innerHTML = `
+          <div style="flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+            <span>${idx + 1}. 📄 ${item.filename}</span>
+            <span style="font-size: 8px; color: #666; margin-left: 4px;">(${item.size_kb} KB)</span>
+          </div>
+          <span class="batch-badge ${item.status}">${item.status.toUpperCase()}</span>
+        `;
+        list.appendChild(div);
+      });
+    }
+
+    function clearBatchQueue() {
+      batchQueue = [];
+      document.getElementById('batchQueueBox').style.display = 'none';
+      showToast('Batch queue cleared', 'warning');
+    }
+
+    async function processBatchQueue() {
+      if (isBatchRunning) return;
+      if (batchQueue.length === 0) {
+        showToast('Batch queue is empty.', 'warning');
+        return;
+      }
+      isBatchRunning = true;
+      const startBtn = document.getElementById('startBatchBtn');
+      startBtn.disabled = true;
+      startBtn.innerText = '⏳ PROCESSING BATCH...';
+
+      for (let i = 0; i < batchQueue.length; i++) {
+        const item = batchQueue[i];
+        if (item.status === 'done') continue;
+        item.status = 'processing';
+        renderBatchQueue();
+
+        try {
+          const formData = new FormData();
+          formData.append('file', item.file);
+          const upRes = await fetch('/api/upload', { method: 'POST', body: formData });
+          const upData = await upRes.json();
+
+          const targetLang = document.getElementById('targetLanguageSelect').value;
+          const compute = document.getElementById('computeSelect').value;
+          const beam = parseInt(document.getElementById('beamSelect').value, 10);
+          const glossary = document.getElementById('glossaryInput').value.trim();
+
+          const transRes = await fetch('/api/transcribe', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              filepath: upData.filepath,
+              mode: currentAudioMode,
+              always_translate: alwaysTranslate,
+              target_language: targetLang,
+              beam_size: beam,
+              compute_type: compute,
+              language: "auto",
+              initial_prompt: glossary || undefined,
+              word_timestamps: true,
+              llm_config: getLlmConfig()
+            })
+          });
+          const transData = await transRes.json();
+          if (transData.status === 'success') {
+            item.status = 'done';
+            item.data = {
+              filepath: upData.filepath,
+              audio_url: upData.audio_url,
+              trans: transData
+            };
+            saveSessionToDB({
+              filename: item.filename,
+              filepath: upData.filepath,
+              duration: transData.audio_duration_sec,
+              english_transcript: transData.english_transcript,
+              segments: transData.segments,
+              agent_intel: transData.agent_intel
+            });
+            if (i === 0) loadBatchItemIntoStudio(item);
+          } else {
+            item.status = 'failed';
+          }
+        } catch (e) {
+          item.status = 'failed';
+        }
+        renderBatchQueue();
+      }
+
+      isBatchRunning = false;
+      startBtn.disabled = false;
+      startBtn.innerText = '⚡ START BATCH PROCESSING';
+      showToast('✓ Batch queue processing completed!', 'success', 4000);
+    }
+
+    function loadBatchItemIntoStudio(item) {
+      if (!item.data) return;
+      const t = item.data.trans;
+      currentFilepath = item.data.filepath;
+      fullEnglishText = t.english_transcript;
+      currentSegments = t.segments;
+      currentAgentIntel = t.agent_intel;
+      audioEl.src = item.data.audio_url;
+      audioEl.load();
+
+      document.getElementById('fileBadgeName').innerText = `📁 ${item.filename}`;
+      document.getElementById('fileBadgeSize').innerText = `${item.size_kb} KB`;
+      document.getElementById('spokenBadge').innerText = `${t.detected_language.toUpperCase()} (${t.language_probability}%)`;
+      document.getElementById('englishBadge').innerText = t.ollama_model_used;
+
+      renderTeleprinterLanes(t.segments);
+      renderSubtitleStudio(t.segments);
+      renderAgentIntelligence(t.agent_intel);
+      renderBatchQueue();
+      showToast(`Loaded item: ${item.filename}`, 'success');
+    }
+
+    // LIVE STREAMING MICROPHONE DICTATION
+    let dictateWs = null;
+    let audioWorkletContext = null;
+    let micMediaStream = null;
+    let scriptProcessor = null;
+    let micRecordedChunks = [];
+
+    function downsampleAndConvertToPCM(inputData, inputSampleRate, outputSampleRate = 16000) {
+      if (inputSampleRate === outputSampleRate) {
+        const pcm16 = new Int16Array(inputData.length);
+        for (let i = 0; i < inputData.length; i++) {
+          let s = Math.max(-1, Math.min(1, inputData[i]));
+          pcm16[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+        return pcm16.buffer;
+      }
+      const ratio = inputSampleRate / outputSampleRate;
+      const newLength = Math.round(inputData.length / ratio);
+      const result = new Int16Array(newLength);
+      let offsetResult = 0;
+      let offsetInput = 0;
+      while (offsetResult < newLength) {
+        let nextOffsetInput = Math.round((offsetResult + 1) * ratio);
+        let accum = 0, count = 0;
+        for (let i = offsetInput; i < nextOffsetInput && i < inputData.length; i++) {
+          accum += inputData[i];
+          count++;
+        }
+        let val = count ? (accum / count) : 0;
+        let s = Math.max(-1, Math.min(1, val));
+        result[offsetResult] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        offsetResult++;
+        offsetInput = nextOffsetInput;
+      }
+      return result.buffer;
+    }
+
+    function createLiveInterimCard() {
+      const engContainer = document.getElementById('englishStream');
+      if (!engContainer || document.getElementById('liveInterimCard')) return;
+      const card = document.createElement('div');
+      card.className = 'tele-card interim-live';
+      card.id = 'liveInterimCard';
+      card.innerHTML = `
+        <div class="tele-card-meta">
+          <span id="liveInterimTimer" style="color: var(--toxic-green); font-weight: 800;">LIVE ON-AIR [STREAMING]</span>
+          <span class="stamp-badge" style="background: var(--toxic-green); color: #000;">MIC DICTATION</span>
+        </div>
+        <div class="tele-card-body" id="liveInterimText" style="font-style: italic; color: #FFF; background: #0A0F0D; padding: 8px 10px; border: 1.5px solid var(--toxic-green); font-size: 12px; min-height: 38px;">
+          Listening... <span class="pulsing-cursor">▌</span>
+        </div>
+      `;
+      engContainer.appendChild(card);
+      card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    function removeLiveInterimCard() {
+      const el = document.getElementById('liveInterimCard');
+      if (el) el.remove();
+    }
+
+    async function toggleMicRecord() {
+      const btn = document.getElementById('recordMicBtn');
+      if (!isRecordingMic) {
+        try {
+          const stream = await navigator.mediaDevices.getUserMedia({
+            audio: {
+              sampleRate: 16000,
+              channelCount: 1,
+              echoCancellation: true,
+              noiseSuppression: true
+            }
+          });
+          micMediaStream = stream;
+
+          // 1. WebSocket connection for streaming inference
+          const proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+          const wsUrl = `${proto}//${location.host}/api/ws/dictate`;
+          dictateWs = new WebSocket(wsUrl);
+
+          dictateWs.onopen = () => {
+            showToast('🎙️ Live Dictation on-air! Speak into your microphone...', 'success', 3500);
+            switchTab(1);
+          };
+
+          // Setup teleprinter live interim card
+          currentSegments = [];
+          const engContainer = document.getElementById('englishStream');
+          const hindiContainer = document.getElementById('hindiStream');
+          if (engContainer) engContainer.innerHTML = '';
+          if (hindiContainer) hindiContainer.innerHTML = '';
+          createLiveInterimCard();
+
+          dictateWs.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            if (data.type === 'interim') {
+              const textEl = document.getElementById('liveInterimText');
+              if (textEl) {
+                textEl.innerHTML = escapeHtml(data.text) + ' <span class="pulsing-cursor">▌</span>';
+              }
+              const timerEl = document.getElementById('liveInterimTimer');
+              if (timerEl) {
+                timerEl.innerText = `STREAMING // [00:${String(Math.floor(data.duration || 0)).padStart(2, '0')}]`;
+              }
+            } else if (data.type === 'final' && data.segment) {
+              currentSegments.push(data.segment);
+              removeLiveInterimCard();
+              renderTeleprinterLanes(currentSegments);
+              createLiveInterimCard();
+            } else if (data.type === 'session_complete') {
+              removeLiveInterimCard();
+            }
+          };
+
+          dictateWs.onerror = (err) => {
+            console.error('Dictate WS error:', err);
+            showToast('Dictation WebSocket notice', 'warning');
+          };
+
+          // 2. Web Audio API PCM downsampling
+          const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          audioWorkletContext = audioCtx;
+          const source = audioCtx.createMediaStreamSource(stream);
+          scriptProcessor = audioCtx.createScriptProcessor(4096, 1, 1);
+
+          scriptProcessor.onaudioprocess = (e) => {
+            if (!isRecordingMic || !dictateWs || dictateWs.readyState !== WebSocket.OPEN) return;
+            const inputData = e.inputBuffer.getChannelData(0);
+            const pcmBuffer = downsampleAndConvertToPCM(inputData, audioCtx.sampleRate, 16000);
+            dictateWs.send(pcmBuffer);
+          };
+
+          source.connect(scriptProcessor);
+          scriptProcessor.connect(audioCtx.destination);
+
+          // 3. Background media recorder for tape deck playback
+          mediaRecorder = new MediaRecorder(stream);
+          micRecordedChunks = [];
+          mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) micRecordedChunks.push(e.data);
+          };
+          mediaRecorder.onstop = async () => {
+            const blob = new Blob(micRecordedChunks, { type: 'audio/webm' });
+            const file = new File([blob], `live_dictation_${Date.now()}.webm`, { type: 'audio/webm' });
+            uploadSingleFile(file);
+          };
+          mediaRecorder.start();
+
+          isRecordingMic = true;
+          btn.innerText = '🔴 ON-AIR [STOP]';
+          btn.style.background = '#FF2A85';
+          btn.style.color = '#FFF';
+        } catch (err) {
+          showToast('Mic permission error: ' + err.message, 'error');
+        }
+      } else {
+        // Stop recording
+        isRecordingMic = false;
+        btn.innerText = '🎙️ Live Dictate';
+        btn.style.background = '';
+        btn.style.color = '';
+
+        if (dictateWs && dictateWs.readyState === WebSocket.OPEN) {
+          dictateWs.send(JSON.stringify({ action: 'stop' }));
+          setTimeout(() => dictateWs.close(), 500);
+        }
+
+        if (scriptProcessor) scriptProcessor.disconnect();
+        if (audioWorkletContext) audioWorkletContext.close();
+        if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+          mediaRecorder.stop();
+        }
+        if (micMediaStream) {
+          micMediaStream.getTracks().forEach(t => t.stop());
+        }
+
+        removeLiveInterimCard();
+
+        if (currentSegments.length > 0) {
+          const fullText = currentSegments.map(s => s.text_english || s.text_raw).join(' ');
+          renderSubtitleStudio(currentSegments);
+          fetch('/api/extract_agent_intel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ english_transcript: fullText, llm_config: getLlmConfig() })
+          }).then(r => r.json()).then(res => {
+            if (res.status === 'success' && res.agent_intel) {
+              renderAgentIntelligence(res.agent_intel);
+            }
+          }).catch(() => {});
+        }
+
+        showToast('✓ Live dictation completed & synchronized!', 'success');
+      }
+    }
+
+    // YT-DLP STREAM INGESTION
+    async function executeUrlDownload() {
+      const url = document.getElementById('urlModalInput').value.trim();
+      if (!url) { showToast('Please enter a media URL.', 'warning'); return; }
+      showToast('⚡ Ingesting audio stream via yt-dlp...', 'warning', 5000);
+      closeUrlModal();
+      try {
+        const res = await fetch('/api/download_url', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: url })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          currentFilepath = data.filepath;
+          document.getElementById('fileBadgeName').innerText = `📁 ${data.title || data.filename}`;
+          document.getElementById('fileBadgeSize').innerText = `${data.size_kb} KB`;
+          audioEl.src = data.audio_url;
+          audioEl.load();
+          showToast(`✓ Ingested stream: ${data.filename}`, 'success');
+        } else {
+          showToast('Download error: ' + (data.detail || 'Failed'), 'error');
+        }
+      } catch (err) {
+        showToast('Download stream error: ' + err.message, 'error');
+      }
+    }
+
+    // TRIM & RANGE SELECTOR
+    function markTrimIn() {
+      const cur = audioEl.currentTime || 0;
+      document.getElementById('trimInInput').value = formatSeconds(cur);
+      document.getElementById('trimOnlyCheckbox').checked = true;
+      showToast(`📍 Trim In marked at ${formatSeconds(cur)}`, 'success', 1800);
+    }
+
+    function markTrimOut() {
+      const cur = audioEl.currentTime || (audioEl.duration || 184);
+      document.getElementById('trimOutInput').value = formatSeconds(cur);
+      document.getElementById('trimOnlyCheckbox').checked = true;
+      showToast(`📍 Trim Out marked at ${formatSeconds(cur)}`, 'success', 1800);
+    }
+
+    function parseTimeToSec(val) {
+      if (!val) return 0;
+      const parts = val.split(':');
+      if (parts.length === 2) {
+        return parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+      }
+      return parseFloat(val) || 0;
+    }
+
+    // INDEXEDDB SESSIONS MANAGER
+    const DB_NAME = "SonicScribeDB";
+    const DB_VERSION = 1;
+    let dbInstance = null;
+
+    function initDB() {
+      const req = indexedDB.open(DB_NAME, DB_VERSION);
+      req.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains("sessions")) {
+          db.createObjectStore("sessions", { keyPath: "id", autoIncrement: true });
+        }
+      };
+      req.onsuccess = (e) => { dbInstance = e.target.result; };
+      req.onerror = (e) => { console.error("IndexedDB error:", e); };
+    }
+    initDB();
+
+    function saveSessionToDB(sessionData) {
+      if (!dbInstance) return;
+      const tx = dbInstance.transaction(["sessions"], "readwrite");
+      const store = tx.objectStore("sessions");
+      store.add({
+        title: sessionData.filename || "Untitled Recording",
+        filepath: sessionData.filepath,
+        audio_url: audioEl.src,
+        created_at: new Date().toLocaleString(),
+        duration: sessionData.duration || audioEl.duration || 184,
+        english_transcript: sessionData.english_transcript,
+        segments: sessionData.segments,
+        agent_intel: sessionData.agent_intel
+      });
+      tx.oncomplete = () => { showToast('✓ Session archived in IndexedDB vault!', 'success', 2500); };
+    }
+
+    function saveCurrentSessionManual() {
+      saveSessionToDB({
+        filename: currentFilepath.split('/').pop(),
+        filepath: currentFilepath,
+        duration: audioEl.duration || 184,
+        english_transcript: fullEnglishText,
+        segments: currentSegments,
+        agent_intel: currentAgentIntel
+      });
+      loadSessionsFromDB();
+    }
+
+    let allLoadedSessions = [];
+    function loadSessionsFromDB() {
+      if (!dbInstance) return;
+      const tx = dbInstance.transaction(["sessions"], "readonly");
+      const store = tx.objectStore("sessions");
+      const req = store.getAll();
+      req.onsuccess = () => {
+        allLoadedSessions = req.result.reverse();
+        renderSessionsList(allLoadedSessions);
+      };
+    }
+
+    function filterSessionsList(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) { renderSessionsList(allLoadedSessions); return; }
+      const filtered = allLoadedSessions.filter(s => 
+        (s.title && s.title.toLowerCase().includes(q)) ||
+        (s.english_transcript && s.english_transcript.toLowerCase().includes(q))
+      );
+      renderSessionsList(filtered);
+    }
+
+    function renderSessionsList(sessions) {
+      const container = document.getElementById('sessionsListContainer');
+      container.innerHTML = '';
+      if (!sessions || sessions.length === 0) {
+        container.innerHTML = '<div style="padding: 20px; text-align: center; color: #777;">No archived sessions in vault yet. Run a transcription to auto-save!</div>';
+        return;
+      }
+
+      sessions.forEach(s => {
+        const item = document.createElement('div');
+        item.style.border = '2px solid var(--ink)';
+        item.style.padding = '10px 14px';
+        item.style.background = '#FFF';
+        item.style.boxShadow = '3px 3px 0px var(--ink)';
+        item.style.display = 'flex';
+        item.style.justifyContent = 'space-between';
+        item.style.alignItems = 'center';
+
+        item.innerHTML = `
+          <div>
+            <div style="font-weight: 800; font-size: 12px;">📁 ${s.title}</div>
+            <div style="font-size: 10px; color: #666;">Date: ${s.created_at} // Duration: ${Math.round(s.duration)}s // Segments: ${s.segments ? s.segments.length : 0}</div>
+          </div>
+          <div style="display: flex; gap: 6px;">
+            <button class="btn-tactile" style="background: var(--toxic-green);" onclick="restoreSession(${s.id})">RESTORE</button>
+            <button class="btn-tactile" style="background: var(--paper-dark);" onclick="deleteSession(${s.id})">🗑️</button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function restoreSession(id) {
+      const s = allLoadedSessions.find(x => x.id === id);
+      if (s) {
+        currentFilepath = s.filepath || currentFilepath;
+        fullEnglishText = s.english_transcript || fullEnglishText;
+        currentSegments = s.segments || currentSegments;
+        currentAgentIntel = s.agent_intel || currentAgentIntel;
+        if (s.audio_url) { audioEl.src = s.audio_url; audioEl.load(); }
+
+        renderTeleprinterLanes(currentSegments);
+        renderSubtitleStudio(currentSegments);
+        renderAgentIntelligence(currentAgentIntel);
+        closeSessionsModal();
+        showToast(`✓ Session restored: ${s.title}`, 'success');
+      }
+    }
+
+    function deleteSession(id) {
+      if (!dbInstance) return;
+      const tx = dbInstance.transaction(["sessions"], "readwrite");
+      tx.objectStore("sessions").delete(id);
+      tx.oncomplete = () => { loadSessionsFromDB(); showToast('Session deleted', 'warning'); };
+    }
+
+    function clearAllSessions() {
+      if (!confirm('Clear all archived sessions?')) return;
+      if (!dbInstance) return;
+      const tx = dbInstance.transaction(["sessions"], "readwrite");
+      tx.objectStore("sessions").clear();
+      tx.oncomplete = () => { loadSessionsFromDB(); showToast('Vault cleared', 'warning'); };
+    }
+
+    // CHAT WITH TRANSCRIPT (TAB 4)
+    async function sendChatMessage() {
+      const input = document.getElementById('chatInput');
+      const q = input.value.trim();
+      if (!q) return;
+
+      input.value = '';
+      const history = document.getElementById('chatHistoryContainer');
+
+      // Append user bubble
+      const uBubble = document.createElement('div');
+      uBubble.className = 'chat-bubble user';
+      uBubble.innerHTML = `<div class="chat-meta">YOU</div><div>${q}</div>`;
+      history.appendChild(uBubble);
+      history.scrollTop = history.scrollHeight;
+
+      // Append loading bot bubble
+      const cfg = getLlmConfig();
+      const provName = (cfg.provider && cfg.provider !== 'ollama' && cfg.api_key) ? cfg.provider.toUpperCase() : 'OLLAMA';
+      const bBubble = document.createElement('div');
+      bBubble.className = 'chat-bubble bot';
+      bBubble.id = 'botLoadingBubble';
+      bBubble.innerHTML = `<div class="chat-meta">SYSTEM // ${provName}</div><div>⏳ Searching audio transcript for citations...</div>`;
+      history.appendChild(bBubble);
+      history.scrollTop = history.scrollHeight;
+
+      try {
+        const res = await fetch('/api/chat_transcript', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            question: q,
+            english_transcript: fullEnglishText,
+            segments: currentSegments,
+            llm_config: cfg
+          })
+        });
+
+        const data = await res.json();
+        let answerText = data.answer || "No response received.";
+
+        // Convert [MM:SS.SS] or [MM:SS] to clickable jump buttons
+        const formattedAnswer = answerText.replace(/\[(\d{1,2}:\d{2}(?:\.\d{1,3})?)\]/g, (match, p1) => {
+          const parts = p1.split(':');
+          const secs = parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+          return `<button class="timestamp-jump-btn" onclick="seekAudio(${secs})">[${p1}]</button>`;
+        });
+
+        bBubble.id = '';
+        bBubble.innerHTML = `<div class="chat-meta">SYSTEM // ${provName}</div><div>${formattedAnswer}</div>`;
+        history.scrollTop = history.scrollHeight;
+      } catch (err) {
+        bBubble.innerHTML = `<div class="chat-meta">SYSTEM // ERROR</div><div style="color: red;">Query failed: ${err.message}</div>`;
+      }
+    }
+
+    // GLOBAL KEYBOARD SHORTCUTS
+    window.addEventListener('keydown', (e) => {
+      const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
+      const isInput = (activeTag === 'input' || activeTag === 'textarea');
+
+      if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        runRealTranscription();
+        return;
+      }
+
+      if (!isInput) {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          togglePlayAudio();
+        } else if (e.code === 'KeyJ') {
+          e.preventDefault();
+          seekAudio(audioEl.currentTime - 5);
+          showToast('⏮ -5s', 'warning', 1000);
+        } else if (e.code === 'KeyK') {
+          e.preventDefault();
+          seekAudio(audioEl.currentTime + 5);
+          showToast('⏭ +5s', 'warning', 1000);
+        }
+      }
+    });
+
+    // EXECUTION & TRANSCRIPTION
+    async function runRealTranscription() {
+      if (!currentFilepath) {
+        showToast('Please select or mount an audio file first.', 'warning');
+        return;
+      }
+
+      const execBtn = document.getElementById('executeBtn');
+      const execText = document.getElementById('executeBtnText');
+      const kbdBadge = document.getElementById('btnKbdBadge');
+      execBtn.disabled = true;
+      execText.innerText = '⚡ COMPILING ON CUDA & TRANSLATING...';
+      if (kbdBadge) kbdBadge.style.display = 'none';
+      
+      setPipelineStep(3);
+      document.getElementById('telemetryStatus').innerText = 'PIPELINE STATUS: RUNNING CUDA BATCH INFERENCE...';
+      showToast('⚡ Executing CUDA batch inference on RTX 3050...', 'warning', 3000);
+
+      const compute = document.getElementById('computeSelect').value;
+      const beam = parseInt(document.getElementById('beamSelect').value, 10);
+      const glossary = document.getElementById('glossaryInput').value.trim();
+      const targetLang = document.getElementById('targetLanguageSelect').value;
+      const isTrim = document.getElementById('trimOnlyCheckbox').checked;
+      const trimStart = isTrim ? parseTimeToSec(document.getElementById('trimInInput').value) : null;
+      const trimEnd = isTrim ? parseTimeToSec(document.getElementById('trimOutInput').value) : null;
+
+      try {
+        const res = await fetch('/api/transcribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            filepath: currentFilepath,
+            mode: currentAudioMode,
+            always_translate: alwaysTranslate,
+            target_language: targetLang,
+            beam_size: beam,
+            compute_type: compute,
+            language: "auto",
+            initial_prompt: glossary || undefined,
+            trim_start: trimStart,
+            trim_end: trimEnd,
+            word_timestamps: true,
+            llm_config: getLlmConfig()
+          })
+        });
+
+        const data = await res.json();
+        if (data.status === 'success') {
+          setPipelineStep(4);
+          
+          fullEnglishText = data.english_transcript;
+          currentSegments = data.segments;
+          currentAgentIntel = data.agent_intel;
+
+          // Update badges
+          document.getElementById('spokenBadge').innerText = `${data.detected_language.toUpperCase()} (${data.language_probability}%)`;
+          document.getElementById('englishBadge').innerText = data.ollama_model_used;
+
+          document.getElementById('telemetryStatus').innerText = `PIPELINE COMPLETE: ${data.audio_duration_sec}s audio in ${data.processing_time_sec}s (${data.speed_factor})`;
+          document.getElementById('marqueeText').innerText = `// PROCESSED ${data.audio_duration_sec}S AUDIO IN ${data.processing_time_sec}S (${data.speed_factor}) // DETECTED: ${data.detected_language.toUpperCase()} // MODEL: WHISPER-TURBO + ${data.ollama_model_used} // AGENT READY //`;
+          document.getElementById('step4Sub').innerText = `Ready (${data.segments.length} segments)`;
+
+          // Render all tabs
+          renderTeleprinterLanes(data.segments);
+          renderSubtitleStudio(data.segments);
+          renderAgentIntelligence(data.agent_intel);
+
+          // Render Apple Music Synced Lyrics
+          if (data.lyrics) {
+            renderLyricsStage(data.lyrics);
+            if (currentAudioMode === 'music_lyrics') {
+              switchTab(5);
+              showToast('🎵 Apple Music synced lyrics ready!', 'success', 3500);
+            }
+          }
+
+          // Auto-save session to IndexedDB
+          saveSessionToDB({
+            filename: currentFilepath.split('/').pop(),
+            filepath: currentFilepath,
+            duration: data.audio_duration_sec,
+            english_transcript: data.english_transcript,
+            segments: data.segments,
+            agent_intel: data.agent_intel,
+            lyrics: data.lyrics
+          });
+
+          showToast(`⚡ Compiled ${data.audio_duration_sec}s audio into English in ${data.processing_time_sec}s (${data.speed_factor})`, 'success', 5000);
+        } else {
+          showToast('Transcription error: ' + (data.detail || 'Unknown error'), 'error');
+        }
+      } catch (err) {
+        showToast('Failed to connect to local compiler backend: ' + err.message, 'error');
+      } finally {
+        execBtn.disabled = false;
+        execText.innerText = '⚡ EXECUTE COMPILATION';
+        if (kbdBadge) kbdBadge.style.display = 'inline-flex';
+      }
+    }
+
+    // TELEPRINTER RENDER WITH KARAOKE & CONFIDENCE HEATMAP
+    function renderTeleprinterLanes(segments) {
+      const hindiContainer = document.getElementById('hindiStream');
+      const engContainer = document.getElementById('englishStream');
+      hindiContainer.innerHTML = '';
+      engContainer.innerHTML = '';
+
+      segments.forEach((seg) => {
+        const isLowConf = seg.is_low_confidence || (seg.confidence !== undefined && seg.confidence < -0.55);
+
+        // Hindi Lane Card
+        const hCard = document.createElement('div');
+        hCard.className = `tele-card ${isLowConf ? 'low-confidence' : ''}`;
+        hCard.onclick = () => seekAudio(seg.start);
+        hCard.innerHTML = `
+          <div class="tele-card-meta">
+            <span>${seg.start_str || formatSeconds(seg.start)} - ${seg.end_str || formatSeconds(seg.end)}</span>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              ${isLowConf ? '<span class="confidence-badge low">⚠️ LOW CONF</span>' : ''}
+              <span class="stamp-badge">${(seg.speaker || 'SPEAKER 1').toUpperCase()}</span>
+            </div>
+          </div>
+          <div>${seg.text_raw}</div>
+        `;
+        hindiContainer.appendChild(hCard);
+
+        // English Lane Card with Interactive Word-Level Karaoke
+        const eCard = document.createElement('div');
+        eCard.className = `tele-card ${isLowConf ? 'low-confidence' : ''}`;
+        eCard.onclick = () => seekAudio(seg.start);
+
+        let contentHtml = '';
+        if (seg.words && seg.words.length > 0) {
+          contentHtml = seg.words.map(w => 
+            `<span class="karaoke-word" data-start="${w.start}" data-end="${w.end}" onclick="event.stopPropagation(); seekAudio(${w.start})">${w.word}</span>`
+          ).join(' ');
+        } else {
+          contentHtml = `"${seg.text_english || seg.text_raw}"`;
+        }
+
+        eCard.innerHTML = `
+          <div class="tele-card-meta">
+            <span>${seg.start_str || formatSeconds(seg.start)} - ${seg.end_str || formatSeconds(seg.end)}</span>
+            <div style="display: flex; gap: 4px; align-items: center;">
+              ${isLowConf ? '<span class="confidence-badge low">⚠️ REVIEW</span>' : '<span class="confidence-badge high">CONF HIGH</span>'}
+              <span class="stamp-badge green">${(seg.speaker || 'SPEAKER 1').toUpperCase()}</span>
+            </div>
+          </div>
+          <div style="line-height: 1.6;">${contentHtml}</div>
+        `;
+        engContainer.appendChild(eCard);
+      });
+    }
+
+    // SUBTITLE STUDIO RENDER WITH LOW-CONFIDENCE ALERTS
+    function renderSubtitleStudio(segments) {
+      const container = document.getElementById('studioSegmentsList');
+      container.innerHTML = '';
+
+      segments.forEach((seg, idx) => {
+        const isLowConf = seg.is_low_confidence || (seg.confidence !== undefined && seg.confidence < -0.55);
+        const card = document.createElement('div');
+        card.className = `studio-card ${isLowConf ? 'low-confidence' : ''}`;
+        card.id = `studioCard_${seg.id}`;
+
+        card.innerHTML = `
+          <div class="studio-card-top">
+            <div style="display: flex; align-items: center; gap: 6px;">
+              <span class="stamp-badge">#${String(idx + 1).padStart(3, '0')}</span>
+              <button class="btn-nudge" style="background: var(--toxic-green); font-weight: 800;" onclick="toggleSpeaker(${seg.id})">${(seg.speaker || 'SPEAKER 1').toUpperCase()}</button>
+              ${isLowConf ? '<span class="confidence-badge low">⚠️ LOW CONFIDENCE (' + (seg.confidence || '-0.6') + ')</span>' : ''}
+            </div>
+
+            <div class="time-nudge-group">
+              <span style="font-size: 9px; font-weight: 700;">START:</span>
+              <button class="btn-nudge" onclick="nudgeTime(${seg.id}, 'start', -0.5)">-0.5s</button>
+              <span style="font-size: 10px; font-weight: 800;" id="startStr_${seg.id}">${seg.start_str || formatSeconds(seg.start)}</span>
+              <button class="btn-nudge" onclick="nudgeTime(${seg.id}, 'start', 0.5)">+0.5s</button>
+
+              <span style="font-size: 9px; font-weight: 700; margin-left: 6px;">END:</span>
+              <button class="btn-nudge" onclick="nudgeTime(${seg.id}, 'end', -0.5)">-0.5s</button>
+              <span style="font-size: 10px; font-weight: 800;" id="endStr_${seg.id}">${seg.end_str || formatSeconds(seg.end)}</span>
+              <button class="btn-nudge" onclick="nudgeTime(${seg.id}, 'end', 0.5)">+0.5s</button>
+            </div>
+
+            <button class="btn-tactile" onclick="seekAudio(${seg.start})">▶ PLAY</button>
+          </div>
+
+          <div style="font-size: 10px; color: #666;">RAW VERBATIM: ${seg.text_raw}</div>
+          <textarea class="studio-textarea" oninput="updateSegmentText(${seg.id}, this.value)">${seg.text_english || seg.text_raw}</textarea>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    let lowConfIndex = 0;
+    function jumpToNextLowConfidence() {
+      const lowCards = document.querySelectorAll('#studioSegmentsList .studio-card.low-confidence');
+      if (lowCards.length === 0) {
+        showToast('✓ All segments exhibit high confidence scores!', 'success');
+        return;
+      }
+      lowConfIndex = (lowConfIndex + 1) % lowCards.length;
+      const targetCard = lowCards[lowConfIndex];
+      targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      targetCard.style.outline = '4px solid var(--safety-orange)';
+      setTimeout(() => targetCard.style.outline = '', 1500);
+      showToast(`⚠️ Reviewing low-confidence segment #${lowConfIndex + 1} of ${lowCards.length}`, 'warning');
+    }
+
+    function copyMarkdownWithTimestamps() {
+      if (!currentSegments || currentSegments.length === 0) {
+        showToast('No active transcript to copy', 'warning');
+        return;
+      }
+      let md = '# ⚡ SonicScribe Studio Audio Intelligence Transcript\n\n### Dialogue Timeline\n\n';
+      currentSegments.forEach(s => {
+        const spk = s.speaker || 'Speaker 1';
+        const tStart = s.start_str || formatSeconds(s.start);
+        const tEnd = s.end_str || formatSeconds(s.end);
+        const txt = s.text_english || s.text_raw;
+        md += `- **\`[${tStart} -> ${tEnd}]\` ${spk}:** ${txt}\n`;
+      });
+      md += '\n### Full Continuous Transcript\n\n' + fullEnglishText;
+      navigator.clipboard.writeText(md);
+      showToast('✓ Markdown with timestamps copied to clipboard!', 'success');
+    }
+
+    function updateSegmentText(id, newText) {
+      const seg = currentSegments.find(s => s.id === id);
+      if (seg) {
+        seg.text_english = newText.trim();
+        fullEnglishText = currentSegments.map(s => s.text_english).join(' ');
+        renderTeleprinterLanes(currentSegments);
+      }
+    }
+
+    function toggleSpeaker(id) {
+      const seg = currentSegments.find(s => s.id === id);
+      if (seg) {
+        seg.speaker = (seg.speaker === 'Speaker 1') ? 'Speaker 2' : 'Speaker 1';
+        renderSubtitleStudio(currentSegments);
+        renderTeleprinterLanes(currentSegments);
+        showToast(`Speaker set to ${seg.speaker}`, 'success', 1500);
+      }
+    }
+
+    function nudgeTime(id, field, delta) {
+      const seg = currentSegments.find(s => s.id === id);
+      if (seg) {
+        seg[field] = Math.max(0, Math.round((seg[field] + delta) * 100) / 100);
+        if (field === 'start') seg.start_str = formatSeconds(seg.start);
+        if (field === 'end') seg.end_str = formatSeconds(seg.end);
+        document.getElementById(`${field}Str_${id}`).innerText = seg[`${field}_str`];
+        renderTeleprinterLanes(currentSegments);
+      }
+    }
+
+    function batchReplaceTerms() {
+      const findVal = document.getElementById('findInput').value.trim();
+      const replaceVal = document.getElementById('replaceInput').value.trim();
+      if (!findVal) { showToast('Enter a term to find.', 'warning'); return; }
+
+      const regex = new RegExp(findVal, 'gi');
+      let count = 0;
+      currentSegments.forEach(seg => {
+        if (seg.text_english && regex.test(seg.text_english)) {
+          seg.text_english = seg.text_english.replace(regex, replaceVal);
+          count++;
+        }
+      });
+
+      fullEnglishText = currentSegments.map(s => s.text_english).join(' ');
+      renderSubtitleStudio(currentSegments);
+      renderTeleprinterLanes(currentSegments);
+      showToast(`⚡ Replaced "${findVal}" with "${replaceVal}" across ${count} occurrences!`, 'success');
+    }
+
+    // AGENT INTEL RENDER
+    function renderAgentIntelligence(intel) {
+      if (!intel) return;
+      document.getElementById('briefContent').innerText = intel.executive_summary || 'No summary available.';
+
+      const actionContainer = document.getElementById('actionItemsList');
+      actionContainer.innerHTML = '';
+      (intel.action_items || []).forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'action-item-pill';
+        const urg = (item.urgency || 'med').toLowerCase();
+        row.innerHTML = `
+          <span class="urgency-badge ${urg}">[${urg.toUpperCase()}]</span>
+          <div style="flex: 1;">
+            <div style="font-weight: 800; font-size: 11px;">${item.task}</div>
+            <div style="font-size: 10px; color: #555;">Context: ${item.context}</div>
+          </div>
+        `;
+        actionContainer.appendChild(row);
+      });
+
+      const entityContainer = document.getElementById('entitiesList');
+      entityContainer.innerHTML = '';
+      (intel.technical_entities || []).forEach(ent => {
+        const tag = document.createElement('div');
+        tag.className = 'entity-tag';
+        tag.innerHTML = `<span>🏷️</span><span><strong>${ent.term}</strong> <span style="font-size: 8px; color: #777;">(${ent.category || 'Tech'})</span></span>`;
+        entityContainer.appendChild(tag);
+      });
+
+      document.getElementById('markdownPayloadViewer').innerText = intel.agent_prompt_payload || '';
+    }
+
+    function copyAgentEnglish() {
+      navigator.clipboard.writeText(fullEnglishText);
+      const btn = document.getElementById('copyAgentBtn');
+      if (btn) {
+        const orig = btn.innerHTML;
+        btn.innerHTML = '✓ COPIED!';
+        btn.style.background = '#00E575';
+        setTimeout(() => { btn.innerHTML = orig; btn.style.background = ''; }, 2000);
+      }
+      showToast('⚡ Pure English copied to clipboard!', 'success');
+    }
+
+    function copyIntelBrief() {
+      navigator.clipboard.writeText(document.getElementById('briefContent').innerText);
+      showToast('✓ Executive Brief copied!', 'success');
+    }
+
+    function copyAgentPayload() {
+      navigator.clipboard.writeText(document.getElementById('markdownPayloadViewer').innerText);
+      showToast('⚡ Agent Prompt Payload copied!', 'success');
+    }
+
+    async function downloadArtifact(format) {
+      try {
+        const res = await fetch('/api/export', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ segments: currentSegments, full_english: fullEnglishText, format: format })
+        });
+        const data = await res.json();
+        const blob = new Blob([data.content], { type: data.media_type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = data.filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast(`✓ Artifact downloaded: ${data.filename}`, 'success');
+      } catch (err) {
+        showToast('Export error: ' + err.message, 'error');
+      }
+    }
+
+    async function burnSubtitlesVideo() {
+      showToast('🎬 FFmpeg is burning stylized yellow subtitles into video. Please wait...', 'warning', 6000);
+      try {
+        const res = await fetch('/api/burn_subtitles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ filepath: currentFilepath, segments: currentSegments })
+        });
+        const data = await res.json();
+        if (data.status === 'success') {
+          showToast(`✓ Video subtitles hardcoded! Downloading ${data.filename}...`, 'success');
+          const a = document.createElement('a');
+          a.href = data.download_url;
+          a.download = data.filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+        } else {
+          showToast('FFmpeg burning failed: ' + (data.detail || 'Error'), 'error');
+        }
+      } catch (err) {
+        showToast('FFmpeg burn error: ' + err.message, 'error');
+      }
+    }
+
+    async function dispatchToWebhook() {
+      const url = document.getElementById('webhookUrlInput').value.trim();
+      if (!url) { showToast('Enter target webhook URL.', 'warning'); return; }
+      showToast(`🚀 Dispatching to webhook: ${url}...`, 'warning');
+      try {
+        const res = await fetch('/api/dispatch_webhook', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            webhook_url: url,
+            payload: {
+              source_file: currentFilepath,
+              english_transcript: fullEnglishText,
+              segments: currentSegments,
+              agent_intelligence: currentAgentIntel,
+              dispatched_at: new Date().toISOString()
+            }
+          })
+        });
+        const data = await res.json();
+        showToast(`✓ Webhook result: ${data.message}`, data.status === 'success' ? 'success' : 'warning');
+      } catch (err) {
+        showToast('Webhook error: ' + err.message, 'error');
+      }
+    }
+
+    async function pollGpu() {
+      try {
+        const res = await fetch('/api/gpu');
+        const data = await res.json();
+        if (data.available) {
+          document.getElementById('headerGpu').innerText = `CUDA 12 [${data.vram_used_mb} MB / ${data.vram_total_mb} MB]`;
+          document.getElementById('telemetryHardware').innerText = `GPU THERMAL: ${data.temp_c}°C // VRAM USAGE: ${data.vram_used_mb} MB / ${data.vram_total_mb} MB`;
+        }
+      } catch (e) {}
+    }
+    setInterval(pollGpu, 3000);
+    pollGpu();
+
+    function setRoute(isTranslate) {
+      alwaysTranslate = isTranslate;
+      document.getElementById('routeTranslate').classList.toggle('selected', isTranslate);
+      document.getElementById('routeVerbatim').classList.toggle('selected', !isTranslate);
+      document.getElementById('headerTarget').innerText = isTranslate ? "PURE ENGLISH FOR AGENTS" : "VERBATIM SCRIPT (ARCHIVE)";
+      document.getElementById('step2Sub').innerText = isTranslate ? "Auto-Translate to English" : "Verbatim Spoken Dialect";
+    }
+
+    function setPipelineStep(step) {
+      for (let i = 1; i <= 4; i++) {
+        const el = document.getElementById(`step${i}`);
+        if (i === step) el.classList.add('active'); else el.classList.remove('active');
+      }
+    }
+
+    // Initial page mount
+    window.addEventListener('DOMContentLoaded', () => {
+      audioEl.src = "/api/audio/WhatsApp%20Ptt%202026-10-30%20at%2020.43.05.ogg";
+      audioEl.load();
+      updateLlmBadges();
+      renderTeleprinterLanes(currentSegments);
+      renderSubtitleStudio(currentSegments);
+      renderAgentIntelligence(currentAgentIntel);
+    });
+  </script>
+</body>
+</html>

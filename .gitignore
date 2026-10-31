@@ -1,0 +1,28 @@
+# Agents & Skills
+.agents/
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Audio Uploads & Generated Stems
+uploads/*
+!uploads/.gitkeep
+uploads/stems/*
+!uploads/stems/.gitkeep
+
+# IDE & OS Artifacts
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.vscode/
+.idea/
