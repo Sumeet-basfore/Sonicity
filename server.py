@@ -98,6 +98,15 @@ async def serve_ui():
     return HTMLResponse(content="<h1>SonicScribe UI not found. Check prototypes directory.</h1>", status_code=404)
 
 
+@app.get("/marked.min.js")
+async def serve_marked_js():
+    """Serve local vendored marked.js library for offline markdown rendering."""
+    marked_path = PROTOTYPES_DIR / "marked.min.js"
+    if marked_path.exists():
+        return FileResponse(str(marked_path), media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="marked.min.js not found")
+
+
 @app.get("/api/gpu")
 async def get_gpu_telemetry():
     """Return live NVIDIA RTX 3050 hardware metrics."""

@@ -487,7 +487,8 @@ def chat_with_transcript(
         "STRICT RULES:\n"
         "1. Whenever you reference or cite an event, fact, or statement, you MUST cite the start timestamp in square brackets like [00:15.80] so the user can click it to jump the audio playback.\n"
         "2. Keep answers concise, factual, and direct.\n"
-        "3. If the transcript does not contain the answer, state that clearly."
+        "3. Format your response with clean Markdown (using bold keys, bullet points, headers, or code blocks where appropriate).\n"
+        "4. If the transcript does not contain the answer, state that clearly."
     )
 
     prompt = f"Timestamped Audio Transcript:\n{transcript_block}\n\nUser Question: {question}\n\nAnswer (with [MM:SS.SS] timestamp citations):"

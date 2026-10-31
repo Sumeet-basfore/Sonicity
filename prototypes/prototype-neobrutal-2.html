@@ -7,6 +7,14 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=JetBrains+Mono:ital,wght@0,400;0,700;0,800;1,400&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet">
+  <script src="/marked.min.js"></script>
+  <script>
+    if (typeof marked === 'undefined') {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/marked/marked.min.js';
+      document.head.appendChild(s);
+    }
+  </script>
   <style>
     :root {
       --paper: #EFECE6;
@@ -398,6 +406,103 @@
     }
     .timestamp-jump-btn:hover { background: var(--toxic-green); color: var(--ink); }
     .chat-input-bar { display: flex; gap: 8px; align-items: center; }
+
+    /* TAB 4 MARKDOWN STYLING */
+    .chat-bubble.bot .markdown-body {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--ink);
+    }
+    .chat-bubble.bot .markdown-body p {
+      margin-bottom: 8px;
+    }
+    .chat-bubble.bot .markdown-body p:last-child {
+      margin-bottom: 0;
+    }
+    .chat-bubble.bot .markdown-body h1,
+    .chat-bubble.bot .markdown-body h2,
+    .chat-bubble.bot .markdown-body h3,
+    .chat-bubble.bot .markdown-body h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      color: var(--ink);
+      margin: 10px 0 6px 0;
+      line-height: 1.25;
+    }
+    .chat-bubble.bot .markdown-body h1 { font-size: 15px; border-bottom: 2px solid var(--ink); padding-bottom: 4px; }
+    .chat-bubble.bot .markdown-body h2 { font-size: 14px; border-bottom: 1.5px solid #CCC; padding-bottom: 2px; }
+    .chat-bubble.bot .markdown-body h3 { font-size: 13px; color: var(--safety-orange); }
+    .chat-bubble.bot .markdown-body h4 { font-size: 12px; }
+    .chat-bubble.bot .markdown-body ul,
+    .chat-bubble.bot .markdown-body ol {
+      margin: 6px 0 8px 20px;
+      padding-left: 0;
+    }
+    .chat-bubble.bot .markdown-body li {
+      margin-bottom: 4px;
+    }
+    .chat-bubble.bot .markdown-body code {
+      background: #EAE6DF;
+      color: #0A0A0A;
+      border: 1px solid #CCC;
+      padding: 1px 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      border-radius: 2px;
+    }
+    .chat-bubble.bot .markdown-body pre {
+      background: #0A0D10;
+      color: #38BDF8;
+      border: 2px solid var(--ink);
+      box-shadow: 2px 2px 0px var(--ink);
+      padding: 10px 12px;
+      margin: 8px 0;
+      overflow-x: auto;
+    }
+    .chat-bubble.bot .markdown-body pre code {
+      background: transparent;
+      color: inherit;
+      border: none;
+      padding: 0;
+      font-size: 11px;
+      font-weight: 400;
+    }
+    .chat-bubble.bot .markdown-body blockquote {
+      border-left: 3.5px solid var(--safety-orange);
+      background: #F7F5F0;
+      padding: 6px 12px;
+      margin: 8px 0;
+      color: #333;
+      font-style: italic;
+    }
+    .chat-bubble.bot .markdown-body table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0;
+      font-size: 11px;
+      border: 2px solid var(--ink);
+    }
+    .chat-bubble.bot .markdown-body th,
+    .chat-bubble.bot .markdown-body td {
+      border: 1px solid var(--ink);
+      padding: 6px 10px;
+      text-align: left;
+    }
+    .chat-bubble.bot .markdown-body th {
+      background: var(--paper-dark);
+      font-weight: 800;
+    }
+    .chat-bubble.bot .markdown-body hr {
+      border: none;
+      border-top: 2px dashed var(--ink);
+      margin: 10px 0;
+    }
+    .chat-bubble.bot .markdown-body a {
+      color: var(--electric-blue);
+      text-decoration: underline;
+      font-weight: 700;
+    }
 
     /* EXPORT BAR */
     .export-spec-bar {
@@ -1479,7 +1584,9 @@ Oh cigarette daydreams..."></textarea>
               <div class="chat-history-container" id="chatHistoryContainer">
                 <div class="chat-bubble bot">
                   <div class="chat-meta">SYSTEM // SONICSCRIBE ASSISTANT</div>
-                  <div>Ask me anything about this audio transcript. I will cite exact timestamps like <button class="timestamp-jump-btn" onclick="seekAudio(15.80)">[00:15.80]</button> that you can click to jump playback!</div>
+                  <div class="markdown-body">
+                    <p>Ask me anything about this audio transcript. I will cite exact timestamps like <button class="timestamp-jump-btn" onclick="seekAudio(15.80)">[00:15.80]</button> that you can click to jump playback!</p>
+                  </div>
                 </div>
               </div>
               <div class="chat-input-bar">
@@ -3599,6 +3706,66 @@ Oh cigarette daydreams..."></textarea>
       tx.oncomplete = () => { loadSessionsFromDB(); showToast('Vault cleared', 'warning'); };
     }
 
+    // MARKDOWN PARSER WITH TIMESTAMP CITATION ANCHORING
+    function fallbackMarkdown(md) {
+      if (!md) return '';
+      let esc = String(md)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Code blocks
+      esc = esc.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (m, lang, code) => {
+        return `<pre><code>${code}</code></pre>`;
+      });
+
+      // Inline code
+      esc = esc.replace(/`([^`]+)`/g, '<code>$1</code>');
+
+      // Headings
+      esc = esc.replace(/^### (.*$)/gim, '<h3>$1</h3>');
+      esc = esc.replace(/^## (.*$)/gim, '<h2>$1</h2>');
+      esc = esc.replace(/^# (.*$)/gim, '<h1>$1</h1>');
+
+      // Bold & Italic
+      esc = esc.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      esc = esc.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+      // Blockquotes
+      esc = esc.replace(/^\> (.*$)/gim, '<blockquote>$1</blockquote>');
+
+      // Unordered lists
+      esc = esc.replace(/^\s*[\-\*] (.*$)/gim, '<li>$1</li>');
+      esc = esc.replace(/((?:<li>.*<\/li>\s*)+)/gim, '<ul>$1</ul>');
+
+      // Paragraphs
+      esc = esc.replace(/\n\n+/g, '</p><p>');
+      return `<p>${esc}</p>`;
+    }
+
+    function renderMarkdownSafely(rawMd) {
+      if (!rawMd) return '';
+      let html = '';
+      if (typeof marked !== 'undefined' && marked.parse) {
+        try {
+          html = marked.parse(rawMd, { breaks: true, gfm: true });
+        } catch (e) {
+          html = fallbackMarkdown(rawMd);
+        }
+      } else {
+        html = fallbackMarkdown(rawMd);
+      }
+
+      // Convert timestamp citations [MM:SS.SS] or [MM:SS] to clickable jump buttons
+      html = html.replace(/\[(\d{1,2}:\d{2}(?:\.\d{1,3})?)\]/g, (match, p1) => {
+        const parts = p1.split(':');
+        const secs = parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
+        return `<button class="timestamp-jump-btn" onclick="seekAudio(${secs})">[${p1}]</button>`;
+      });
+
+      return html;
+    }
+
     // CHAT WITH TRANSCRIPT (TAB 4)
     async function sendChatMessage() {
       const input = document.getElementById('chatInput');
@@ -3611,7 +3778,7 @@ Oh cigarette daydreams..."></textarea>
       // Append user bubble
       const uBubble = document.createElement('div');
       uBubble.className = 'chat-bubble user';
-      uBubble.innerHTML = `<div class="chat-meta">YOU</div><div>${q}</div>`;
+      uBubble.innerHTML = `<div class="chat-meta">YOU</div><div>${escapeHtml(q)}</div>`;
       history.appendChild(uBubble);
       history.scrollTop = history.scrollHeight;
 
@@ -3621,7 +3788,7 @@ Oh cigarette daydreams..."></textarea>
       const bBubble = document.createElement('div');
       bBubble.className = 'chat-bubble bot';
       bBubble.id = 'botLoadingBubble';
-      bBubble.innerHTML = `<div class="chat-meta">SYSTEM // ${provName}</div><div>⏳ Searching audio transcript for citations...</div>`;
+      bBubble.innerHTML = `<div class="chat-meta">SYSTEM // ${provName}</div><div class="markdown-body">⏳ Searching audio transcript for citations...</div>`;
       history.appendChild(bBubble);
       history.scrollTop = history.scrollHeight;
 
@@ -3640,18 +3807,13 @@ Oh cigarette daydreams..."></textarea>
         const data = await res.json();
         let answerText = data.answer || "No response received.";
 
-        // Convert [MM:SS.SS] or [MM:SS] to clickable jump buttons
-        const formattedAnswer = answerText.replace(/\[(\d{1,2}:\d{2}(?:\.\d{1,3})?)\]/g, (match, p1) => {
-          const parts = p1.split(':');
-          const secs = parseFloat(parts[0]) * 60 + parseFloat(parts[1]);
-          return `<button class="timestamp-jump-btn" onclick="seekAudio(${secs})">[${p1}]</button>`;
-        });
+        const renderedHtml = renderMarkdownSafely(answerText);
 
         bBubble.id = '';
-        bBubble.innerHTML = `<div class="chat-meta">SYSTEM // ${provName}</div><div>${formattedAnswer}</div>`;
+        bBubble.innerHTML = `<div class="chat-meta">SYSTEM // ${provName}</div><div class="markdown-body">${renderedHtml}</div>`;
         history.scrollTop = history.scrollHeight;
       } catch (err) {
-        bBubble.innerHTML = `<div class="chat-meta">SYSTEM // ERROR</div><div style="color: red;">Query failed: ${err.message}</div>`;
+        bBubble.innerHTML = `<div class="chat-meta">SYSTEM // ERROR</div><div style="color: red;">Query failed: ${escapeHtml(err.message)}</div>`;
       }
     }
 
