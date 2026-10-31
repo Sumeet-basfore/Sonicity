@@ -8,8 +8,22 @@ cd "$SCRIPT_DIR"
 
 if [ ! -d "venv" ]; then
     echo "Creating virtual environment with uv..."
-    ~/.local/bin/uv venv --python 3.11 venv
-    ~/.local/bin/uv pip install --python venv/bin/python faster-whisper fastapi uvicorn yt-dlp requests nvidia-cublas-cu12 nvidia-cudnn-cu12
+    if command -v uv &> /dev/null; then
+        UV_BIN="uv"
+    elif [ -f "$HOME/.local/bin/uv" ]; then
+        UV_BIN="$HOME/.local/bin/uv"
+    else
+        echo "Installing uv package manager..."
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        UV_BIN="$HOME/.local/bin/uv"
+    fi
+
+    $UV_BIN venv --python 3.11 venv || python3 -m venv venv
+    if [ -f "$UV_BIN" ] || command -v uv &> /dev/null; then
+        $UV_BIN pip install --python venv/bin/python -r requirements.txt
+    else
+        ./venv/bin/pip install -r requirements.txt
+    fi
 fi
 
 # Export NVIDIA dynamic libraries for CTranslate2 CUDA acceleration
