@@ -514,97 +514,106 @@
       width: 70px; background: #161B22; color: var(--toxic-green); border: 1.5px solid #444; padding: 3px 4px; font-family: 'JetBrains Mono', monospace; font-size: 10px; font-weight: 800; text-align: center;
     }
 
-    /* TAB 5: APPLE MUSIC 3D AURORA & PER-LETTER SYNCED LYRICS */
+    /* TAB 5: APPLE MUSIC 3D FLUID AURORA & CYBER-BRUTALIST LYRICS CHASSIS */
     .lyrics-stage {
       position: relative;
-      background: #06080F;
+      background: #07090F;
       color: #FFFFFF;
-      min-height: 520px;
+      min-height: 540px;
       display: flex;
       flex-direction: column;
       border: var(--border-thick);
       box-shadow: var(--shadow-hard);
       overflow: hidden;
       perspective: 1200px;
+      transition: all 0.3s ease;
     }
 
-    /* 3D Moving Gradient Aurora Backdrop */
-    .lyrics-aurora-backdrop {
+    /* Fullscreen Big Stage Mode */
+    .lyrics-stage.is-fullscreen {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      min-height: 100vh !important;
+      z-index: 999999 !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+    }
+    .lyrics-stage.is-fullscreen .lyrics-viewport {
+      height: calc(100vh - 160px) !important;
+      max-height: none !important;
+      padding: 90px 12% 130px 12% !important;
+    }
+    .lyrics-stage.is-fullscreen .lyric-text-container {
+      font-size: 38px !important;
+      line-height: 1.4 !important;
+      gap: 14px !important;
+    }
+    .lyrics-stage.is-fullscreen .lyric-line {
+      margin: 18px 0 !important;
+      padding: 16px 24px !important;
+    }
+    .lyrics-stage.is-fullscreen .lyrics-chassis-header {
+      padding: 14px 24px;
+      font-size: 11px;
+    }
+
+    /* Industrial Terminal Chassis Bars */
+    .lyrics-chassis-header {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      padding: 9px 16px;
+      background: #0D1118;
+      border-bottom: 2.5px solid var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px;
+      font-weight: 800;
+      color: #AAA;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .lyrics-chassis-footer {
+      position: relative;
+      z-index: 4;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 6px 16px;
+      background: #0D1118;
+      border-top: 2px solid var(--ink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #888;
+    }
+
+    /* 3D Moving Gradient Aurora Canvas */
+    #lyrics3DCanvas {
       position: absolute;
-      top: -25%;
-      left: -25%;
-      width: 150%;
-      height: 150%;
-      pointer-events: none;
+      inset: 0;
+      width: 100%;
+      height: 100%;
       z-index: 1;
-      overflow: hidden;
-    }
-    .aurora-blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(85px);
-      mix-blend-mode: screen;
-      opacity: 0.70;
-      will-change: transform;
-    }
-    .aurora-blob-1 {
-      width: 550px;
-      height: 550px;
-      background: radial-gradient(circle, #FF2A85 0%, rgba(255, 42, 133, 0) 70%);
-      top: 10%;
-      left: 15%;
-      animation: auroraMove1 22s ease-in-out infinite alternate;
-    }
-    .aurora-blob-2 {
-      width: 600px;
-      height: 600px;
-      background: radial-gradient(circle, #0052D4 0%, rgba(0, 82, 212, 0) 70%);
-      top: 35%;
-      right: 15%;
-      animation: auroraMove2 26s ease-in-out infinite alternate;
-    }
-    .aurora-blob-3 {
-      width: 500px;
-      height: 500px;
-      background: radial-gradient(circle, #00E575 0%, rgba(0, 229, 117, 0) 70%);
-      bottom: 10%;
-      left: 30%;
-      animation: auroraMove3 20s ease-in-out infinite alternate;
-    }
-    .aurora-blob-4 {
-      width: 520px;
-      height: 520px;
-      background: radial-gradient(circle, #8A2BE2 0%, rgba(138, 43, 226, 0) 70%);
-      top: 20%;
-      right: 30%;
-      animation: auroraMove4 28s ease-in-out infinite alternate;
+      pointer-events: none;
+      display: block;
     }
     .aurora-glass-blur {
       position: absolute;
       inset: 0;
-      backdrop-filter: blur(45px) saturate(170%);
-      background: radial-gradient(ellipse at center, rgba(6, 8, 15, 0.35) 0%, rgba(6, 8, 15, 0.78) 100%);
-    }
-
-    @keyframes auroraMove1 {
-      0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-      50%  { transform: translate3d(130px, 90px, 0) scale(1.15) rotate(90deg); }
-      100% { transform: translate3d(-70px, 150px, 0) scale(0.9) rotate(180deg); }
-    }
-    @keyframes auroraMove2 {
-      0%   { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
-      50%  { transform: translate3d(-150px, -100px, 0) scale(1.2) rotate(-110deg); }
-      100% { transform: translate3d(-90px, 110px, 0) scale(0.95) rotate(-220deg); }
-    }
-    @keyframes auroraMove3 {
-      0%   { transform: translate3d(0, 0, 0) scale(0.95); }
-      50%  { transform: translate3d(-110px, -120px, 0) scale(1.22); }
-      100% { transform: translate3d(90px, -60px, 0) scale(1.05); }
-    }
-    @keyframes auroraMove4 {
-      0%   { transform: translate3d(0, 0, 0) scale(1); }
-      50%  { transform: translate3d(100px, -110px, 0) scale(0.88); }
-      100% { transform: translate3d(-120px, 80px, 0) scale(1.18); }
+      z-index: 2;
+      pointer-events: none;
+      backdrop-filter: blur(48px) saturate(180%);
+      background: radial-gradient(ellipse at center, rgba(7, 9, 15, 0.25) 0%, rgba(7, 9, 15, 0.72) 100%);
     }
 
     .lyrics-toolbar {
@@ -615,10 +624,10 @@
       align-items: center;
       flex-wrap: wrap;
       gap: 10px;
-      padding: 12px 18px;
-      background: rgba(16, 20, 29, 0.85);
-      backdrop-filter: blur(10px);
-      border-bottom: 2.5px solid var(--ink);
+      padding: 10px 18px;
+      background: rgba(14, 18, 26, 0.82);
+      backdrop-filter: blur(14px);
+      border-bottom: 2px solid rgba(255, 255, 255, 0.1);
     }
     .lyrics-meta-group {
       display: flex;
@@ -644,19 +653,59 @@
       gap: 6px;
       flex-wrap: wrap;
     }
+
     .lyrics-viewport {
       position: relative;
-      z-index: 2;
+      z-index: 3;
       flex: 1;
       height: 480px;
       max-height: 520px;
       overflow-y: auto;
       scroll-behavior: smooth;
-      padding: 50px 32px;
+      padding: 50px 36px;
       background: transparent;
     }
+
+    /* CENTER ALIGNED STAGE (Apple Music Default) */
+    .lyrics-viewport.center-aligned .lyric-line {
+      justify-content: center !important;
+      text-align: center !important;
+      transform-origin: center center !important;
+      border-left: none !important;
+      border-bottom: 3.5px solid transparent;
+    }
+    .lyrics-viewport.center-aligned .lyric-line.active-line {
+      border-bottom: 3.5px solid var(--toxic-green);
+    }
+    .lyrics-viewport.center-aligned .lyric-text-container {
+      justify-content: center !important;
+      text-align: center !important;
+    }
+    .lyrics-viewport.center-aligned .lyric-time-tag {
+      display: none !important;
+    }
+
+    /* LEFT ALIGNED STAGE (Studio Teleprompter) */
+    .lyrics-viewport.left-aligned .lyric-line {
+      justify-content: flex-start !important;
+      text-align: left !important;
+      transform-origin: left center !important;
+      border-left: 4px solid transparent;
+      border-bottom: none !important;
+    }
+    .lyrics-viewport.left-aligned .lyric-line.active-line {
+      border-left: 4px solid var(--toxic-green);
+    }
+    .lyrics-viewport.left-aligned .lyric-text-container {
+      justify-content: flex-start !important;
+      text-align: left !important;
+    }
+    .lyrics-viewport.left-aligned .lyric-time-tag {
+      display: inline-block !important;
+    }
+
     .lyrics-stanza {
-      margin-bottom: 38px;
+      margin-bottom: 40px;
     }
     .lyrics-stanza-title {
       display: inline-block;
@@ -680,11 +729,9 @@
       display: flex;
       align-items: baseline;
       gap: 16px;
-      opacity: 0.36;
+      opacity: 0.35;
       filter: blur(0.5px);
       transform: scale(0.96) translateZ(0);
-      transform-origin: left center;
-      border-left: 4px solid transparent;
       user-select: none;
     }
     .lyric-line:hover {
@@ -697,7 +744,6 @@
       filter: blur(0px);
       transform: scale(1.05) translateZ(0);
       background: rgba(255, 255, 255, 0.08);
-      border-left: 4px solid var(--toxic-green);
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 25px rgba(0, 229, 117, 0.25);
       backdrop-filter: blur(8px);
     }
@@ -746,7 +792,64 @@
     }
     .lyric-char.sung {
       color: #FFFFFF !important;
-      text-shadow: 0 0 14px rgba(255, 255, 255, 0.95), 0 0 28px rgba(0, 229, 117, 0.7), 0 0 45px rgba(255, 42, 133, 0.4);
+      text-shadow: 0 0 14px rgba(255, 255, 255, 0.95), 0 0 28px var(--toxic-green), 0 0 45px #FF2A85;
+    }
+
+    /* THEME: SPEC-09 INDUSTRIAL */
+    .lyrics-stage.theme-spec09 .lyric-char.sung {
+      text-shadow: 0 0 14px #FFFFFF, 0 0 26px var(--toxic-green), 0 0 38px var(--acid-yellow);
+    }
+    .lyrics-stage.theme-spec09 .lyric-line.active-line {
+      border-color: var(--acid-yellow) !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 240, 0, 0.3);
+    }
+
+    /* THEME: NEON KARAOKE CLUB */
+    .lyrics-stage.theme-karaoke .lyric-char.sung {
+      text-shadow: 0 0 14px #FFFFFF, 0 0 28px #FF007F, 0 0 45px #00F0FF;
+    }
+    .lyrics-stage.theme-karaoke .lyric-line.active-line {
+      border-color: #FF007F !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 30px rgba(255, 0, 127, 0.45);
+    }
+
+    /* THEME: SOLAR AMBER */
+    .lyrics-stage.theme-solar .lyric-char.sung {
+      text-shadow: 0 0 14px #FFFFFF, 0 0 26px #FFB800, 0 0 42px #FF3D00;
+    }
+    .lyrics-stage.theme-solar .lyric-line.active-line {
+      border-color: #FFB800 !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 25px rgba(255, 184, 0, 0.35);
+    }
+
+    /* THEME: BIT-PERFECT MONOCHROME */
+    .lyrics-stage.theme-monochrome .lyric-char.sung {
+      text-shadow: 0 0 14px #FFFFFF, 0 0 24px rgba(255, 255, 255, 0.8);
+    }
+    .lyrics-stage.theme-monochrome .lyric-line.active-line {
+      border-color: #FFFFFF !important;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    /* FLOATING FULLSCREEN PLAYER DOCK */
+    .lyrics-fullscreen-dock {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      display: none;
+      align-items: center;
+      gap: 14px;
+      background: rgba(14, 18, 26, 0.90);
+      backdrop-filter: blur(20px);
+      border: 2.5px solid var(--ink);
+      box-shadow: 5px 5px 0px rgba(0, 0, 0, 0.7);
+      padding: 10px 22px;
+      border-radius: 6px;
+    }
+    .lyrics-stage.is-fullscreen .lyrics-fullscreen-dock {
+      display: flex;
     }
     }
 
@@ -1386,17 +1489,31 @@ Oh cigarette daydreams..."></textarea>
             </div>
           </div>
 
-          <!-- TAB 5: APPLE MUSIC SYNCED LYRICS -->
+          <!-- TAB 5: APPLE MUSIC 3D FLUID AURORA & CYBER-BRUTALIST LYRICS CHASSIS -->
           <div id="tabPanel5" style="display: none;">
-            <div class="lyrics-stage">
-              <!-- 3D MOVING GRADIENT AURORA BACKDROP -->
-              <div class="lyrics-aurora-backdrop" id="lyricsAurora">
-                <div class="aurora-blob aurora-blob-1"></div>
-                <div class="aurora-blob aurora-blob-2"></div>
-                <div class="aurora-blob aurora-blob-3"></div>
-                <div class="aurora-blob aurora-blob-4"></div>
-                <div class="aurora-glass-blur"></div>
+            <div class="lyrics-stage theme-aurora" id="lyricsStage">
+              <!-- INDUSTRIAL TERMINAL HEADER -->
+              <div class="lyrics-chassis-header">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                  <span style="display: inline-block; width: 7px; height: 7px; background: var(--toxic-green); border-radius: 50%; box-shadow: 0 0 8px var(--toxic-green);"></span>
+                  <span>CH-05 // ACOUSTIC FLUID LYRICS ENGINE</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <button class="btn-tactile" id="lyricAlignBtn" style="font-size: 8.5px; padding: 3px 8px; background: #FFF;" onclick="toggleLyricAlignment()">
+                    <span id="alignBtnText">≡ CENTER</span>
+                  </button>
+                  <button class="btn-tactile" id="lyricThemeBtn" style="font-size: 8.5px; padding: 3px 8px; background: #FFF;" onclick="cycleLyricTheme()">
+                    <span id="themeBtnText">🎨 AURORA</span>
+                  </button>
+                  <button class="btn-tactile" id="lyricFullscreenBtn" style="font-size: 8.5px; padding: 3px 8px; background: var(--acid-yellow); color: #000;" onclick="toggleLyricFullscreen()">
+                    <span id="fullscreenBtnText">⤢ FULLSCREEN [F]</span>
+                  </button>
+                </div>
               </div>
+
+              <!-- 3D MOVING GRADIENT AURORA CANVAS & FROSTED GLASS OVERLAY -->
+              <canvas id="lyrics3DCanvas"></canvas>
+              <div class="aurora-glass-blur"></div>
 
               <div class="lyrics-toolbar">
                 <div class="lyrics-meta-group">
@@ -1416,7 +1533,9 @@ Oh cigarette daydreams..."></textarea>
                   <button class="btn-tactile" style="font-size: 9px; padding: 4px 8px; background: var(--paper-dark);" onclick="realignLyricsWithLlm()">⚡ RE-SYNC LLM</button>
                 </div>
               </div>
-              <div class="lyrics-viewport" id="lyricsViewport">
+
+              <!-- LYRICS VIEWPORT (CENTER ALIGNED BY DEFAULT) -->
+              <div class="lyrics-viewport center-aligned" id="lyricsViewport">
                 <div style="text-align: center; color: #888; padding: 80px 20px;">
                   <div style="font-size: 38px; margin-bottom: 12px;">🎵</div>
                   <div style="font-size: 15px; font-weight: 800; color: #FFF; letter-spacing: -0.3px;">APPLE MUSIC-STYLE PER-LETTER SYNCED LYRICS</div>
@@ -1430,6 +1549,31 @@ Oh cigarette daydreams..."></textarea>
                   </div>
                 </div>
               </div>
+
+              <!-- INDUSTRIAL TERMINAL FOOTER -->
+              <div class="lyrics-chassis-footer">
+                <div>BIT-PERFECT ACOUSTIC SYNC: 100% // WHISPER CUDA INT8_FLOAT16</div>
+                <div id="lyricsStageFooterStatus">ACTIVE STEM: MASTER MIX // CLICK ANY WORD TO SEEK</div>
+              </div>
+
+              <!-- FLOATING FULLSCREEN PLAYER DOCK -->
+              <div class="lyrics-fullscreen-dock" id="lyricsFullscreenDock">
+                <button class="btn-tactile" id="fsPlayBtn" style="background: var(--toxic-green); padding: 7px 14px; font-size: 10px; font-weight: 800;" onclick="togglePlay()">▶ PLAY [Space]</button>
+                
+                <div style="display: flex; align-items: center; gap: 8px; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #FFF;">
+                  <span id="fsTimeDisplay">00:00.00 / 03:04.00</span>
+                  <input type="range" id="fsProgressRange" min="0" max="100" value="0" style="width: 170px; accent-color: var(--toxic-green); cursor: pointer;" oninput="seekAudioFraction(this.value / 100)">
+                </div>
+
+                <div style="display: flex; gap: 4px;">
+                  <button class="btn-tactile" id="fsStemMasterBtn" style="font-size: 8px; padding: 5px 7px; background: var(--toxic-green); color: #000;" onclick="selectAudioStem('master')">🎵 MASTER</button>
+                  <button class="btn-tactile" id="fsStemVocalsBtn" style="font-size: 8px; padding: 5px 7px; background: #FFF;" onclick="selectAudioStem('vocals')">🎤 ACAPELLA</button>
+                  <button class="btn-tactile" id="fsStemKaraokeBtn" style="font-size: 8px; padding: 5px 7px; background: #FFF;" onclick="selectAudioStem('karaoke')">🎸 KARAOKE</button>
+                </div>
+
+                <button class="btn-tactile" style="font-size: 8.5px; padding: 5px 8px; background: var(--paper-dark);" onclick="toggleLyricFullscreen()">✕ EXIT (ESC)</button>
+              </div>
+
             </div>
           </div>
 
@@ -1546,9 +1690,7 @@ Oh cigarette daydreams..."></textarea>
 
     audioEl.addEventListener('ended', () => {
       isPlaying = false;
-      document.getElementById('playBtn').innerText = '▶ PLAY [Space]';
-      document.getElementById('playBtn').style.background = '#FFFFFF';
-      document.getElementById('playBtn').style.color = '#0A0A0A';
+      syncPlayPauseButtons(false);
     });
 
     function formatSeconds(sec) {
@@ -1568,24 +1710,33 @@ Oh cigarette daydreams..."></textarea>
         .replace(/'/g, '&#039;');
     }
 
+    function syncPlayPauseButtons(playing) {
+      const playBtn = document.getElementById('playBtn');
+      if (playBtn) {
+        playBtn.innerText = playing ? '⏸ PAUSE [Space]' : '▶ PLAY [Space]';
+        playBtn.style.background = playing ? '#FF4A00' : '#FFFFFF';
+        playBtn.style.color = playing ? '#FFFFFF' : '#0A0A0A';
+      }
+      const fsPlayBtn = document.getElementById('fsPlayPauseBtn');
+      if (fsPlayBtn) {
+        fsPlayBtn.innerText = playing ? '⏸' : '▶';
+      }
+    }
+
     function togglePlayAudio() {
       initAudioContext();
       if (audioEl.paused) {
         audioEl.play().then(() => {
           isPlaying = true;
-          document.getElementById('playBtn').innerText = '⏸ PAUSE [Space]';
-          document.getElementById('playBtn').style.background = '#FF4A00';
-          document.getElementById('playBtn').style.color = '#FFFFFF';
+          syncPlayPauseButtons(true);
         }).catch(err => {
           isPlaying = !isPlaying;
-          document.getElementById('playBtn').innerText = isPlaying ? '⏸ PAUSE' : '▶ PLAY [Space]';
+          syncPlayPauseButtons(isPlaying);
         });
       } else {
         audioEl.pause();
         isPlaying = false;
-        document.getElementById('playBtn').innerText = '▶ PLAY [Space]';
-        document.getElementById('playBtn').style.background = '#FFFFFF';
-        document.getElementById('playBtn').style.color = '#0A0A0A';
+        syncPlayPauseButtons(false);
       }
     }
 
@@ -1595,9 +1746,7 @@ Oh cigarette daydreams..."></textarea>
       if (audioEl.paused) {
         audioEl.play().catch(() => {});
         isPlaying = true;
-        document.getElementById('playBtn').innerText = '⏸ PAUSE [Space]';
-        document.getElementById('playBtn').style.background = '#FF4A00';
-        document.getElementById('playBtn').style.color = '#FFFFFF';
+        syncPlayPauseButtons(true);
       }
     }
 
@@ -1714,6 +1863,11 @@ Oh cigarette daydreams..."></textarea>
       document.getElementById('tabPanel3').style.display = (tabNum === 3) ? 'block' : 'none';
       document.getElementById('tabPanel4').style.display = (tabNum === 4) ? 'block' : 'none';
       document.getElementById('tabPanel5').style.display = (tabNum === 5) ? 'block' : 'none';
+
+      if (tabNum === 5) {
+        init3DFluidCanvas();
+        setTimeout(resizeFluidCanvas, 40);
+      }
     }
 
     // 🎵 ACOUSTIC PROFILE (SPEECH VS MUSIC) & APPLE MUSIC LYRICS ENGINE
@@ -1806,10 +1960,258 @@ Oh cigarette daydreams..."></textarea>
       }
     }
 
+    // ==========================================
+    // 3D MOVING FLUID GRADIENT ENGINE (APPLE MUSIC STYLE)
+    // ==========================================
+    let fluidCanvas = null;
+    let fluidCtx = null;
+    let fluidAnimId = null;
+    let fluidPoles = [];
+    let fluidTheme = 'aurora';
+    let fluidThemeIndex = 0;
+    const FLUID_THEMES = ['aurora', 'spec09', 'karaoke', 'solar', 'monochrome'];
+    const FLUID_THEME_LABELS = {
+      aurora: '🎨 AURORA',
+      spec09: '⚡ SPEC-09',
+      karaoke: '🎸 KARAOKE',
+      solar: '☀️ SOLAR',
+      monochrome: '🖤 MONO'
+    };
+
+    const FLUID_PALETTES = {
+      aurora: [
+        { r: 255, g: 42, b: 133 },  // Magenta
+        { r: 0, g: 195, b: 255 },   // Cyan
+        { r: 123, g: 44, b: 191 },  // Violet
+        { r: 0, g: 82, b: 212 },    // Royal blue
+        { r: 0, g: 229, b: 117 }    // Emerald
+      ],
+      spec09: [
+        { r: 0, g: 229, b: 117 },   // Toxic Green
+        { r: 255, g: 229, b: 0 },   // Warning Yellow
+        { r: 0, g: 168, b: 255 },   // Electric Blue
+        { r: 20, g: 40, b: 30 },    // Dark Moss
+        { r: 50, g: 80, b: 60 }     // Military Olive
+      ],
+      karaoke: [
+        { r: 255, g: 42, b: 133 },  // Hot Neon Pink
+        { r: 138, g: 43, b: 226 },  // Neon Violet
+        { r: 255, g: 0, b: 85 },    // Crimson Red
+        { r: 0, g: 242, b: 254 },   // Aqua Cyan
+        { r: 255, g: 110, b: 196 }  // Candy Pink
+      ],
+      solar: [
+        { r: 255, g: 74, b: 0 },    // International Orange
+        { r: 255, g: 179, b: 0 },   // Golden Amber
+        { r: 233, g: 30, b: 99 },   // Warm Rose
+        { r: 255, g: 215, b: 0 },   // Molten Gold
+        { r: 180, g: 40, b: 10 }    // Deep Ember
+      ],
+      monochrome: [
+        { r: 255, g: 255, b: 255 }, // Pure White
+        { r: 180, g: 190, b: 200 }, // Silver Frost
+        { r: 100, g: 110, b: 125 }, // Steel Gray
+        { r: 60, g: 65, b: 75 },    // Slate Dark
+        { r: 220, g: 230, b: 240 }  // Polar Ice
+      ]
+    };
+
+    function init3DFluidCanvas() {
+      fluidCanvas = document.getElementById('lyrics3DCanvas');
+      if (!fluidCanvas) return;
+      fluidCtx = fluidCanvas.getContext('2d');
+      resizeFluidCanvas();
+
+      if (fluidPoles.length === 0) {
+        fluidPoles = [
+          { u: 0.1, v: 0.2, z: 0.0, speedU: 0.00045, speedV: 0.00062, speedZ: 0.0008, baseR: 0.45, colorIdx: 0, phase: 0 },
+          { u: 0.8, v: 0.3, z: 0.5, speedU: -0.00052, speedV: 0.00048, speedZ: 0.0007, baseR: 0.50, colorIdx: 1, phase: 1.3 },
+          { u: 0.3, v: 0.8, z: -0.3, speedU: 0.00061, speedV: -0.00041, speedZ: 0.0006, baseR: 0.42, colorIdx: 2, phase: 2.7 },
+          { u: 0.7, v: 0.7, z: 0.2, speedU: -0.00038, speedV: -0.00055, speedZ: 0.0009, baseR: 0.48, colorIdx: 3, phase: 4.1 },
+          { u: 0.5, v: 0.5, z: 0.8, speedU: 0.00033, speedV: 0.00037, speedZ: 0.0005, baseR: 0.40, colorIdx: 4, phase: 5.5 }
+        ];
+      }
+
+      if (!fluidAnimId) {
+        render3DFluidFrame();
+      }
+    }
+
+    function resizeFluidCanvas() {
+      if (!fluidCanvas) return;
+      const stage = document.getElementById('lyricsStage');
+      if (!stage) return;
+      const rect = stage.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      const w = Math.max(300, Math.floor(rect.width));
+      const h = Math.max(300, Math.floor(rect.height));
+
+      fluidCanvas.width = Math.floor(w * 0.5 * dpr);
+      fluidCanvas.height = Math.floor(h * 0.5 * dpr);
+    }
+
+    let fluidTime = 0;
+    function render3DFluidFrame() {
+      fluidAnimId = requestAnimationFrame(render3DFluidFrame);
+      if (!fluidCanvas || !fluidCtx) return;
+      const w = fluidCanvas.width;
+      const h = fluidCanvas.height;
+      if (w === 0 || h === 0) return;
+
+      fluidTime += 1;
+
+      let audioPulse = 1.0;
+      if (analyser && isPlaying && !audioEl.paused) {
+        const freq = new Uint8Array(32);
+        analyser.getByteFrequencyData(freq);
+        let bass = 0;
+        for (let i = 0; i < 8; i++) bass += freq[i];
+        bass /= 8;
+        audioPulse = 1.0 + (bass / 255.0) * 0.35;
+      }
+
+      if (fluidTheme === 'spec09') {
+        fluidCtx.fillStyle = '#060B08';
+      } else if (fluidTheme === 'karaoke') {
+        fluidCtx.fillStyle = '#120412';
+      } else if (fluidTheme === 'solar') {
+        fluidCtx.fillStyle = '#140602';
+      } else if (fluidTheme === 'monochrome') {
+        fluidCtx.fillStyle = '#080808';
+      } else {
+        fluidCtx.fillStyle = '#080514';
+      }
+      fluidCtx.fillRect(0, 0, w, h);
+
+      fluidCtx.globalCompositeOperation = 'screen';
+
+      const palette = FLUID_PALETTES[fluidTheme] || FLUID_PALETTES.aurora;
+      const diag = Math.sqrt(w * w + h * h);
+
+      fluidPoles.forEach((p, idx) => {
+        const t = fluidTime * 0.016;
+        const orbitX = 0.5 + 0.38 * Math.sin(t * (0.8 + idx * 0.2) + p.phase) + 0.12 * Math.cos(t * 0.4 + p.phase * 2);
+        const orbitY = 0.5 + 0.35 * Math.cos(t * (0.7 + idx * 0.15) + p.phase) + 0.10 * Math.sin(t * 0.5 - p.phase);
+        const orbitZ = 0.5 + 0.45 * Math.sin(t * 0.6 + p.phase * 1.5);
+
+        const x = orbitX * w;
+        const y = orbitY * h;
+        const zScale = 0.65 + orbitZ * 0.7;
+        const radius = Math.max(40, p.baseR * diag * zScale * audioPulse);
+
+        const color = palette[p.colorIdx % palette.length];
+        const alpha = Math.min(0.9, (0.35 + orbitZ * 0.45) * (audioPulse * 0.95));
+
+        const grad = fluidCtx.createRadialGradient(x, y, 0, x, y, radius);
+        grad.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`);
+        grad.addColorStop(0.45, `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha * 0.55})`);
+        grad.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, 0.0)`);
+
+        fluidCtx.fillStyle = grad;
+        fluidCtx.beginPath();
+        fluidCtx.arc(x, y, radius, 0, Math.PI * 2);
+        fluidCtx.fill();
+      });
+
+      fluidCtx.globalCompositeOperation = 'source-over';
+    }
+
+    // ==========================================
+    // THEMES, ALIGNMENT & FULLSCREEN CONTROLS
+    // ==========================================
+    function setLyricTheme(themeKey) {
+      if (!FLUID_THEMES.includes(themeKey)) themeKey = 'aurora';
+      fluidTheme = themeKey;
+      fluidThemeIndex = FLUID_THEMES.indexOf(themeKey);
+
+      const stage = document.getElementById('lyricsStage');
+      if (stage) {
+        FLUID_THEMES.forEach(t => stage.classList.remove(`theme-${t}`));
+        stage.classList.add(`theme-${themeKey}`);
+      }
+
+      const btnText = document.getElementById('themeBtnText');
+      if (btnText) {
+        btnText.innerText = FLUID_THEME_LABELS[themeKey] || themeKey.toUpperCase();
+      }
+
+      const footerBadge = document.getElementById('lyricsThemeBadge');
+      if (footerBadge) {
+        footerBadge.innerText = (FLUID_THEME_LABELS[themeKey] || themeKey).toUpperCase();
+      }
+
+      showToast(`🎨 Lyrics Theme: ${(FLUID_THEME_LABELS[themeKey] || themeKey)}`, 'info', 1800);
+    }
+
+    function cycleLyricTheme() {
+      fluidThemeIndex = (fluidThemeIndex + 1) % FLUID_THEMES.length;
+      setLyricTheme(FLUID_THEMES[fluidThemeIndex]);
+    }
+
+    let lyricAlignmentMode = 'center';
+    function toggleLyricAlignment() {
+      const viewport = document.getElementById('lyricsViewport');
+      const btnText = document.getElementById('alignBtnText');
+      if (!viewport) return;
+
+      if (lyricAlignmentMode === 'center') {
+        lyricAlignmentMode = 'left';
+        viewport.classList.remove('center-aligned');
+        viewport.classList.add('left-aligned');
+        if (btnText) btnText.innerText = '⫷ LEFT';
+        showToast('≡ Lyrics Alignment: LEFT', 'info', 1500);
+      } else {
+        lyricAlignmentMode = 'center';
+        viewport.classList.remove('left-aligned');
+        viewport.classList.add('center-aligned');
+        if (btnText) btnText.innerText = '≡ CENTER';
+        showToast('≡ Lyrics Alignment: CENTER', 'info', 1500);
+      }
+    }
+
+    function toggleLyricFullscreen() {
+      const stage = document.getElementById('lyricsStage');
+      const btnText = document.getElementById('fullscreenBtnText');
+      if (!stage) return;
+
+      stage.classList.toggle('is-fullscreen');
+      const isFs = stage.classList.contains('is-fullscreen');
+
+      if (btnText) {
+        btnText.innerText = isFs ? '✕ EXIT FULLSCREEN [Esc]' : '⤢ FULLSCREEN [F]';
+      }
+
+      setTimeout(() => {
+        resizeFluidCanvas();
+        if (currentActiveLineEl && isFs) {
+          const viewport = document.getElementById('lyricsViewport');
+          if (viewport) {
+            const vRect = viewport.getBoundingClientRect();
+            const lRect = currentActiveLineEl.getBoundingClientRect();
+            const offset = lRect.top - vRect.top - (viewport.clientHeight / 2) + (currentActiveLineEl.clientHeight / 2);
+            viewport.scrollBy({ top: offset, behavior: 'smooth' });
+          }
+        }
+      }, 50);
+
+      if (isFs) {
+        showToast('⤢ Fullscreen Cinema Overview Active (Press Esc or F to exit)', 'success', 2500);
+      }
+    }
+
+    function seekAudioFraction(pct) {
+      if (!audioEl || !audioEl.duration) return;
+      const targetTime = (parseFloat(pct) / 100) * audioEl.duration;
+      seekAudio(targetTime);
+    }
+
     function renderLyricsStage(data) {
       currentLyricsData = data;
       const container = document.getElementById('lyricsViewport');
       if (!container) return;
+
+      init3DFluidCanvas();
+      setTimeout(resizeFluidCanvas, 30);
 
       if (!data || !data.stanzas || data.stanzas.length === 0) {
         container.innerHTML = `
@@ -1871,6 +2273,18 @@ Oh cigarette daydreams..."></textarea>
 
     function updateLyricsPlayback(time) {
       if (!currentLyricsData) return;
+
+      // Update Fullscreen dock progress and time display
+      const dur = audioEl.duration || 0;
+      const fsTime = document.getElementById('fsTimeDisplay');
+      if (fsTime) {
+        fsTime.innerText = `${formatSeconds(time)} / ${formatSeconds(dur)}`;
+      }
+      const fsRange = document.getElementById('fsProgressRange');
+      if (fsRange && dur > 0) {
+        fsRange.value = ((time / dur) * 100).toFixed(1);
+      }
+
       const lines = document.querySelectorAll('.lyric-line');
       let activeFound = false;
 
@@ -1917,8 +2331,8 @@ Oh cigarette daydreams..."></textarea>
             cEl.style.textShadow = '';
           } else {
             cEl.classList.remove('sung');
-            const dur = Math.max(0.001, cEnd - cStart);
-            const frac = Math.min(1.0, Math.max(0.0, (time - cStart) / dur));
+            const durChar = Math.max(0.001, cEnd - cStart);
+            const frac = Math.min(1.0, Math.max(0.0, (time - cStart) / durChar));
             const pct = Math.round(frac * 100);
             const glowColor = (currentActiveStem === 'karaoke') ? '#FF2A85' : '#00E575';
             cEl.style.background = `linear-gradient(90deg, #FFFFFF ${pct}%, rgba(255, 255, 255, 0.38) ${pct}%)`;
@@ -2632,6 +3046,18 @@ Oh cigarette daydreams..."></textarea>
         }
       }
 
+      // Sync fullscreen dock stem buttons
+      ['master', 'vocals', 'karaoke'].forEach(s => {
+        const fsBtn = document.getElementById('fsStem' + s.charAt(0).toUpperCase() + s.slice(1) + 'Btn');
+        if (fsBtn) {
+          fsBtn.classList.toggle('active', s === stemType);
+        }
+      });
+      const footerStatus = document.getElementById('lyricsStageFooterStatus');
+      if (footerStatus) {
+        footerStatus.innerText = `STEM: ${stemType.toUpperCase()} | 48kHz HI-RES SYNCHRONIZED`;
+      }
+
       audioEl.src = currentStemUrls[stemType];
       audioEl.currentTime = curTime;
       if (wasPlaying) {
@@ -3252,6 +3678,15 @@ Oh cigarette daydreams..."></textarea>
           e.preventDefault();
           seekAudio(audioEl.currentTime + 5);
           showToast('⏭ +5s', 'warning', 1000);
+        } else if (e.code === 'KeyF') {
+          e.preventDefault();
+          toggleLyricFullscreen();
+        } else if (e.code === 'Escape') {
+          const stage = document.getElementById('lyricsStage');
+          if (stage && stage.classList.contains('is-fullscreen')) {
+            e.preventDefault();
+            toggleLyricFullscreen();
+          }
         }
       }
     });
@@ -3699,6 +4134,11 @@ Oh cigarette daydreams..."></textarea>
       renderTeleprinterLanes(currentSegments);
       renderSubtitleStudio(currentSegments);
       renderAgentIntelligence(currentAgentIntel);
+      init3DFluidCanvas();
+    });
+
+    window.addEventListener('resize', () => {
+      resizeFluidCanvas();
     });
   </script>
 </body>
